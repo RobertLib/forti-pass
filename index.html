@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- SEO Meta Tags -->
+    <title>
+      FortiPass - Free Strong Password &amp; Passphrase Generator | Works
+      Offline
+    </title>
+    <meta
+      name="description"
+      content="Free password generator that runs entirely in your browser. Create strong random passwords, memorable passphrases and PINs, see real entropy and crack-time estimates, and check how strong your own password is. No sign-up, no tracking, works offline."
+    />
+    <meta
+      name="keywords"
+      content="password generator, passphrase generator, strong passwords, random password, secure password, password strength checker, entropy, PIN generator, offline password generator, cybersecurity"
+    />
+    <meta name="author" content="Robert Libsansky" />
+    <meta name="robots" content="index, follow" />
+    <meta name="language" content="en" />
+    <meta name="color-scheme" content="dark light" />
+    <meta
+      name="theme-color"
+      content="#0b1020"
+      media="(prefers-color-scheme: dark)"
+    />
+    <meta
+      name="theme-color"
+      content="#f4f6fc"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="FortiPass" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://robertlib.github.io/forti-pass/" />
+    <meta property="og:site_name" content="FortiPass" />
+    <meta
+      property="og:title"
+      content="FortiPass - Free Strong Password &amp; Passphrase Generator"
+    />
+    <meta
+      property="og:description"
+      content="Generate strong passwords, memorable passphrases and PINs directly in your browser. Real entropy and crack-time estimates. Nothing ever leaves your device."
+    />
+    <meta
+      property="og:image"
+      content="https://robertlib.github.io/forti-pass/icon-512.png"
+    />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta
+      property="twitter:url"
+      content="https://robertlib.github.io/forti-pass/"
+    />
+    <meta
+      property="twitter:title"
+      content="FortiPass - Free Strong Password &amp; Passphrase Generator"
+    />
+    <meta
+      property="twitter:description"
+      content="Generate strong passwords, memorable passphrases and PINs directly in your browser. Real entropy and crack-time estimates. Nothing ever leaves your device."
+    />
+    <meta
+      property="twitter:image"
+      content="https://robertlib.github.io/forti-pass/icon-512.png"
+    />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://robertlib.github.io/forti-pass/" />
+
+    <!-- Icons & Manifest -->
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.json" />
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "FortiPass",
+        "description": "Free password and passphrase generator that runs entirely in the browser, with entropy and crack-time estimates and an offline password strength checker.",
+        "url": "https://robertlib.github.io/forti-pass/",
+        "applicationCategory": "SecurityApplication",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires JavaScript",
+        "isAccessibleForFree": true,
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "featureList": [
+          "Random password generator (4-128 characters)",
+          "Memorable passphrase generator",
+          "PIN generator",
+          "Entropy and crack-time estimates",
+          "Offline password strength checker",
+          "Bulk generation, copy and download",
+          "Works offline as an installable app"
+        ],
+        "author": {
+          "@type": "Person",
+          "name": "Robert Libsansky"
+        }
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Are the generated passwords sent anywhere?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. FortiPass runs entirely in your browser. Passwords are created locally with the Web Crypto API and are never transmitted, logged or stored on a server."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How long should a password be?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "For a password you never have to type from memory, use 16 characters or more with all character types. For something you must remember, use a passphrase of 5 or more random words, which is easier to type and just as hard to guess."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What is password entropy?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Entropy measures how unpredictable a password is, in bits. Each extra bit doubles the number of guesses an attacker needs. 60 bits is reasonable, 80 bits is strong and 100 bits or more is excellent for almost any threat model."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is a random passphrase safe?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, when the words are chosen randomly by a computer. FortiPass picks words with a cryptographic random number generator from a list of over 2,200 words, so each word adds about 11 bits: a five-word passphrase has roughly 56 bits of entropy and six words roughly 67 bits."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I use FortiPass offline?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. FortiPass is a progressive web app: after the first visit it is cached and works without a network connection, and it can be installed to your home screen or desktop."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does the strength checker upload my password?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. The strength check is calculated locally in your browser. Nothing you type is sent over the network, and nothing is stored after you close the page."
+            }
+          }
+        ]
+      }
+    </script>
+
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+      // Apply the saved theme before first paint to avoid a flash of the wrong colours.
+      (function () {
+        try {
+          var t = localStorage.getItem("fortipass:theme");
+          if (t === "light" || t === "dark") {
+            document.documentElement.dataset.theme = t;
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#generator">Skip to the generator</a>
+
+    <!-- Icon sprite -->
+    <svg class="sprite" aria-hidden="true" focusable="false">
+      <defs>
+        <symbol id="i-shield" viewBox="0 0 24 24">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          <path d="M9 12l2 2 4-4" />
+        </symbol>
+        <symbol id="i-copy" viewBox="0 0 24 24">
+          <rect x="9" y="9" width="13" height="13" rx="2" />
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+        </symbol>
+        <symbol id="i-check" viewBox="0 0 24 24">
+          <polyline points="20 6 9 17 4 12" />
+        </symbol>
+        <symbol id="i-refresh" viewBox="0 0 24 24">
+          <polyline points="21 4 21 10 15 10" />
+          <polyline points="3 20 3 14 9 14" />
+          <path d="M3.5 9a8.5 8.5 0 0 1 14-3.2L21 9" />
+          <path d="M20.5 15a8.5 8.5 0 0 1-14 3.2L3 15" />
+        </symbol>
+        <symbol id="i-eye" viewBox="0 0 24 24">
+          <path d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z" />
+          <circle cx="12" cy="12" r="3" />
+        </symbol>
+        <symbol id="i-eye-off" viewBox="0 0 24 24">
+          <path
+            d="M17.9 17.9A10 10 0 0 1 12 19.5C5.5 19.5 1.5 12 1.5 12a18.4 18.4 0 0 1 5-5.9M9.9 4.8A10 10 0 0 1 12 4.5c6.5 0 10.5 7.5 10.5 7.5a18.5 18.5 0 0 1-2.2 3.2M14.1 14.1a3 3 0 1 1-4.2-4.2"
+          />
+          <line x1="2" y1="2" x2="22" y2="22" />
+        </symbol>
+        <symbol id="i-download" viewBox="0 0 24 24">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
+        </symbol>
+        <symbol id="i-trash" viewBox="0 0 24 24">
+          <polyline points="3 6 5 6 21 6" />
+          <path
+            d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m5 0V4a2 2 0 0 1 2-2 2 2 0 0 1 2 2v2"
+          />
+        </symbol>
+        <symbol id="i-sun" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="4.2" />
+          <path
+            d="M12 1.5v2.2M12 20.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M1.5 12h2.2M20.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"
+          />
+        </symbol>
+        <symbol id="i-moon" viewBox="0 0 24 24">
+          <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+        </symbol>
+        <symbol id="i-keyboard" viewBox="0 0 24 24">
+          <rect x="2" y="6" width="20" height="12" rx="2" />
+          <path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8" />
+        </symbol>
+        <symbol id="i-close" viewBox="0 0 24 24">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </symbol>
+        <symbol id="i-clock" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="9" />
+          <polyline points="12 7 12 12 15.5 14" />
+        </symbol>
+        <symbol id="i-gauge" viewBox="0 0 24 24">
+          <path d="M4 18a8 8 0 1 1 16 0" />
+          <line x1="12" y1="18" x2="16" y2="10" />
+        </symbol>
+        <symbol id="i-search" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="7.5" />
+          <line x1="21" y1="21" x2="16.5" y2="16.5" />
+        </symbol>
+        <symbol id="i-bolt" viewBox="0 0 24 24">
+          <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z" />
+        </symbol>
+        <symbol id="i-history" viewBox="0 0 24 24">
+          <path d="M3 12a9 9 0 1 0 3-6.7" />
+          <polyline points="3 4 3 9 8 9" />
+          <polyline points="12 8 12 12 15 14" />
+        </symbol>
+        <symbol id="i-warning" viewBox="0 0 24 24">
+          <path d="M12 3l9.5 17H2.5L12 3z" />
+          <line x1="12" y1="9" x2="12" y2="14" />
+          <line x1="12" y1="17" x2="12.01" y2="17" />
+        </symbol>
+      </defs>
+    </svg>
+
+    <div class="backdrop" aria-hidden="true">
+      <span class="orb orb-1"></span>
+      <span class="orb orb-2"></span>
+      <span class="grid-lines"></span>
+    </div>
+
+    <div class="page">
+      <header class="topbar">
+        <a class="brand" href="./" aria-label="FortiPass home">
+          <span class="brand-mark">
+            <svg class="icon" aria-hidden="true"><use href="#i-shield" /></svg>
+          </span>
+          <span class="brand-text">
+            Forti<span class="brand-accent">Pass</span>
+          </span>
+        </a>
+
+        <div class="topbar-actions">
+          <span class="pill pill-quiet" title="Nothing you generate leaves this device">
+            <svg class="icon icon-sm" aria-hidden="true"><use href="#i-shield" /></svg>
+            100% offline
+          </span>
+          <button
+            type="button"
+            class="icon-btn"
+            id="shortcutsBtn"
+            aria-label="Keyboard shortcuts"
+            title="Keyboard shortcuts (?)"
+          >
+            <svg class="icon" aria-hidden="true"><use href="#i-keyboard" /></svg>
+          </button>
+          <button
+            type="button"
+            class="icon-btn"
+            id="themeBtn"
+            aria-label="Switch colour theme"
+            title="Switch theme (T)"
+          >
+            <svg class="icon icon-sun" aria-hidden="true"><use href="#i-sun" /></svg>
+            <svg class="icon icon-moon" aria-hidden="true"><use href="#i-moon" /></svg>
+          </button>
+        </div>
+      </header>
+
+      <main>
+        <section class="hero">
+          <h1>Strong passwords, made on your device</h1>
+          <p class="lede">
+            Random passwords, memorable passphrases and PINs — generated with
+            your browser's cryptographic randomness, scored with real entropy
+            maths, and never sent anywhere.
+          </p>
+        </section>
+
+        <!-- ============ GENERATOR ============ -->
+        <section class="card generator" id="generator" aria-labelledby="generatorHeading">
+          <h2 class="sr-only" id="generatorHeading">Password generator</h2>
+
+          <div class="tabs" role="tablist" aria-label="Generator mode">
+            <button
+              type="button"
+              class="tab is-active"
+              role="tab"
+              id="tab-password"
+              data-mode="password"
+              aria-selected="true"
+              aria-controls="panel-password"
+            >
+              Password
+            </button>
+            <button
+              type="button"
+              class="tab"
+              role="tab"
+              id="tab-passphrase"
+              data-mode="passphrase"
+              aria-selected="false"
+              aria-controls="panel-passphrase"
+              tabindex="-1"
+            >
+              Passphrase
+            </button>
+            <button
+              type="button"
+              class="tab"
+              role="tab"
+              id="tab-pin"
+              data-mode="pin"
+              aria-selected="false"
+              aria-controls="panel-pin"
+              tabindex="-1"
+            >
+              PIN
+            </button>
+          </div>
+
+          <!-- Primary output -->
+          <div class="output">
+            <button
+              type="button"
+              class="password-display"
+              id="heroPassword"
+              title="Click to copy"
+              aria-describedby="heroHint"
+            ></button>
+            <p class="hero-hint" id="heroHint">
+              Click the password to copy it.
+            </p>
+
+            <div class="output-actions">
+              <button type="button" class="btn btn-ghost" id="maskBtn" aria-pressed="false">
+                <svg class="icon" aria-hidden="true"><use href="#i-eye-off" /></svg>
+                <span class="btn-label">Hide</span>
+              </button>
+              <button type="button" class="btn btn-ghost" id="refreshBtn">
+                <svg class="icon icon-spin-target" aria-hidden="true"><use href="#i-refresh" /></svg>
+                <span class="btn-label">New</span>
+              </button>
+              <button type="button" class="btn btn-primary" id="copyBtn">
+                <svg class="icon" aria-hidden="true"><use href="#i-copy" /></svg>
+                <span class="btn-label">Copy</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Strength meter -->
+          <div class="meter" id="meter" data-score="5">
+            <div
+              class="meter-track"
+              role="meter"
+              aria-labelledby="strengthLabel"
+              aria-valuemin="0"
+              aria-valuemax="5"
+              aria-valuenow="5"
+              id="meterTrack"
+            >
+              <span class="seg"></span><span class="seg"></span><span class="seg"></span
+              ><span class="seg"></span><span class="seg"></span>
+            </div>
+            <div class="meter-meta">
+              <strong class="strength-label" id="strengthLabel">Excellent</strong>
+              <span class="meta-item" title="Bits of entropy — every extra bit doubles the guessing effort">
+                <svg class="icon icon-sm" aria-hidden="true"><use href="#i-gauge" /></svg>
+                <span id="entropyText">—</span>
+              </span>
+              <span class="meta-item" title="Estimated average time for an offline attack at 100 billion guesses per second">
+                <svg class="icon icon-sm" aria-hidden="true"><use href="#i-clock" /></svg>
+                <span id="crackText">—</span>
+              </span>
+            </div>
+            <p class="sr-only" id="liveStatus" role="status" aria-live="polite"></p>
+          </div>
+
+          <!-- Mode panels -->
+          <div class="panel" id="panel-password" role="tabpanel" aria-labelledby="tab-password">
+            <div class="field">
+              <label for="length">Length</label>
+              <div class="slider-row">
+                <input
+                  type="range"
+                  id="lengthRange"
+                  min="4"
+                  max="64"
+                  step="1"
+                  value="15"
+                  aria-label="Password length slider"
+                />
+                <input
+                  type="number"
+                  id="length"
+                  min="4"
+                  max="128"
+                  value="15"
+                  inputmode="numeric"
+                  aria-label="Password length"
+                />
+              </div>
+              <p class="hint">4–128 characters. 16 or more is recommended.</p>
+            </div>
+
+            <fieldset class="field">
+              <legend>Character types</legend>
+              <div class="options-grid">
+                <label class="option">
+                  <input type="checkbox" id="uppercase" checked />
+                  <span class="option-body">
+                    <span class="option-title">Uppercase</span>
+                    <code>A–Z</code>
+                  </span>
+                </label>
+                <label class="option">
+                  <input type="checkbox" id="lowercase" checked />
+                  <span class="option-body">
+                    <span class="option-title">Lowercase</span>
+                    <code>a–z</code>
+                  </span>
+                </label>
+                <label class="option">
+                  <input type="checkbox" id="numbers" checked />
+                  <span class="option-body">
+                    <span class="option-title">Numbers</span>
+                    <code>0–9</code>
+                  </span>
+                </label>
+                <label class="option">
+                  <input type="checkbox" id="symbols" checked />
+                  <span class="option-body">
+                    <span class="option-title">Symbols</span>
+                    <code>!@#$%^&amp;*</code>
+                  </span>
+                </label>
+              </div>
+            </fieldset>
+
+            <details class="advanced" id="advanced">
+              <summary>
+                Advanced options
+                <span class="summary-hint">exclusions, uniqueness, custom rules</span>
+              </summary>
+              <div class="advanced-body">
+                <label class="switch">
+                  <input type="checkbox" id="requireEach" checked />
+                  <span class="switch-track" aria-hidden="true"></span>
+                  <span class="switch-text">
+                    Use every selected type at least once
+                    <small>Satisfies sites that demand a digit or symbol.</small>
+                  </span>
+                </label>
+                <label class="switch">
+                  <input type="checkbox" id="excludeAmbiguous" />
+                  <span class="switch-track" aria-hidden="true"></span>
+                  <span class="switch-text">
+                    Avoid look-alike characters
+                    <small>Skips <code>I l 1 O 0 o</code> and friends — easier to read aloud.</small>
+                  </span>
+                </label>
+                <label class="switch">
+                  <input type="checkbox" id="noRepeats" />
+                  <span class="switch-track" aria-hidden="true"></span>
+                  <span class="switch-text">
+                    No repeated characters
+                    <small>Every character appears at most once.</small>
+                  </span>
+                </label>
+                <div class="field">
+                  <label for="excludeChars">Exclude these characters</label>
+                  <input
+                    type="text"
+                    id="excludeChars"
+                    class="text-input"
+                    placeholder="e.g. &lt;&gt;&amp;&quot;'"
+                    autocomplete="off"
+                    spellcheck="false"
+                  />
+                  <p class="hint">Handy when a site rejects certain symbols.</p>
+                </div>
+              </div>
+            </details>
+          </div>
+
+          <div class="panel" id="panel-passphrase" role="tabpanel" aria-labelledby="tab-passphrase" hidden>
+            <div class="field">
+              <div class="field-head">
+                <label for="wordCount">Words</label>
+                <output class="value-badge" id="wordCountValue" for="wordCount">6</output>
+              </div>
+              <input type="range" id="wordCount" min="3" max="12" step="1" value="6" />
+              <p class="hint">
+                Six random words are easy to type, easy to remember and hard to
+                crack. Each word adds about 11 bits.
+              </p>
+            </div>
+
+            <div class="field">
+              <label for="separator">Separator</label>
+              <select id="separator" class="select">
+                <option value="-">Hyphen &nbsp;·&nbsp; correct-horse-battery</option>
+                <option value=".">Dot &nbsp;·&nbsp; correct.horse.battery</option>
+                <option value="_">Underscore &nbsp;·&nbsp; correct_horse_battery</option>
+                <option value=" ">Space &nbsp;·&nbsp; correct horse battery</option>
+                <option value="">None &nbsp;·&nbsp; correcthorsebattery</option>
+                <option value="digit">Random digit &nbsp;·&nbsp; correct4horse7battery</option>
+              </select>
+            </div>
+
+            <div class="advanced-body">
+              <label class="switch">
+                <input type="checkbox" id="capitalize" checked />
+                <span class="switch-track" aria-hidden="true"></span>
+                <span class="switch-text">
+                  Capitalise each word
+                  <small>Correct-Horse-Battery</small>
+                </span>
+              </label>
+              <label class="switch">
+                <input type="checkbox" id="addNumber" checked />
+                <span class="switch-track" aria-hidden="true"></span>
+                <span class="switch-text">
+                  Add a number
+                  <small>Keeps rule-based password policies happy.</small>
+                </span>
+              </label>
+              <label class="switch">
+                <input type="checkbox" id="addSymbol" />
+                <span class="switch-track" aria-hidden="true"></span>
+                <span class="switch-text">
+                  Add a symbol
+                  <small>Appends one random symbol.</small>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div class="panel" id="panel-pin" role="tabpanel" aria-labelledby="tab-pin" hidden>
+            <div class="field">
+              <div class="field-head">
+                <label for="pinLength">Digits</label>
+                <output class="value-badge" id="pinLengthValue" for="pinLength">6</output>
+              </div>
+              <input type="range" id="pinLength" min="3" max="16" step="1" value="6" />
+              <p class="hint">
+                PINs are short by design — pair them with a device that locks
+                after a few wrong attempts.
+              </p>
+            </div>
+          </div>
+
+          <!-- Shared controls -->
+          <div class="field field-quantity">
+            <div class="field-head">
+              <label for="count">How many at once</label>
+              <output class="value-badge" id="countValue" for="count">1</output>
+            </div>
+            <input type="range" id="count" min="1" max="50" step="1" value="1" />
+          </div>
+
+          <div class="presets">
+            <span class="presets-label">Quick presets</span>
+            <div class="chips" id="presets">
+              <button type="button" class="chip" data-preset="memorable">Memorable</button>
+              <button type="button" class="chip" data-preset="login">Web login</button>
+              <button type="button" class="chip" data-preset="paranoid">Maximum</button>
+              <button type="button" class="chip" data-preset="readable">Easy to read</button>
+              <button type="button" class="chip" data-preset="pin">6-digit PIN</button>
+            </div>
+          </div>
+
+          <button type="button" class="btn btn-generate" id="generateBtn">
+            <svg class="icon" aria-hidden="true"><use href="#i-bolt" /></svg>
+            Generate
+            <kbd class="kbd-inline">G</kbd>
+          </button>
+
+          <!-- Bulk results -->
+          <div class="bulk" id="bulk" hidden>
+            <div class="bulk-head">
+              <h3 id="bulkTitle">Generated</h3>
+              <div class="bulk-actions">
+                <button type="button" class="btn btn-ghost btn-sm" id="copyAllBtn">
+                  <svg class="icon icon-sm" aria-hidden="true"><use href="#i-copy" /></svg>
+                  Copy all
+                </button>
+                <button type="button" class="btn btn-ghost btn-sm" id="downloadBtn">
+                  <svg class="icon icon-sm" aria-hidden="true"><use href="#i-download" /></svg>
+                  Download
+                </button>
+              </div>
+            </div>
+            <ul class="password-list" id="passwordList"></ul>
+          </div>
+        </section>
+
+        <!-- ============ STRENGTH CHECKER ============ -->
+        <section class="card checker" aria-labelledby="checkerHeading">
+          <div class="card-head">
+            <h2 id="checkerHeading">
+              <svg class="icon" aria-hidden="true"><use href="#i-search" /></svg>
+              Test a password you already use
+            </h2>
+            <p class="card-sub">
+              Scored in your browser. Nothing you type is sent anywhere or
+              remembered.
+            </p>
+          </div>
+
+          <div class="check-input-row">
+            <input
+              type="password"
+              id="checkInput"
+              class="text-input"
+              placeholder="Type or paste a password…"
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="false"
+              aria-describedby="checkVerdict"
+            />
+            <button
+              type="button"
+              class="icon-btn"
+              id="checkRevealBtn"
+              aria-label="Show password"
+              aria-pressed="false"
+            >
+              <svg class="icon" aria-hidden="true"><use href="#i-eye" /></svg>
+            </button>
+          </div>
+
+          <div class="meter" id="checkMeter" data-score="0">
+            <div
+              class="meter-track"
+              role="meter"
+              aria-labelledby="checkVerdict"
+              aria-valuemin="0"
+              aria-valuemax="5"
+              aria-valuenow="0"
+              id="checkMeterTrack"
+            >
+              <span class="seg"></span><span class="seg"></span><span class="seg"></span
+              ><span class="seg"></span><span class="seg"></span>
+            </div>
+            <div class="meter-meta">
+              <strong class="strength-label" id="checkVerdict">Waiting for input</strong>
+              <span class="meta-item">
+                <svg class="icon icon-sm" aria-hidden="true"><use href="#i-gauge" /></svg>
+                <span id="checkEntropy">—</span>
+              </span>
+              <span class="meta-item">
+                <svg class="icon icon-sm" aria-hidden="true"><use href="#i-clock" /></svg>
+                <span id="checkCrack">—</span>
+              </span>
+            </div>
+          </div>
+
+          <ul class="findings" id="checkFindings"></ul>
+        </section>
+
+        <!-- ============ SESSION HISTORY ============ -->
+        <section class="card history" id="historyCard" aria-labelledby="historyHeading" hidden>
+          <div class="card-head card-head-row">
+            <h2 id="historyHeading">
+              <svg class="icon" aria-hidden="true"><use href="#i-history" /></svg>
+              This session
+            </h2>
+            <button type="button" class="btn btn-ghost btn-sm" id="clearHistoryBtn">
+              <svg class="icon icon-sm" aria-hidden="true"><use href="#i-trash" /></svg>
+              Clear
+            </button>
+          </div>
+          <p class="card-sub">
+            What you generated with the button and what you copied, kept in
+            memory only so you can grab it again. Closing or reloading the page
+            wipes it.
+          </p>
+          <ul class="password-list history-list" id="historyList"></ul>
+        </section>
+
+        <!-- ============ CONTENT / SEO ============ -->
+        <section class="content" aria-labelledby="learnHeading">
+          <h2 id="learnHeading">Why FortiPass</h2>
+
+          <div class="feature-grid">
+            <article class="feature">
+              <h3>Real cryptographic randomness</h3>
+              <p>
+                Every character comes from
+                <code>crypto.getRandomValues()</code> with rejection sampling, so
+                there is no modulo bias and no predictable seed — unlike
+                generators built on <code>Math.random()</code>.
+              </p>
+            </article>
+            <article class="feature">
+              <h3>Honest strength numbers</h3>
+              <p>
+                Instead of a vague "strong" badge you get the actual entropy in
+                bits and an estimated cracking time for an offline attacker
+                making 100 billion guesses per second.
+              </p>
+            </article>
+            <article class="feature">
+              <h3>Nothing leaves your device</h3>
+              <p>
+                No accounts, no analytics, no network requests. Your settings are
+                saved locally so the generator is ready the way you like it next
+                time; the passwords themselves are never stored.
+              </p>
+            </article>
+            <article class="feature">
+              <h3>Install it and go offline</h3>
+              <p>
+                FortiPass is a progressive web app. Add it to your home screen or
+                desktop and it keeps working on a plane, in a server room or with
+                the network unplugged.
+              </p>
+            </article>
+          </div>
+
+          <h2>Choosing a good password</h2>
+          <ul class="tips">
+            <li>
+              <strong>Length beats complexity.</strong> A long password with fewer
+              character types is usually stronger than a short one stuffed with
+              symbols.
+            </li>
+            <li>
+              <strong>Never reuse a password.</strong> One breach elsewhere should
+              not unlock your email. Unique passwords are what a manager is for.
+            </li>
+            <li>
+              <strong>Use a passphrase for what you must type.</strong> Device
+              logins and your password-manager vault are easier as five or six
+              random words.
+            </li>
+            <li>
+              <strong>Turn on two-factor authentication.</strong> Even a perfect
+              password cannot protect you from a phished session on its own.
+            </li>
+            <li>
+              <strong>Change a password when there is a reason.</strong> A breach
+              or a shared secret — not an arbitrary 90-day calendar rule.
+            </li>
+          </ul>
+
+          <h2>Questions people ask</h2>
+          <div class="faq">
+            <details>
+              <summary>Are the generated passwords sent anywhere?</summary>
+              <p>
+                No. Everything happens in your browser tab. Passwords are created
+                locally with the Web Crypto API and are never transmitted, logged
+                or stored on a server. You can open your browser's network panel
+                and watch it stay empty.
+              </p>
+            </details>
+            <details>
+              <summary>How long should my password be?</summary>
+              <p>
+                For anything stored in a password manager, use 16 characters or
+                more with all character types — that is over 100 bits of entropy
+                and out of reach of brute force. For a password you have to type
+                from memory, a five or six word passphrase is a better trade
+                between security and your patience.
+              </p>
+            </details>
+            <details>
+              <summary>What does "entropy" actually mean?</summary>
+              <p>
+                Entropy is a measure of unpredictability expressed in bits. Each
+                additional bit doubles the number of guesses needed. Around 60
+                bits is reasonable for everyday accounts, 80 bits is strong, and
+                100 bits or more is excellent for essentially any threat model.
+              </p>
+            </details>
+            <details>
+              <summary>Is a passphrase of real words safe?</summary>
+              <p>
+                Yes, provided the words are picked at random by a computer rather
+                than by you. FortiPass selects from a curated list of more than
+                2,200 words using a cryptographic random number generator, so
+                every word adds about 11 bits: six words is roughly 67 bits. The
+                figure shown under your passphrase is calculated from the real
+                list size, not guessed.
+              </p>
+            </details>
+            <details>
+              <summary>Can I use FortiPass offline or install it?</summary>
+              <p>
+                Yes. After the first visit the app is cached on your device, so it
+                loads without a connection. Most browsers will also offer to
+                install it — look for "Install app" or "Add to Home Screen".
+              </p>
+            </details>
+            <details>
+              <summary>Does the strength checker upload what I type?</summary>
+              <p>
+                No. The check runs on heuristics and entropy maths that ship with
+                the page — character variety, length, repetition, sequences,
+                keyboard patterns and a list of very common passwords. Nothing is
+                sent over the network and nothing is kept after you close the tab.
+              </p>
+            </details>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <p>
+          &copy; 2025 Robert Libsansky · FortiPass is free and open source ·
+          <a href="https://github.com/robertlib/forti-pass" rel="noopener">Source on GitHub</a>
+        </p>
+        <p class="footer-note">
+          FortiPass generates passwords locally and stores none of them. It is a
+          tool, not a substitute for a password manager and two-factor
+          authentication.
+        </p>
+      </footer>
+    </div>
+
+    <div class="toast-stack" id="toasts" role="status" aria-live="polite"></div>
+
+    <dialog class="dialog" id="shortcutsDialog" aria-labelledby="shortcutsTitle">
+      <div class="dialog-head">
+        <h2 id="shortcutsTitle">Keyboard shortcuts</h2>
+        <button type="button" class="icon-btn" id="closeDialogBtn" aria-label="Close">
+          <svg class="icon" aria-hidden="true"><use href="#i-close" /></svg>
+        </button>
+      </div>
+      <dl class="shortcuts">
+        <div><dt><kbd>G</kbd></dt><dd>Generate new</dd></div>
+        <div><dt><kbd>C</kbd></dt><dd>Copy the current password</dd></div>
+        <div><dt><kbd>H</kbd></dt><dd>Hide / show passwords</dd></div>
+        <div><dt><kbd>T</kbd></dt><dd>Switch light / dark theme</dd></div>
+        <div><dt><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd></dt><dd>Password / passphrase / PIN</dd></div>
+        <div><dt><kbd>?</kbd></dt><dd>This dialog</dd></div>
+        <div><dt><kbd>Esc</kbd></dt><dd>Close dialog</dd></div>
+      </dl>
+      <p class="dialog-note">
+        Shortcuts are ignored while you are typing in a field.
+      </p>
+    </dialog>
+
+    <noscript>
+      <div class="noscript">
+        FortiPass generates passwords in your browser, which needs JavaScript
+        enabled. Nothing is sent to a server either way.
+      </div>
+    </noscript>
+
+    <script src="wordlist.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
