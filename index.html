@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- SEO Meta Tags -->
+    <title>
+      FortiPass - Free Strong Password Generator Online | Secure Passwords
+    </title>
+    <meta
+      name="description"
+      content="Free online strong password generator FortiPass. Create secure passwords with uppercase, lowercase letters, numbers and symbols. Fast, secure and easy to use."
+    />
+    <meta
+      name="keywords"
+      content="password generator, strong passwords, security, online tool, cybersecurity, secure password, random password"
+    />
+    <meta name="author" content="Robert Libsansky" />
+    <meta name="robots" content="index, follow" />
+    <meta name="language" content="en" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://robertlib.github.io/forti-pass/" />
+    <meta
+      property="og:title"
+      content="FortiPass - Free Strong Password Generator Online"
+    />
+    <meta
+      property="og:description"
+      content="Free online strong password generator. Create secure passwords with uppercase, lowercase letters, numbers and symbols."
+    />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta
+      property="twitter:url"
+      content="https://robertlib.github.io/forti-pass/"
+    />
+    <meta
+      property="twitter:title"
+      content="FortiPass - Free Strong Password Generator Online"
+    />
+    <meta
+      property="twitter:description"
+      content="Free online strong password generator. Create secure passwords with uppercase, lowercase letters, numbers and symbols."
+    />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://robertlib.github.io/forti-pass/" />
+
+    <!-- Manifest -->
+    <link
+      rel="manifest"
+      href="https://robertlib.github.io/forti-pass/manifest.json"
+    />
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "FortiPass",
+        "description": "Free online strong password generator for creating secure passwords",
+        "url": "https://robertlib.github.io/forti-pass/",
+        "applicationCategory": "SecurityApplication",
+        "operatingSystem": "Any",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "author": {
+          "@type": "Person",
+          "name": "Robert Libsansky"
+        }
+      }
+    </script>
+
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>FortiPass</h1>
+        <p class="subtitle">Generate Strong & Secure Passwords Online</p>
+      </header>
+
+      <main>
+        <section class="password-output">
+          <div class="password-list" id="passwordList">
+            <!-- Generated passwords will appear here -->
+          </div>
+        </section>
+
+        <section class="controls">
+          <div class="control-group">
+            <label for="length">Password Length:</label>
+            <input type="number" id="length" min="4" max="128" value="15" />
+            <small class="validation-hint">Min: 4, Max: 128 characters</small>
+          </div>
+
+          <div class="control-group">
+            <label for="count">Number of Passwords:</label>
+            <input type="number" id="count" min="1" max="50" value="1" />
+            <small class="validation-hint">Min: 1, Max: 50 passwords</small>
+          </div>
+
+          <div class="character-options">
+            <h3>Character Types:</h3>
+            <div class="options-grid">
+              <label class="option">
+                <input type="checkbox" id="uppercase" checked />
+                <span>Uppercase (A-Z)</span>
+              </label>
+              <label class="option">
+                <input type="checkbox" id="lowercase" checked />
+                <span>Lowercase (a-z)</span>
+              </label>
+              <label class="option">
+                <input type="checkbox" id="numbers" checked />
+                <span>Numbers (0-9)</span>
+              </label>
+              <label class="option">
+                <input type="checkbox" id="symbols" checked />
+                <span>Symbols (!@#$%^&*)</span>
+              </label>
+            </div>
+          </div>
+
+          <button id="generateBtn" class="generate-btn">
+            Generate New Passwords
+          </button>
+        </section>
+
+        <section class="strength-indicator">
+          <div class="strength-bar" id="strengthBar"></div>
+          <span class="strength-text" id="strengthText">Very Strong</span>
+        </section>
+
+        <!-- SEO Content Section -->
+        <section class="seo-content">
+          <h2>Why Use FortiPass Password Generator?</h2>
+          <p>
+            FortiPass is a free, secure online password generator that helps you
+            create strong, unique passwords for all your accounts. Our tool
+            generates random passwords with customizable length and character
+            types to ensure maximum security.
+          </p>
+
+          <h3>Features:</h3>
+          <ul>
+            <li>Generate passwords from 4 to 128 characters long</li>
+            <li>Create up to 50 passwords at once</li>
+            <li>
+              Customize character types (uppercase, lowercase, numbers, symbols)
+            </li>
+            <li>Real-time password strength indicator</li>
+            <li>No data stored - completely secure</li>
+          </ul>
+
+          <h3>Password Security Tips:</h3>
+          <ul>
+            <li>Use different passwords for each account</li>
+            <li>Include a mix of uppercase, lowercase, numbers, and symbols</li>
+            <li>Make passwords at least 12 characters long</li>
+            <li>Avoid using personal information in passwords</li>
+            <li>Consider using a password manager</li>
+          </ul>
+        </section>
+      </main>
+
+      <footer>
+        <p>
+          &copy; 2025 Robert Libsansky. Free online password generator for
+          creating secure passwords.
+        </p>
+      </footer>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

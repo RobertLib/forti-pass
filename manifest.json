@@ -1,0 +1,10 @@
+{
+  "name": "FortiPass - Strong Password Generator",
+  "short_name": "FortiPass",
+  "description": "Free online strong password generator for creating secure passwords",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#007bff",
+  "icons": []
+}
