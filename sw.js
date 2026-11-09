@@ -1,19 +1,27 @@
 /* FortiPass service worker — makes the app usable with no network at all.
-   Bump CACHE_VERSION whenever the shell files change. */
 
-const CACHE_VERSION = "fortipass-v2";
+   Shipping a change: bump ASSET_VERSION here AND the matching ?v= query on
+   the stylesheet and scripts in index.html (the test suite checks they
+   agree). The versioned URLs guarantee a page never mixes new HTML with
+   stale JavaScript or CSS from an older cache. */
+
+const ASSET_VERSION = "3";
+const CACHE_VERSION = "fortipass-v" + ASSET_VERSION;
+
+const VERSIONED = ["styles.css", "wordlist.js", "core.js", "script.js"].map(
+  (file) => file + "?v=" + ASSET_VERSION
+);
 
 const SHELL = [
   "./",
   "index.html",
-  "styles.css",
-  "script.js",
-  "wordlist.js",
+  ...VERSIONED,
   "manifest.json",
   "favicon.svg",
   "icon.svg",
   "icon-192.png",
   "icon-512.png",
+  "icon-maskable-512.png",
   "apple-touch-icon.png",
 ];
 
@@ -21,7 +29,10 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     caches
       .open(CACHE_VERSION)
-      .then((cache) => cache.addAll(SHELL))
+      // Bypass the HTTP cache so a new version never stores stale copies.
+      .then((cache) =>
+        cache.addAll(SHELL.map((url) => new Request(url, { cache: "reload" })))
+      )
       .then(() => self.skipWaiting())
   );
 });
@@ -41,44 +52,67 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+/** True for the app page itself: the scope root or index.html, any query. */
+function isAppShell(url) {
+  const scope = new URL(self.registration.scope);
+  return (
+    url.origin === scope.origin &&
+    (url.pathname === scope.pathname ||
+      url.pathname === scope.pathname + "index.html")
+  );
+}
+
 self.addEventListener("fetch", (event) => {
   const request = event.request;
+  if (request.method !== "GET") return;
 
-  if (request.method !== "GET" || new URL(request.url).origin !== location.origin) {
-    return;
-  }
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
 
-  // Navigations: try the network first so updates land, fall back to the cache.
   if (request.mode === "navigate") {
+    // Anything else in scope (robots.txt, a 404, the verification file) is
+    // left to the browser, so it can never end up cached as the app.
+    if (!isAppShell(url)) return;
+
+    // Network first so updates land; fall back to the cached page offline.
     event.respondWith(
       fetch(request)
         .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_VERSION).then((cache) => cache.put("index.html", copy));
+          const type = response.headers.get("content-type") || "";
+          if (response.ok && type.indexOf("text/html") !== -1) {
+            const copy = response.clone();
+            event.waitUntil(
+              caches
+                .open(CACHE_VERSION)
+                .then((cache) => cache.put("index.html", copy))
+            );
+          }
           return response;
         })
         .catch(() =>
           caches
             .match("index.html")
             .then((cached) => cached || caches.match("./"))
+            .then((cached) => cached || Response.error())
         )
     );
     return;
   }
 
-  // Assets: serve from cache immediately, refresh it in the background.
+  // Assets: their URLs are versioned, so a cached copy is always the right
+  // one. Anything missing is fetched and kept for next time.
   event.respondWith(
     caches.match(request).then((cached) => {
-      const network = fetch(request)
-        .then((response) => {
-          if (response && response.status === 200) {
-            const copy = response.clone();
-            caches.open(CACHE_VERSION).then((cache) => cache.put(request, copy));
-          }
-          return response;
-        })
-        .catch(() => cached);
-      return cached || network;
+      if (cached) return cached;
+      return fetch(request).then((response) => {
+        if (response.ok && response.type === "basic") {
+          const copy = response.clone();
+          event.waitUntil(
+            caches.open(CACHE_VERSION).then((cache) => cache.put(request, copy))
+          );
+        }
+        return response;
+      });
     })
   );
 });

@@ -1,47 +1,26 @@
 /* ==========================================================================
-   FortiPass — password, passphrase and PIN generator
-   Everything runs locally. Randomness comes from the Web Crypto API.
+   FortiPass — user interface. Randomness, generation, entropy maths and the
+   strength checker live in core.js; this file only wires them to the page.
    ========================================================================== */
 
 (function () {
   "use strict";
 
+  const core = window.FortiPassCore;
+
   /* ---------------------------------------------------------------- config */
-
-  const CHARS = {
-    uppercase: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-    lowercase: "abcdefghijklmnopqrstuvwxyz",
-    numbers: "0123456789",
-    symbols: "!@#$%^&*()_+-=[]{}|;:,.<>?/~",
-  };
-
-  // Characters that are easy to confuse when read aloud or typed from a screen.
-  const AMBIGUOUS = "Il1|O0oB8S5Z2G6'\"`";
-
-  const PASSPHRASE_SYMBOLS = "!@#$%&*?+=";
-
-  // Offline attack on a poorly hashed password: 10^11 guesses per second.
-  const GUESSES_PER_SECOND = 1e11;
-  const LOG10_2 = Math.log10(2);
-  const SECONDS_PER_YEAR = 3.15576e7;
-
-  const SCORE_LABELS = [
-    "",
-    "Very weak",
-    "Weak",
-    "Fair",
-    "Strong",
-    "Excellent",
-  ];
-
-  // wordlist.js declares WORDS as a top-level const, which is a lexical global
-  // rather than a property of window — hence the typeof guard.
-  const wordList =
-    typeof WORDS !== "undefined" && Array.isArray(WORDS) ? WORDS : [];
 
   const HISTORY_LIMIT = 12;
   const SETTINGS_KEY = "fortipass:settings:v1";
   const THEME_KEY = "fortipass:theme";
+  const CLIPBOARD_CLEAR_MS = 30000;
+
+  const MODES = ["password", "passphrase", "pin"];
+  const NOUNS = {
+    password: ["password", "passwords"],
+    passphrase: ["passphrase", "passphrases"],
+    pin: ["PIN", "PINs"],
+  };
 
   const PRESETS = {
     memorable: {
@@ -97,6 +76,7 @@
   const $ = (sel) => document.querySelector(sel);
 
   const el = {
+    tablist: $(".tabs"),
     tabs: Array.from(document.querySelectorAll(".tab")),
     panels: {
       password: $("#panel-password"),
@@ -104,15 +84,14 @@
       pin: $("#panel-pin"),
     },
     hero: $("#heroPassword"),
+    heroHint: $("#heroHint"),
     maskBtn: $("#maskBtn"),
     refreshBtn: $("#refreshBtn"),
     copyBtn: $("#copyBtn"),
+    clearClipboard: $("#clearClipboard"),
     generateBtn: $("#generateBtn"),
     meter: $("#meter"),
     meterTrack: $("#meterTrack"),
-    strengthLabel: $("#strengthLabel"),
-    entropyText: $("#entropyText"),
-    crackText: $("#crackText"),
     liveStatus: $("#liveStatus"),
 
     lengthRange: $("#lengthRange"),
@@ -125,6 +104,7 @@
     excludeAmbiguous: $("#excludeAmbiguous"),
     noRepeats: $("#noRepeats"),
     excludeChars: $("#excludeChars"),
+    advanced: $("#advanced"),
 
     wordCount: $("#wordCount"),
     wordCountValue: $("#wordCountValue"),
@@ -154,15 +134,15 @@
     checkRevealBtn: $("#checkRevealBtn"),
     checkMeter: $("#checkMeter"),
     checkMeterTrack: $("#checkMeterTrack"),
-    checkVerdict: $("#checkVerdict"),
-    checkEntropy: $("#checkEntropy"),
-    checkCrack: $("#checkCrack"),
     checkFindings: $("#checkFindings"),
 
     themeBtn: $("#themeBtn"),
     shortcutsBtn: $("#shortcutsBtn"),
     dialog: $("#shortcutsDialog"),
     closeDialogBtn: $("#closeDialogBtn"),
+    copyDialog: $("#copyDialog"),
+    copyDialogText: $("#copyDialogText"),
+    closeCopyDialogBtn: $("#closeCopyDialogBtn"),
     toasts: $("#toasts"),
   };
 
@@ -175,43 +155,9 @@
     history: [],
   };
 
-  /* ------------------------------------------------------------ randomness */
-
-  const cryptoObj = window.crypto || window.msCrypto;
-  const hasCrypto =
-    !!cryptoObj && typeof cryptoObj.getRandomValues === "function";
-
-  /**
-   * Uniform random integer in [0, max) using rejection sampling, so there is
-   * no modulo bias. Never falls back to Math.random() — a biased generator is
-   * worse than an honest failure for a security tool.
-   */
-  function randomInt(max) {
-    if (max <= 0) throw new RangeError("max must be > 0");
-    const limit = Math.floor(0x100000000 / max) * max;
-    const buf = new Uint32Array(1);
-    let value;
-    do {
-      cryptoObj.getRandomValues(buf);
-      value = buf[0];
-    } while (value >= limit);
-    return value % max;
-  }
-
-  function pick(source) {
-    return source[randomInt(source.length)];
-  }
-
-  /** Fisher-Yates shuffle driven by the CSPRNG. */
-  function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = randomInt(i + 1);
-      const tmp = array[i];
-      array[i] = array[j];
-      array[j] = tmp;
-    }
-    return array;
-  }
+  // When the clipboard should be wiped (ms timestamp), or 0 for never.
+  let clipboardDue = 0;
+  let clipboardTimer = null;
 
   /* ------------------------------------------------------------ generation */
 
@@ -237,115 +183,10 @@
     };
   }
 
-  function buildCharacterSets(opts) {
-    const banned = new Set(opts.excludeChars.split(""));
-    if (opts.excludeAmbiguous) {
-      AMBIGUOUS.split("").forEach((c) => banned.add(c));
-    }
-
-    const wanted = [
-      opts.uppercase && CHARS.uppercase,
-      opts.lowercase && CHARS.lowercase,
-      opts.numbers && CHARS.numbers,
-      opts.symbols && CHARS.symbols,
-    ].filter(Boolean);
-
-    return wanted
-      .map((set) =>
-        Array.from(new Set(set.split(""))).filter((c) => !banned.has(c))
-      )
-      .filter((set) => set.length > 0);
-  }
-
-  function makePassword(opts) {
-    const sets = buildCharacterSets(opts);
-    if (!sets.length) {
-      return { error: "Select at least one character type." };
-    }
-
-    const pool = Array.from(new Set([].concat.apply([], sets)));
-
-    if (opts.noRepeats && opts.length > pool.length) {
-      return {
-        error:
-          "Only " +
-          pool.length +
-          " unique characters available — shorten the password or allow repeats.",
-      };
-    }
-
-    const useEach = opts.requireEach && opts.length >= sets.length;
-    const chars = [];
-
-    if (opts.noRepeats) {
-      const available = pool.slice();
-      const take = (candidates) => {
-        const options = candidates.filter((c) => available.indexOf(c) !== -1);
-        const chosen = pick(options);
-        available.splice(available.indexOf(chosen), 1);
-        return chosen;
-      };
-      if (useEach) sets.forEach((set) => chars.push(take(set)));
-      while (chars.length < opts.length) chars.push(take(available.slice()));
-    } else {
-      if (useEach) sets.forEach((set) => chars.push(pick(set)));
-      while (chars.length < opts.length) chars.push(pick(pool));
-    }
-
-    let entropy;
-    if (opts.noRepeats) {
-      entropy = 0;
-      for (let i = 0; i < opts.length; i++) {
-        entropy += Math.log2(pool.length - i);
-      }
-    } else {
-      entropy = opts.length * Math.log2(pool.length);
-    }
-
-    return { value: shuffle(chars).join(""), entropy: entropy };
-  }
-
-  function makePassphrase(opts) {
-    if (wordList.length < 100) {
-      return { error: "Word list failed to load — reload the page." };
-    }
-
-    const words = [];
-    for (let i = 0; i < opts.words; i++) {
-      const word = wordList[randomInt(wordList.length)];
-      words.push(
-        opts.capitalize ? word.charAt(0).toUpperCase() + word.slice(1) : word
-      );
-    }
-
-    let entropy = opts.words * Math.log2(wordList.length);
-    let value;
-
-    if (opts.separator === "digit") {
-      value = words.reduce(
-        (acc, word, i) => (i === 0 ? word : acc + randomInt(10) + word)
-      );
-      entropy += (opts.words - 1) * Math.log2(10);
-    } else {
-      value = words.join(opts.separator);
-    }
-
-    if (opts.addNumber) {
-      value += String(randomInt(10));
-      entropy += Math.log2(10);
-    }
-    if (opts.addSymbol) {
-      value += pick(PASSPHRASE_SYMBOLS);
-      entropy += Math.log2(PASSPHRASE_SYMBOLS.length);
-    }
-
-    return { value: value, entropy: entropy };
-  }
-
-  function makePin(opts) {
-    let value = "";
-    for (let i = 0; i < opts.pinLength; i++) value += randomInt(10);
-    return { value: value, entropy: opts.pinLength * Math.log2(10) };
+  function makerFor(mode) {
+    if (mode === "passphrase") return core.makePassphrase;
+    if (mode === "pin") return core.makePin;
+    return core.makePassword;
   }
 
   /**
@@ -356,7 +197,7 @@
   function generate(config) {
     const remember = !!(config && config.remember);
 
-    if (!hasCrypto) {
+    if (!core || !core.hasCrypto) {
       showError(
         "This browser has no secure random number generator, so FortiPass will not generate a password."
       );
@@ -364,28 +205,18 @@
     }
 
     const opts = readOptions();
-    const make =
-      opts.mode === "passphrase"
-        ? makePassphrase
-        : opts.mode === "pin"
-        ? makePin
-        : makePassword;
+    const make = makerFor(opts.mode);
 
     let first;
     const results = [];
     try {
-      first = make(opts);
-      if (first.error) {
-        showError(first.error);
-        return;
-      }
-      results.push(first.value);
-      for (let i = 1; i < opts.count; i++) {
+      for (let i = 0; i < opts.count; i++) {
         const next = make(opts);
         if (next.error) {
           showError(next.error);
           return;
         }
+        if (i === 0) first = next;
         results.push(next.value);
       }
     } catch (err) {
@@ -400,12 +231,13 @@
     if (remember) pushHistory(first.value);
     saveSettings();
 
-    const score = scoreFromBits(first.entropy);
+    const nouns = NOUNS[opts.mode];
+    const score = core.scoreFromBits(first.entropy);
     announce(
       "Generated " +
-        (opts.count > 1 ? opts.count + " " + opts.mode + "s" : "a new " + opts.mode) +
+        (opts.count > 1 ? opts.count + " " + nouns[1] : "a new " + nouns[0]) +
         ". Strength " +
-        SCORE_LABELS[score].toLowerCase() +
+        core.SCORE_LABELS[score].toLowerCase() +
         ", " +
         Math.round(first.entropy) +
         " bits."
@@ -415,16 +247,9 @@
   /** Regenerate one row of a bulk result without touching the others. */
   function regenerateAt(index) {
     const opts = readOptions();
-    const make =
-      opts.mode === "passphrase"
-        ? makePassphrase
-        : opts.mode === "pin"
-        ? makePin
-        : makePassword;
-
     let result;
     try {
-      result = make(opts);
+      result = makerFor(opts.mode)(opts);
     } catch (err) {
       result = { error: "Generation failed with these options." };
     }
@@ -432,9 +257,23 @@
       showError(result.error);
       return;
     }
+
     state.results[index] = result.value;
-    if (index === 0) updateMeter(result.entropy);
-    renderResults();
+
+    // Swap just this row, so the list keeps its scroll position and the
+    // keyboard focus lands on the replacement's button rather than <body>.
+    const oldRow = el.passwordList.children[index];
+    if (oldRow) {
+      const hadFocus = oldRow.contains(document.activeElement);
+      const newRow = buildRow(result.value, index, false);
+      oldRow.replaceWith(newRow);
+      if (hadFocus) newRow.querySelector(".row-btn").focus();
+    }
+
+    if (index === 0) {
+      renderHero();
+      updateMeter(result.entropy);
+    }
   }
 
   /* ------------------------------------------------------------- rendering */
@@ -459,41 +298,56 @@
     for (const ch of value) {
       const span = document.createElement("span");
       span.className = charClass(ch);
-      span.textContent = ch === " " ? " " : ch;
+      // A no-break space keeps a space separator visible at a line edge.
+      span.textContent = ch === " " ? "\u00A0" : ch;
       frag.appendChild(span);
     }
     target.appendChild(frag);
   }
 
-  function renderResults() {
+  function renderHero() {
     const primary = state.results[0] || "";
+    const noun = NOUNS[state.mode][0];
     el.hero.classList.remove("is-error");
     el.hero.disabled = false;
     paint(el.hero, primary);
-    el.hero.setAttribute(
-      "aria-label",
-      "Generated " + state.mode + ", " + primary.length + " characters. Click to copy."
-    );
-
+    // Unmasked, the button's own text is its name, so screen readers can
+    // read the value. Masked, the bullets would be read out, so describe it.
+    if (state.masked) {
+      el.hero.setAttribute(
+        "aria-label",
+        "Hidden " + noun + ", " + primary.length + " characters. Click to copy."
+      );
+    } else {
+      el.hero.removeAttribute("aria-label");
+    }
+    el.heroHint.textContent = "Click the " + noun + " to copy it.";
     flash(el.hero);
+  }
 
+  function renderBulk() {
+    el.passwordList.textContent = "";
     if (state.results.length > 1) {
       el.bulk.hidden = false;
       el.bulkTitle.textContent = state.results.length + " generated";
-      el.passwordList.textContent = "";
       state.results.forEach((value, index) => {
-        el.passwordList.appendChild(buildRow(value, index));
+        el.passwordList.appendChild(buildRow(value, index, true));
       });
     } else {
       el.bulk.hidden = true;
-      el.passwordList.textContent = "";
     }
   }
 
-  function buildRow(value, index) {
+  function renderResults() {
+    renderHero();
+    renderBulk();
+  }
+
+  function buildRow(value, index, animate) {
     const li = document.createElement("li");
     li.className = "password-row";
-    li.style.animationDelay = Math.min(index * 25, 400) + "ms";
+    if (animate) li.style.animationDelay = Math.min(index * 25, 400) + "ms";
+    else li.classList.add("is-static");
 
     const idx = document.createElement("span");
     idx.className = "row-index";
@@ -504,6 +358,9 @@
     text.className = "row-text";
     text.title = "Click to copy";
     paint(text, value);
+    if (state.masked) {
+      text.setAttribute("aria-label", "Hidden value " + (index + 1) + ". Click to copy.");
+    }
 
     const actions = document.createElement("div");
     actions.className = "row-actions";
@@ -550,71 +407,36 @@
     state.results = [];
     el.hero.classList.add("is-error");
     el.hero.classList.remove("is-masked");
+    el.hero.removeAttribute("aria-label");
     el.hero.textContent = message;
     el.hero.disabled = true;
     el.bulk.hidden = true;
+    el.passwordList.textContent = "";
     setMeter(el.meter, el.meterTrack, 0, "Not generated", "—", "—");
     toast(message, "error");
   }
 
   /* ---------------------------------------------------------------- metrics */
 
-  function scoreFromBits(bits) {
-    if (bits < 30) return 1;
-    if (bits < 50) return 2;
-    if (bits < 70) return 3;
-    if (bits < 90) return 4;
-    return 5;
-  }
-
-  function formatCrackTime(bits) {
-    if (!isFinite(bits) || bits <= 0) return "instantly";
-
-    // Average work is half the keyspace; stay in log space so huge keyspaces
-    // do not overflow to Infinity.
-    const log10Seconds = (bits - 1) * LOG10_2 - Math.log10(GUESSES_PER_SECOND);
-
-    if (log10Seconds < 0) return "instantly";
-
-    const log10Years = log10Seconds - Math.log10(SECONDS_PER_YEAR);
-    if (log10Years >= 18) return "10^" + Math.round(log10Years) + " years";
-
-    const seconds = Math.pow(10, log10Seconds);
-    if (seconds < 60) return Math.round(seconds) + " seconds";
-    const minutes = seconds / 60;
-    if (minutes < 60) return Math.round(minutes) + " minutes";
-    const hours = minutes / 60;
-    if (hours < 24) return Math.round(hours) + " hours";
-    const days = hours / 24;
-    if (days < 365) return Math.round(days) + " days";
-
-    const years = seconds / SECONDS_PER_YEAR;
-    if (years < 1e3) return Math.round(years) + " years";
-    if (years < 1e6) return round1(years / 1e3) + " thousand years";
-    if (years < 1e9) return round1(years / 1e6) + " million years";
-    if (years < 1e12) return round1(years / 1e9) + " billion years";
-    if (years < 1e15) return round1(years / 1e12) + " trillion years";
-    return round1(years / 1e15) + " quadrillion years";
-  }
-
   function setMeter(meter, track, score, label, bitsText, crackText) {
     meter.dataset.score = String(score);
     track.setAttribute("aria-valuenow", String(score));
     track.setAttribute("aria-valuetext", label);
     meter.querySelector(".strength-label").textContent = label;
-    meter.querySelectorAll(".meta-item span")[0].textContent = bitsText;
-    meter.querySelectorAll(".meta-item span")[1].textContent = crackText;
+    const values = meter.querySelectorAll(".meta-item span");
+    values[0].textContent = bitsText;
+    values[1].textContent = crackText;
   }
 
   function updateMeter(bits) {
-    const score = scoreFromBits(bits);
+    const score = core.scoreFromBits(bits);
     setMeter(
       el.meter,
       el.meterTrack,
       score,
-      SCORE_LABELS[score],
+      core.SCORE_LABELS[score],
       Math.round(bits) + " bits",
-      formatCrackTime(bits) + " to crack"
+      core.formatCrackTime(bits) + " to crack"
     );
   }
 
@@ -648,11 +470,19 @@
     if (!text) return;
     const ok = await copyText(text);
     if (!ok) {
-      toast("Could not reach the clipboard — select and copy manually.", "error");
+      // The value sits inside a button, where some browsers will not let you
+      // select text — so hand it over in a pre-selected field instead.
+      openCopyDialog(text);
       return;
     }
 
-    toast("Copied to clipboard", "success");
+    scheduleClipboardClear();
+    toast(
+      clipboardDue
+        ? "Copied — the clipboard clears in " + CLIPBOARD_CLEAR_MS / 1000 + " s"
+        : "Copied to clipboard",
+      "success"
+    );
     // Anything the user actually copied is worth keeping within reach.
     if (text.indexOf("\n") === -1) pushHistory(text);
 
@@ -670,6 +500,43 @@
       if (use) use.setAttribute("href", "#" + restoreIcon);
       if (label && previousLabel !== null) label.textContent = previousLabel;
     }, 1600);
+  }
+
+  function openCopyDialog(text) {
+    el.copyDialogText.value = text;
+    el.copyDialogText.rows = clamp(text.split("\n").length, 1, 8);
+    if (!el.copyDialog.open) el.copyDialog.showModal();
+    el.copyDialogText.focus();
+    el.copyDialogText.select();
+  }
+
+  function scheduleClipboardClear() {
+    clearTimeout(clipboardTimer);
+    clipboardDue = 0;
+    if (!el.clearClipboard.checked) return;
+    clipboardDue = Date.now() + CLIPBOARD_CLEAR_MS;
+    clipboardTimer = setTimeout(clearClipboardNow, CLIPBOARD_CLEAR_MS);
+  }
+
+  function cancelClipboardClear() {
+    clearTimeout(clipboardTimer);
+    clipboardDue = 0;
+  }
+
+  /**
+   * Browsers only allow clipboard writes from the focused tab. If the timer
+   * fires while the user is in another app, this runs again when they return.
+   */
+  async function clearClipboardNow() {
+    if (!clipboardDue || Date.now() < clipboardDue) return;
+    if (!navigator.clipboard || !document.hasFocus()) return;
+    try {
+      await navigator.clipboard.writeText("");
+      clipboardDue = 0;
+      toast("Clipboard cleared", "info");
+    } catch (err) {
+      /* still not allowed — try again on the next focus */
+    }
   }
 
   function download() {
@@ -696,7 +563,10 @@
 
   function pushHistory(value) {
     if (!value) return;
-    if (state.history.length && state.history[0].value === value) return;
+    const existing = state.history.findIndex((entry) => entry.value === value);
+    if (existing === 0) return;
+    // Copying an older entry moves it to the top instead of duplicating it.
+    if (existing > 0) state.history.splice(existing, 1);
     state.history.unshift({ value: value, time: new Date() });
     if (state.history.length > HISTORY_LIMIT) state.history.pop();
     renderHistory();
@@ -723,6 +593,9 @@
       text.className = "row-text";
       text.title = "Click to copy";
       paint(text, entry.value);
+      if (state.masked) {
+        text.setAttribute("aria-label", "Hidden value from " + time.textContent + ". Click to copy.");
+      }
 
       const actions = document.createElement("div");
       actions.className = "row-actions";
@@ -743,271 +616,6 @@
 
   /* ------------------------------------------------------- strength checker */
 
-  const COMMON_PASSWORDS = new Set(
-    ("123456 password 123456789 12345678 12345 qwerty abc123 111111 123123 1234567890 " +
-      "1234567 password1 qwerty123 000000 iloveyou dragon monkey letmein football " +
-      "admin welcome login princess sunshine master 123qwe qwertyuiop starwars " +
-      "passw0rd zaq12wsx qazwsx trustno1 hello freedom whatever qwe123 asdfgh " +
-      "michael jordan superman batman charlie donald hunter shadow ranger " +
-      "baseball soccer hockey killer jennifer joshua maggie mustang pepper " +
-      "summer winter spring autumn secret ninja azerty 654321 666666 121212 " +
-      "abcdef abcd1234 a1b2c3 test test123 guest user root toor changeme " +
-      "letmein1 p@ssword p@ssw0rd password123 welcome1 admin123 root123 " +
-      "iloveyou1 samsung google chrome firefox internet computer 987654321 " +
-      "asdf1234 zxcvbnm 1qaz2wsx 1q2w3e4r 1q2w3e4r5t qwer1234 poiuyt lkjhg " +
-      "monkey1 sunshine1 princess1 michael1 love sex god money"
-    ).split(/\s+/)
-  );
-
-  const KEYBOARD_ROWS = [
-    "abcdefghijklmnopqrstuvwxyz",
-    "0123456789",
-    "qwertyuiop",
-    "asdfghjkl",
-    "zxcvbnm",
-    "qwertzuiop",
-    "azertyuiop",
-  ];
-
-  function isSequential(a, b) {
-    const x = a.toLowerCase();
-    const y = b.toLowerCase();
-    return KEYBOARD_ROWS.some((row) => {
-      const i = row.indexOf(x);
-      const j = row.indexOf(y);
-      return i !== -1 && j !== -1 && Math.abs(i - j) === 1;
-    });
-  }
-
-  function observedPoolSize(password) {
-    let size = 0;
-    if (/[a-z]/.test(password)) size += 26;
-    if (/[A-Z]/.test(password)) size += 26;
-    if (/[0-9]/.test(password)) size += 10;
-    if (/[^a-zA-Z0-9]/.test(password)) size += 32;
-    return Math.max(size, 2);
-  }
-
-  /**
-   * A deliberately conservative estimate: runs of repeated or sequential
-   * characters contribute far less than independent random ones.
-   */
-  function effectiveLength(password) {
-    let effective = 1;
-    for (let i = 1; i < password.length; i++) {
-      const prev = password[i - 1];
-      const ch = password[i];
-      if (ch === prev || isSequential(prev, ch)) effective += 0.35;
-      else effective += 1;
-    }
-    return effective;
-  }
-
-  /**
-   * Undoes the usual leet substitutions, keeping case so camel-case splitting
-   * still works. Cracking rules try exactly these swaps first, so "P@ssw0rd"
-   * deserves no more credit than "password".
-   */
-  function unleet(text) {
-    return text
-      .replace(/[@4]/g, "a")
-      .replace(/0/g, "o")
-      .replace(/[1!|]/g, "i")
-      .replace(/3/g, "e")
-      .replace(/[$5]/g, "s")
-      .replace(/7/g, "t")
-      .replace(/8/g, "b")
-      .replace(/9/g, "g");
-  }
-
-  /**
-   * Splits a password into candidate words, honouring camel case so that
-   * "MyDogRusty" is seen as my / dog / rusty rather than one long token.
-   */
-  function tokenize(password) {
-    const tokens = [];
-    (password.match(/[A-Za-z]+/g) || []).forEach((run) => {
-      const parts =
-        /^[A-Z]+$/.test(run) || /^[a-z]+$/.test(run)
-          ? [run]
-          : run.split(/(?=[A-Z])/);
-      parts.forEach((part) => {
-        if (part.length >= 3) tokens.push(part.toLowerCase());
-      });
-    });
-    return tokens;
-  }
-
-  /** How many distinct characters sit outside the recognised words. */
-  function countDistinctNonWordChars(password, words) {
-    let remainder = password;
-    words.forEach((word) => {
-      const index = remainder.toLowerCase().indexOf(word);
-      if (index !== -1) {
-        remainder =
-          remainder.slice(0, index) + remainder.slice(index + word.length);
-      }
-    });
-    return new Set(remainder.split("")).size;
-  }
-
-  function analyze(password) {
-    const lower = password.toLowerCase();
-    const stripped = lower.replace(/[^a-z]/g, "");
-    const pool = observedPoolSize(password);
-    let bits = effectiveLength(password) * Math.log2(pool);
-
-    const findings = [];
-    const classes = [
-      /[a-z]/.test(password),
-      /[A-Z]/.test(password),
-      /[0-9]/.test(password),
-      /[^a-zA-Z0-9]/.test(password),
-    ].filter(Boolean).length;
-
-    // Compare against the common-password list the way a cracker would: after
-    // undoing leet swaps and stripping a trailing number.
-    const trimmed = lower
-      .replace(/[^a-z0-9@$]+$/, "")
-      .replace(/[0-9]+$/, "");
-    const variants = [
-      lower,
-      stripped,
-      trimmed,
-      unleet(lower),
-      unleet(trimmed),
-      unleet(lower).replace(/[^a-z]/g, ""),
-    ];
-
-    if (COMMON_PASSWORDS.has(lower) || COMMON_PASSWORDS.has(stripped)) {
-      bits = Math.min(bits, 8);
-      findings.push([
-        "bad",
-        "This is one of the most guessed passwords in the world — change it everywhere it is used.",
-      ]);
-    } else if (
-      variants.some((v) => v.length >= 4 && COMMON_PASSWORDS.has(v))
-    ) {
-      bits = Math.min(bits, 22);
-      findings.push([
-        "bad",
-        "A well-known password dressed up with predictable swaps (@ for a, 0 for o, a number on the end). Cracking tools try those first.",
-      ]);
-    }
-
-    if (password.length < 8) {
-      findings.push([
-        "bad",
-        "Only " + password.length + " characters. Anything under 8 falls in seconds.",
-      ]);
-    } else if (password.length < 12) {
-      findings.push([
-        "warn",
-        password.length + " characters is short. Aim for 16 or more.",
-      ]);
-    } else {
-      findings.push(["good", password.length + " characters is a good length."]);
-    }
-
-    if (classes <= 2) {
-      findings.push([
-        "warn",
-        "Only " +
-          classes +
-          " character type" +
-          (classes === 1 ? "" : "s") +
-          " in use. Mixing upper case, digits and symbols multiplies the search space.",
-      ]);
-    } else if (classes === 4) {
-      findings.push(["good", "Uses all four character types."]);
-    }
-
-    if (/(.)\1{2,}/.test(password)) {
-      findings.push(["warn", "Contains a character repeated three or more times in a row."]);
-    }
-
-    let runLength = 1;
-    let longestRun = 1;
-    for (let i = 1; i < password.length; i++) {
-      if (isSequential(password[i - 1], password[i])) runLength += 1;
-      else runLength = 1;
-      longestRun = Math.max(longestRun, runLength);
-    }
-    if (longestRun >= 4) {
-      findings.push([
-        "warn",
-        "Contains a keyboard or alphabet run such as “abc”, “123” or “qwe”.",
-      ]);
-    }
-
-    if (/(19|20)\d{2}/.test(password)) {
-      findings.push(["warn", "Looks like it contains a year — birthdays and dates are guessed early."]);
-    }
-
-    // Words are a single guess to a dictionary attack, not a string of
-    // independent characters — so score recognised words per word.
-    const bitsPerWord = Math.log2(wordList.length || 2);
-    // Check both the literal spelling and the un-leeted one, so neither
-    // "Elite3" nor "3l1t3" slips past the word list.
-    const seenWords = new Set();
-    const dictionaryWords = [];
-    tokenize(password)
-      .concat(tokenize(unleet(password)))
-      .forEach((token) => {
-        if (wordList.indexOf(token) !== -1 && !seenWords.has(token)) {
-          seenWords.add(token);
-          dictionaryWords.push(token);
-        }
-      });
-    const dictionaryLetters = dictionaryWords.reduce(
-      (total, word) => total + word.length,
-      0
-    );
-
-    if (dictionaryWords.length && dictionaryLetters >= password.length * 0.5) {
-      // Separators repeated between words ("-" four times) are a pattern, not
-      // four independent choices, so only distinct leftovers earn full credit.
-      const leftovers = password.length - dictionaryLetters;
-      const distinctLeftovers = countDistinctNonWordChars(
-        password,
-        dictionaryWords
-      );
-      bits = Math.min(
-        bits,
-        dictionaryWords.length * bitsPerWord +
-          distinctLeftovers * Math.log2(pool) +
-          Math.max(0, leftovers - distinctLeftovers)
-      );
-      if (dictionaryWords.length === 1) {
-        findings.push([
-          "warn",
-          "Built around a single dictionary word — a word list cracks that far faster than its length suggests.",
-        ]);
-      } else {
-        findings.push([
-          scoreFromBits(bits) >= 4 ? "good" : "warn",
-          "Recognised as " +
-            dictionaryWords.length +
-            " dictionary words, so it is scored per word rather than per character.",
-        ]);
-      }
-    }
-
-    const score = scoreFromBits(bits);
-    if (score >= 4 && !findings.some((f) => f[0] !== "good")) {
-      findings.push([
-        "good",
-        "Nothing obvious to improve — just never reuse it on another site.",
-      ]);
-    }
-
-    // Praise reads as mockery next to a failing verdict, so drop it.
-    const relevant =
-      score <= 2 ? findings.filter((f) => f[0] !== "good") : findings;
-
-    return { bits: bits, score: score, findings: relevant.slice(0, 5) };
-  }
-
   function runCheck() {
     const password = el.checkInput.value;
 
@@ -1024,26 +632,21 @@
       return;
     }
 
-    const result = analyze(password);
+    const result = core.analyze(password);
     setMeter(
       el.checkMeter,
       el.checkMeterTrack,
       result.score,
-      SCORE_LABELS[result.score],
+      core.SCORE_LABELS[result.score],
       Math.round(result.bits) + " bits",
-      formatCrackTime(result.bits) + " to crack"
+      core.formatCrackTime(result.bits) + " to crack"
     );
 
     el.checkFindings.textContent = "";
     result.findings.forEach((finding) => {
       const li = document.createElement("li");
       li.className = "finding finding-" + finding[0];
-      const icon =
-        finding[0] === "good"
-          ? "i-check"
-          : finding[0] === "bad"
-          ? "i-warning"
-          : "i-warning";
+      const icon = finding[0] === "good" ? "i-check" : "i-warning";
       li.innerHTML =
         '<svg class="icon icon-sm" aria-hidden="true"><use href="#' +
         icon +
@@ -1105,6 +708,10 @@
     });
   }
 
+  function toggleTheme() {
+    setTheme(effectiveTheme() === "light" ? "dark" : "light");
+  }
+
   /* --------------------------------------------------------------- settings */
 
   function saveSettings() {
@@ -1130,6 +737,7 @@
           addNumber: opts.addNumber,
           addSymbol: opts.addSymbol,
           pinLength: opts.pinLength,
+          clearClipboard: el.clearClipboard.checked,
         })
       );
     } catch (err) {
@@ -1148,12 +756,12 @@
 
     const bool = (value, fallback) =>
       typeof value === "boolean" ? value : fallback;
+    const int = (value, fallback, min, max) =>
+      clamp(parseInt(value, 10) || fallback, min, max);
 
-    if (["password", "passphrase", "pin"].indexOf(saved.mode) !== -1) {
-      state.mode = saved.mode;
-    }
-    setLength(clamp(saved.length || 15, 4, 128));
-    el.count.value = clamp(saved.count || 1, 1, 50);
+    if (MODES.indexOf(saved.mode) !== -1) state.mode = saved.mode;
+    setLength(int(saved.length, 15, 4, 128));
+    el.count.value = int(saved.count, 1, 1, 50);
     el.uppercase.checked = bool(saved.uppercase, true);
     el.lowercase.checked = bool(saved.lowercase, true);
     el.numbers.checked = bool(saved.numbers, true);
@@ -1163,7 +771,7 @@
     el.noRepeats.checked = bool(saved.noRepeats, false);
     el.excludeChars.value =
       typeof saved.excludeChars === "string" ? saved.excludeChars.slice(0, 60) : "";
-    el.wordCount.value = clamp(saved.words || 6, 3, 12);
+    el.wordCount.value = int(saved.words, 6, 3, 12);
     if (
       typeof saved.separator === "string" &&
       Array.from(el.separator.options).some((o) => o.value === saved.separator)
@@ -1173,14 +781,15 @@
     el.capitalize.checked = bool(saved.capitalize, true);
     el.addNumber.checked = bool(saved.addNumber, true);
     el.addSymbol.checked = bool(saved.addSymbol, false);
-    el.pinLength.value = clamp(saved.pinLength || 6, 3, 16);
+    el.pinLength.value = int(saved.pinLength, 6, 3, 16);
+    el.clearClipboard.checked = bool(saved.clearClipboard, false);
 
     if (
       el.excludeAmbiguous.checked ||
       el.noRepeats.checked ||
       el.excludeChars.value
     ) {
-      $("#advanced").open = true;
+      el.advanced.open = true;
     }
   }
 
@@ -1190,27 +799,39 @@
     return Math.min(max, Math.max(min, value));
   }
 
-  function round1(value) {
-    return value < 10 ? Math.round(value * 10) / 10 : Math.round(value);
-  }
-
   function setLength(value) {
     el.length.value = value;
     el.lengthRange.value = Math.min(value, parseInt(el.lengthRange.max, 10));
   }
 
-  function switchMode(mode) {
-    state.mode = mode;
+  function syncTabs() {
     el.tabs.forEach((tab) => {
-      const active = tab.dataset.mode === mode;
+      const active = tab.dataset.mode === state.mode;
       tab.classList.toggle("is-active", active);
       tab.setAttribute("aria-selected", String(active));
       tab.tabIndex = active ? 0 : -1;
     });
     Object.keys(el.panels).forEach((key) => {
-      el.panels[key].hidden = key !== mode;
+      el.panels[key].hidden = key !== state.mode;
     });
+  }
+
+  function switchMode(mode) {
+    state.mode = mode;
+    syncTabs();
     generate();
+  }
+
+  /** A preset chip only stays lit while the options still match it. */
+  function clearPresetHighlight() {
+    Array.from(el.presets.children).forEach((chip) =>
+      chip.classList.remove("is-active")
+    );
+  }
+
+  function userSwitchMode(mode) {
+    clearPresetHighlight();
+    switchMode(mode);
   }
 
   function applyPreset(name) {
@@ -1281,6 +902,28 @@
     };
   }
 
+  /**
+   * Shortcuts are single letters, so they must stay out of the way of text
+   * entry — but not of checkboxes and sliders, which take no letters.
+   */
+  function isTypingTarget(target) {
+    if (!target || !target.tagName) return false;
+    if (target.isContentEditable) return true;
+    if (target.tagName === "TEXTAREA" || target.tagName === "SELECT") return true;
+    if (target.tagName !== "INPUT") return false;
+    return (
+      ["checkbox", "radio", "range", "button", "submit", "reset", "color"].indexOf(
+        target.type
+      ) === -1
+    );
+  }
+
+  function onDialogBackdropClick(dialog) {
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+  }
+
   /* ---------------------------------------------------------------- wiring */
 
   function bindEvents() {
@@ -1304,14 +947,37 @@
 
     el.maskBtn.addEventListener("click", () => toggleMask());
 
+    el.clearClipboard.addEventListener("change", () => {
+      if (!el.clearClipboard.checked) cancelClipboardClear();
+      saveSettings();
+    });
+
     el.tabs.forEach((tab) => {
-      tab.addEventListener("click", () => switchMode(tab.dataset.mode));
+      tab.addEventListener("click", () => userSwitchMode(tab.dataset.mode));
+    });
+
+    // WAI-ARIA tabs: only the active tab is in the Tab order, and the arrow
+    // keys, Home and End move between tabs.
+    el.tablist.addEventListener("keydown", (event) => {
+      const index = el.tabs.indexOf(document.activeElement);
+      if (index === -1) return;
+      let next = null;
+      if (event.key === "ArrowRight") next = (index + 1) % el.tabs.length;
+      else if (event.key === "ArrowLeft")
+        next = (index - 1 + el.tabs.length) % el.tabs.length;
+      else if (event.key === "Home") next = 0;
+      else if (event.key === "End") next = el.tabs.length - 1;
+      if (next === null) return;
+      event.preventDefault();
+      userSwitchMode(el.tabs[next].dataset.mode);
+      el.tabs[next].focus();
     });
 
     // Sliders regenerate live; the number field waits for a committed value.
     [el.lengthRange, el.wordCount, el.pinLength, el.count].forEach((range) => {
       range.addEventListener("input", () => {
         if (range === el.lengthRange) el.length.value = range.value;
+        clearPresetHighlight();
         syncSliders();
         generate();
       });
@@ -1319,6 +985,7 @@
 
     el.length.addEventListener("change", () => {
       setLength(clamp(parseInt(el.length.value, 10) || 15, 4, 128));
+      clearPresetHighlight();
       syncSliders();
       generate();
     });
@@ -1342,9 +1009,18 @@
       el.capitalize,
       el.addNumber,
       el.addSymbol,
-    ].forEach((input) => input.addEventListener("change", generate));
+    ].forEach((input) =>
+      input.addEventListener("change", () => {
+        clearPresetHighlight();
+        generate();
+      })
+    );
 
-    el.excludeChars.addEventListener("input", debounce(generate, 350));
+    const generateSoon = debounce(generate, 350);
+    el.excludeChars.addEventListener("input", () => {
+      clearPresetHighlight();
+      generateSoon();
+    });
 
     el.presets.addEventListener("click", (event) => {
       const chip = event.target.closest(".chip");
@@ -1376,27 +1052,37 @@
         .setAttribute("href", revealed ? "#i-eye" : "#i-eye-off");
     });
 
-    el.themeBtn.addEventListener("click", () => {
-      setTheme(effectiveTheme() === "light" ? "dark" : "light");
-    });
+    el.themeBtn.addEventListener("click", toggleTheme);
 
     el.shortcutsBtn.addEventListener("click", () => el.dialog.showModal());
     el.closeDialogBtn.addEventListener("click", () => el.dialog.close());
-    el.dialog.addEventListener("click", (event) => {
-      if (event.target === el.dialog) el.dialog.close();
+    onDialogBackdropClick(el.dialog);
+
+    el.closeCopyDialogBtn.addEventListener("click", () => el.copyDialog.close());
+    onDialogBackdropClick(el.copyDialog);
+    // Do not leave the value sitting in a hidden field.
+    el.copyDialog.addEventListener("close", () => {
+      el.copyDialogText.value = "";
     });
 
     document.addEventListener("keydown", (event) => {
-      const target = event.target;
-      const typing =
-        target &&
-        (target.tagName === "INPUT" ||
-          target.tagName === "TEXTAREA" ||
-          target.tagName === "SELECT" ||
-          target.isContentEditable);
-      if (typing || event.metaKey || event.ctrlKey || event.altKey) return;
+      if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) {
+        return;
+      }
+      // Nothing fires behind an open dialog; Esc closes it natively.
+      if (isTypingTarget(event.target) || document.querySelector("dialog[open]")) {
+        return;
+      }
 
-      const key = event.key.toLowerCase();
+      // Physical keys for 1/2/3, so layouts that need Shift for digits
+      // (Czech, French…) work too.
+      const digit = /^(?:Digit|Numpad)([1-3])$/.exec(event.code || "");
+      if (digit) {
+        userSwitchMode(MODES[Number(digit[1]) - 1]);
+        return;
+      }
+
+      const key = (event.key || "").toLowerCase();
       if (key === "g") {
         event.preventDefault();
         generate({ remember: true });
@@ -1405,17 +1091,25 @@
       } else if (key === "h") {
         toggleMask();
       } else if (key === "t") {
-        setTheme(effectiveTheme() === "light" ? "dark" : "light");
-      } else if (key === "1" || key === "2" || key === "3") {
-        switchMode(["password", "passphrase", "pin"][Number(key) - 1]);
+        toggleTheme();
       } else if (event.key === "?") {
         el.dialog.showModal();
       }
     });
 
-    // Leave nothing behind in memory-visible UI when the tab is closed.
+    window.addEventListener("focus", clearClipboardNow);
+
+    // Leaving the page (or parking it in the back/forward cache) wipes what
+    // the session list and the checker were holding, as the page promises.
     window.addEventListener("pagehide", () => {
       state.history = [];
+      renderHistory();
+      el.checkInput.value = "";
+      runCheck();
+      if (el.copyDialog.open) el.copyDialog.close();
+    });
+    window.addEventListener("pageshow", (event) => {
+      if (event.persisted) generate();
     });
   }
 
@@ -1433,23 +1127,11 @@
 
     // App shortcuts (./?mode=passphrase) win over the remembered mode.
     const requestedMode = new URLSearchParams(location.search).get("mode");
-    if (["password", "passphrase", "pin"].indexOf(requestedMode) !== -1) {
-      state.mode = requestedMode;
-    }
+    if (MODES.indexOf(requestedMode) !== -1) state.mode = requestedMode;
 
     syncSliders();
     bindEvents();
-
-    el.tabs.forEach((tab) => {
-      const active = tab.dataset.mode === state.mode;
-      tab.classList.toggle("is-active", active);
-      tab.setAttribute("aria-selected", String(active));
-      tab.tabIndex = active ? 0 : -1;
-    });
-    Object.keys(el.panels).forEach((key) => {
-      el.panels[key].hidden = key !== state.mode;
-    });
-
+    syncTabs();
     generate();
 
     if ("serviceWorker" in navigator) {

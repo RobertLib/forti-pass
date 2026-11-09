@@ -260,3 +260,6 @@ const WORDS = Array.from(
     ].map((w) => w.toLowerCase())
   )
 );
+
+// Lets the Node test suite load the same list the browser uses.
+if (typeof module === "object" && module.exports) module.exports = WORDS;

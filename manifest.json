@@ -6,10 +6,13 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait-primary",
   "background_color": "#080b16",
   "theme_color": "#0b1020",
-  "categories": ["utilities", "security", "productivity"],
+  "categories": [
+    "utilities",
+    "security",
+    "productivity"
+  ],
   "lang": "en",
   "dir": "ltr",
   "icons": [
@@ -26,7 +29,7 @@
       "purpose": "any"
     },
     {
-      "src": "icon-512.png",
+      "src": "icon-maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

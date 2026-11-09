@@ -2,24 +2,25 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!-- Defence in depth: only this site's own files may run or load, and
+         connect-src 'none' makes "no network requests" a browser-enforced
+         rule. The hash is the inline theme script below — if you edit that
+         script, recompute it (see README). -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'sha256-qBiHx0Lu0M/pXQJ9mBB73RLXIvt21pv+iuDWl4AlRT4='; style-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <meta name="referrer" content="no-referrer" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- SEO Meta Tags -->
-    <title>
-      FortiPass - Free Strong Password &amp; Passphrase Generator | Works
-      Offline
-    </title>
+    <title>FortiPass - Free Strong Password &amp; Passphrase Generator | Works Offline</title>
     <meta
       name="description"
       content="Free password generator that runs entirely in your browser. Create strong random passwords, memorable passphrases and PINs, see real entropy and crack-time estimates, and check how strong your own password is. No sign-up, no tracking, works offline."
     />
-    <meta
-      name="keywords"
-      content="password generator, passphrase generator, strong passwords, random password, secure password, password strength checker, entropy, PIN generator, offline password generator, cybersecurity"
-    />
-    <meta name="author" content="Robert Libsansky" />
+    <meta name="author" content="Robert Libšanský" />
     <meta name="robots" content="index, follow" />
-    <meta name="language" content="en" />
     <meta name="color-scheme" content="dark light" />
     <meta
       name="theme-color"
@@ -31,6 +32,7 @@
       content="#f4f6fc"
       media="(prefers-color-scheme: light)"
     />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="FortiPass" />
 
@@ -38,6 +40,7 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://robertlib.github.io/forti-pass/" />
     <meta property="og:site_name" content="FortiPass" />
+    <meta property="og:locale" content="en_US" />
     <meta
       property="og:title"
       content="FortiPass - Free Strong Password &amp; Passphrase Generator"
@@ -48,26 +51,32 @@
     />
     <meta
       property="og:image"
-      content="https://robertlib.github.io/forti-pass/icon-512.png"
+      content="https://robertlib.github.io/forti-pass/og-image.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="FortiPass logo with the tagline “Strong passwords, made on your device” and a sample generated password"
     />
 
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
     <meta
-      property="twitter:url"
-      content="https://robertlib.github.io/forti-pass/"
-    />
-    <meta
-      property="twitter:title"
+      name="twitter:title"
       content="FortiPass - Free Strong Password &amp; Passphrase Generator"
     />
     <meta
-      property="twitter:description"
+      name="twitter:description"
       content="Generate strong passwords, memorable passphrases and PINs directly in your browser. Real entropy and crack-time estimates. Nothing ever leaves your device."
     />
     <meta
-      property="twitter:image"
-      content="https://robertlib.github.io/forti-pass/icon-512.png"
+      name="twitter:image"
+      content="https://robertlib.github.io/forti-pass/og-image.png"
+    />
+    <meta
+      name="twitter:image:alt"
+      content="FortiPass logo with the tagline “Strong passwords, made on your device” and a sample generated password"
     />
 
     <!-- Canonical URL -->
@@ -106,7 +115,7 @@
         ],
         "author": {
           "@type": "Person",
-          "name": "Robert Libsansky"
+          "name": "Robert Libšanský"
         }
       }
     </script>
@@ -128,7 +137,7 @@
             "name": "How long should a password be?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "For a password you never have to type from memory, use 16 characters or more with all character types. For something you must remember, use a passphrase of 5 or more random words, which is easier to type and just as hard to guess."
+              "text": "For a password you never have to type from memory, use 16 characters or more with all character types. For something you must remember, use a passphrase of 6 or more random words, which is easier to type and just as hard to guess."
             }
           },
           {
@@ -136,7 +145,7 @@
             "name": "What is password entropy?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Entropy measures how unpredictable a password is, in bits. Each extra bit doubles the number of guesses an attacker needs. 60 bits is reasonable, 80 bits is strong and 100 bits or more is excellent for almost any threat model."
+              "text": "Entropy measures how unpredictable a password is, in bits. Each extra bit doubles the number of guesses an attacker needs. Below 50 bits is weak, 50 to 70 bits is fair, 70 bits or more is strong and 90 bits or more is excellent for almost any threat model."
             }
           },
           {
@@ -167,7 +176,7 @@
       }
     </script>
 
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=3" />
     <script>
       // Apply the saved theme before first paint to avoid a flash of the wrong colours.
       (function () {
@@ -392,6 +401,15 @@
                 <span class="btn-label">Copy</span>
               </button>
             </div>
+
+            <label class="switch switch-compact">
+              <input type="checkbox" id="clearClipboard" />
+              <span class="switch-track" aria-hidden="true"></span>
+              <span class="switch-text">
+                Clear the clipboard 30 s after copying
+                <small>Browsers only allow this while FortiPass is the active tab, so it may wait until you come back.</small>
+              </span>
+            </label>
           </div>
 
           <!-- Strength meter -->
@@ -537,8 +555,8 @@
               </div>
               <input type="range" id="wordCount" min="3" max="12" step="1" value="6" />
               <p class="hint">
-                Six random words are easy to type, easy to remember and hard to
-                crack. Each word adds about 11 bits.
+                Random words are easy to type and remember. Each one adds about
+                11 bits — six words plus a number clear the 70-bit “Strong” mark.
               </p>
             </div>
 
@@ -660,9 +678,13 @@
               id="checkInput"
               class="text-input"
               placeholder="Type or paste a password…"
+              maxlength="256"
               autocomplete="off"
               autocapitalize="off"
               spellcheck="false"
+              data-1p-ignore
+              data-lpignore="true"
+              data-bwignore
               aria-describedby="checkVerdict"
             />
             <button
@@ -778,7 +800,7 @@
             </li>
             <li>
               <strong>Use a passphrase for what you must type.</strong> Device
-              logins and your password-manager vault are easier as five or six
+              logins and your password-manager vault are easier as six or more
               random words.
             </li>
             <li>
@@ -808,7 +830,7 @@
                 For anything stored in a password manager, use 16 characters or
                 more with all character types — that is over 100 bits of entropy
                 and out of reach of brute force. For a password you have to type
-                from memory, a five or six word passphrase is a better trade
+                from memory, a passphrase of six or more words is a better trade
                 between security and your patience.
               </p>
             </details>
@@ -816,9 +838,10 @@
               <summary>What does "entropy" actually mean?</summary>
               <p>
                 Entropy is a measure of unpredictability expressed in bits. Each
-                additional bit doubles the number of guesses needed. Around 60
-                bits is reasonable for everyday accounts, 80 bits is strong, and
-                100 bits or more is excellent for essentially any threat model.
+                additional bit doubles the number of guesses needed. FortiPass
+                calls anything below 50 bits weak, 50 to 70 bits fair, 70 bits
+                or more strong, and 90 bits or more excellent for essentially any
+                threat model.
               </p>
             </details>
             <details>
@@ -844,9 +867,10 @@
               <summary>Does the strength checker upload what I type?</summary>
               <p>
                 No. The check runs on heuristics and entropy maths that ship with
-                the page — character variety, length, repetition, sequences,
-                keyboard patterns and a list of very common passwords. Nothing is
-                sent over the network and nothing is kept after you close the tab.
+                the page — dictionary words, a list of very common passwords,
+                leet swaps, repeated blocks, keyboard sequences, years and
+                character variety. Nothing is sent over the network, and the
+                field is wiped when you leave the page.
               </p>
             </details>
           </div>
@@ -855,7 +879,7 @@
 
       <footer>
         <p>
-          &copy; 2025 Robert Libsansky · FortiPass is free and open source ·
+          &copy; 2025 Robert Libšanský · FortiPass is free and open source ·
           <a href="https://github.com/robertlib/forti-pass" rel="noopener">Source on GitHub</a>
         </p>
         <p class="footer-note">
@@ -885,8 +909,31 @@
         <div><dt><kbd>Esc</kbd></dt><dd>Close dialog</dd></div>
       </dl>
       <p class="dialog-note">
-        Shortcuts are ignored while you are typing in a field.
+        Shortcuts are ignored while you are typing in a field. In the mode
+        tabs, the arrow keys switch between modes.
       </p>
+    </dialog>
+
+    <dialog class="dialog" id="copyDialog" aria-labelledby="copyDialogTitle">
+      <div class="dialog-head">
+        <h2 id="copyDialogTitle">Copy it yourself</h2>
+        <button type="button" class="icon-btn" id="closeCopyDialogBtn" aria-label="Close">
+          <svg class="icon" aria-hidden="true"><use href="#i-close" /></svg>
+        </button>
+      </div>
+      <p class="dialog-note dialog-note-top">
+        The browser blocked access to the clipboard. The text below is already
+        selected — press <kbd>Ctrl</kbd>&nbsp;<kbd>C</kbd>
+        (<kbd>⌘</kbd>&nbsp;<kbd>C</kbd> on a Mac).
+      </p>
+      <textarea
+        id="copyDialogText"
+        class="text-input copy-text"
+        rows="1"
+        readonly
+        spellcheck="false"
+        aria-label="Value to copy"
+      ></textarea>
     </dialog>
 
     <noscript>
@@ -896,7 +943,8 @@
       </div>
     </noscript>
 
-    <script src="wordlist.js"></script>
-    <script src="script.js"></script>
+    <script src="wordlist.js?v=3"></script>
+    <script src="core.js?v=3"></script>
+    <script src="script.js?v=3"></script>
   </body>
 </html>
