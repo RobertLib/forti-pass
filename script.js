@@ -24,7 +24,12 @@
   const THEME_KEY = "fortipass:theme";
   // Per tab only, so hiding survives switching between generator modes.
   const MASK_KEY = "fortipass:masked";
+  // When the clipboard is due to be wiped. Per tab, because the generator
+  // modes are separate pages and a timer dies with its page.
+  const CLIPBOARD_KEY = "fortipass:clipboardDue";
   const CLIPBOARD_CLEAR_MS = 30000;
+  // Screen readers hear the checker's verdict once typing pauses.
+  const CHECK_ANNOUNCE_MS = 900;
   const THEME_COLORS = { light: "#f6f7fb", dark: "#0c0e14" };
 
   const MODES = ["password", "passphrase", "pin"];
@@ -73,6 +78,8 @@
     historyCleared: "Session list cleared",
     wifiNeedName: "Type the network name and the QR code appears here.",
     wifiProblem: {
+      ssidLong:
+        "The network name is too long — routers allow 32 bytes, and an accented letter takes two.",
       short: "A Wi-Fi password needs at least 8 characters, or the router will refuse it.",
       long: "A Wi-Fi password can be at most 63 characters.",
       ascii:
@@ -211,6 +218,7 @@
     checkMeter: $("#checkMeter"),
     checkMeterTrack: $("#checkMeterTrack"),
     checkFindings: $("#checkFindings"),
+    checkStatus: $("#checkStatus"),
 
     wifi: $("#wifi"),
     wifiSsid: $("#wifiSsid"),
@@ -227,6 +235,7 @@
     wifiQr: $("#wifiQr"),
     wifiQrPath: $("#wifiQrPath"),
     wifiQrEmpty: $("#wifiQrEmpty"),
+    wifiJump: $("#wifiJump"),
     wifiPrintBtn: $("#wifiPrintBtn"),
     wifiSaveBtn: $("#wifiSaveBtn"),
     wifiPrintSsid: $("#wifiPrintSsid"),
@@ -253,9 +262,11 @@
     wifiGenerated: null,
   };
 
-  // When the clipboard should be wiped (ms timestamp), or 0 for never.
+  // When the clipboard should be wiped (ms timestamp), or 0 for never;
+  // mirrored in sessionStorage so the next page picks it up.
   let clipboardDue = 0;
   let clipboardTimer = null;
+  let checkAnnounceTimer = null;
 
   /* ------------------------------------------------------------ generation */
 
@@ -318,7 +329,7 @@
       for (let i = 0; i < opts.count; i++) {
         const next = make(opts);
         if (next.error) {
-          showError(next.error);
+          showError(next.error, next.code);
           return;
         }
         if (i === 0) first = next;
@@ -355,7 +366,7 @@
       result = { error: UI.generationFailed };
     }
     if (result.error) {
-      showError(result.error);
+      showError(result.error, result.code);
       return;
     }
 
@@ -441,6 +452,9 @@
   /** One value shows large; a list shows as rows, copied and saved as a whole. */
   function renderResults() {
     const list = state.results.length > 1;
+    markInvalid(null);
+    el.copyBtn.disabled = false;
+    el.maskBtn.disabled = false;
     el.hero.hidden = list;
     el.passwordList.hidden = !list;
     el.downloadBtn.hidden = !list;
@@ -466,6 +480,7 @@
     text.type = "button";
     text.className = "row-text";
     text.title = UI.clickToCopy;
+    text.dataset.copy = "";
     paint(text, value);
     if (state.masked) text.setAttribute("aria-label", UI.hiddenRow(index + 1));
 
@@ -475,6 +490,7 @@
     const copyBtn = iconButton("i-copy", UI.copy, () =>
       copyWithFeedback(state.results[index], copyBtn, "i-copy")
     );
+    copyBtn.dataset.copy = "";
     actions.appendChild(copyBtn);
 
     text.addEventListener("click", () => copyWithFeedback(state.results[index], copyBtn, "i-copy"));
@@ -504,8 +520,32 @@
     node.classList.add("is-flash");
   }
 
-  function showError(message) {
+  /**
+   * Points at the control behind a generation error: the character types,
+   * the excluded characters or the length. `code` null clears every mark.
+   */
+  function markInvalid(code) {
+    const types = el.uppercase && el.uppercase.closest("fieldset");
+    if (types) types.classList.toggle("is-invalid", code === "noTypes");
+    const marks = [
+      [el.excludeChars, code === "allExcluded" && !!el.excludeChars && el.excludeChars.value !== ""],
+      [el.length, ["notEnoughUnique", "unsatisfiable", "tooRestrictive"].indexOf(code) !== -1],
+    ];
+    marks.forEach(([node, invalid]) => {
+      if (!node) return;
+      if (invalid) node.setAttribute("aria-invalid", "true");
+      else node.removeAttribute("aria-invalid");
+    });
+    if (code === "allExcluded" && el.advanced) el.advanced.open = true;
+  }
+
+  function showError(message, code) {
     state.results = [];
+    markInvalid(code || null);
+    // Nothing to copy or hide until the options work again.
+    el.copyBtn.disabled = true;
+    el.maskBtn.disabled = true;
+    el.copyBtn.querySelector(".btn-label").textContent = UI.copy;
     el.hero.hidden = false;
     el.hero.classList.add("is-error");
     el.hero.classList.remove("is-masked");
@@ -577,6 +617,8 @@
     if (!el.wordBits) return;
     const language = el.wordLanguage ? el.wordLanguage.value : core.languages[0];
     el.wordBits.textContent = formatDecimal(Math.log2(Math.max(core.wordCount(language), 2)));
+    // Only the Czech words carry accents to leave out.
+    if (el.asciiOnly) el.asciiOnly.closest(".switch").hidden = language !== "cs";
   }
 
   /* -------------------------------------------------------------- clipboard */
@@ -652,33 +694,71 @@
     el.copyDialogText.select();
   }
 
-  function scheduleClipboardClear() {
+  function setClipboardDue(due) {
+    clipboardDue = due;
     clearTimeout(clipboardTimer);
-    clipboardDue = 0;
-    if (!el.clearClipboard || !el.clearClipboard.checked) return;
-    clipboardDue = Date.now() + CLIPBOARD_CLEAR_MS;
-    clipboardTimer = setTimeout(clearClipboardNow, CLIPBOARD_CLEAR_MS);
+    try {
+      if (due) sessionStorage.setItem(CLIPBOARD_KEY, String(due));
+      else sessionStorage.removeItem(CLIPBOARD_KEY);
+    } catch (err) {
+      /* storage unavailable — the wipe then only survives on this page */
+    }
+    if (due) clipboardTimer = setTimeout(clearClipboardNow, Math.max(0, due - Date.now()));
+  }
+
+  /** The switch lives on the generator pages; elsewhere its saved value counts. */
+  function clipboardClearingOn() {
+    if (el.clearClipboard) return el.clearClipboard.checked;
+    const saved = readSettings();
+    return !!saved && saved.clearClipboard === true;
+  }
+
+  function scheduleClipboardClear() {
+    setClipboardDue(clipboardClearingOn() ? Date.now() + CLIPBOARD_CLEAR_MS : 0);
   }
 
   function cancelClipboardClear() {
-    clearTimeout(clipboardTimer);
-    clipboardDue = 0;
+    setClipboardDue(0);
   }
 
   /**
-   * Browsers only allow clipboard writes from the focused tab. If the timer
-   * fires while the user is in another app, this runs again when they return.
+   * Chromium lets the focused tab write to the clipboard at any time;
+   * Firefox and Safari only straight after a click or key press. So the wipe
+   * is tried when the timer fires and when the tab regains focus, and — if
+   * the browser said no — on the next click or key press on the page (see
+   * onGesture). writeText is called synchronously, inside that gesture.
    */
-  async function clearClipboardNow() {
+  function clearClipboardNow() {
+    const due = clipboardDue;
+    if (!due || Date.now() < due) return;
+    if (!navigator.clipboard || !navigator.clipboard.writeText || !document.hasFocus()) return;
+    navigator.clipboard.writeText("").then(
+      () => {
+        // A copy made in the meantime set a new deadline; keep that one.
+        if (clipboardDue !== due) return;
+        setClipboardDue(0);
+        toast(UI.clipboardCleared, "info");
+      },
+      () => {
+        /* not allowed yet — the next click or key press tries again */
+      }
+    );
+  }
+
+  /**
+   * A click or key press lets Firefox and Safari write to the clipboard.
+   * Gestures that copy are skipped — the copy replaces the clipboard anyway,
+   * and an empty write racing it could land second — and so are Ctrl/⌘
+   * combinations, so a Ctrl+C of the user's own is never wiped.
+   */
+  function onGesture(event) {
     if (!clipboardDue || Date.now() < clipboardDue) return;
-    if (!navigator.clipboard || !document.hasFocus()) return;
-    try {
-      await navigator.clipboard.writeText("");
-      clipboardDue = 0;
-      toast(UI.clipboardCleared, "info");
-    } catch (err) {
-      /* still not allowed — try again on the next focus */
+    if (event.type === "keydown") {
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
+      if ((event.key || "").toLowerCase() === "c") return;
     }
+    if (event.target && event.target.closest && event.target.closest("[data-copy]")) return;
+    clearClipboardNow();
   }
 
   function saveFile(content, type, name) {
@@ -739,6 +819,7 @@
       text.type = "button";
       text.className = "row-text";
       text.title = UI.clickToCopy;
+      text.dataset.copy = "";
       paint(text, entry.value);
       if (state.masked) text.setAttribute("aria-label", UI.hiddenFrom(time.textContent));
 
@@ -747,6 +828,7 @@
       const copyBtn = iconButton("i-copy", UI.copy, () =>
         copyWithFeedback(entry.value, copyBtn, "i-copy")
       );
+      copyBtn.dataset.copy = "";
       actions.appendChild(copyBtn);
       text.addEventListener("click", () => copyWithFeedback(entry.value, copyBtn, "i-copy"));
 
@@ -763,14 +845,30 @@
     if (!el.checkInput) return;
     const password = el.checkInput.value;
 
+    clearTimeout(checkAnnounceTimer);
     if (!password) {
       setMeter(el.checkMeter, el.checkMeterTrack, 0, UI.waiting, "—", "—");
       el.checkFindings.textContent = "";
+      if (el.checkStatus) el.checkStatus.textContent = "";
       return;
     }
 
     const result = core.analyze(password);
     showBits(el.checkMeter, el.checkMeterTrack, result.bits);
+
+    // The verdict changes on every keystroke; say it once typing pauses.
+    if (el.checkStatus) {
+      const summary =
+        UI.strength(core.SCORE_LABELS[result.score]) +
+        ", " +
+        UI.bits(Math.round(result.bits)) +
+        ", " +
+        prettyPowers(UI.toCrack(core.formatCrackTime(result.bits))) +
+        ".";
+      checkAnnounceTimer = setTimeout(() => {
+        el.checkStatus.textContent = summary;
+      }, CHECK_ANNOUNCE_MS);
+    }
 
     el.checkFindings.textContent = "";
     result.findings.forEach((finding) => {
@@ -844,10 +942,11 @@
       setMeter(el.wifiMeter, el.wifiMeterTrack, 0, open ? "—" : UI.waiting, "—", "—");
     }
 
-    const problem = open ? null : core.wifiPasswordProblem(password);
+    // A name over 32 bytes is as fatal as a bad password, so it comes first.
+    const problem = core.wifiSsidProblem(ssid) || (open ? null : core.wifiPasswordProblem(password));
     // The hint is a live region: rewriting the same text on every keystroke
     // would make screen readers repeat it.
-    const hint = open ? UI.wifiOpen : problem ? UI.wifiProblem[problem] : UI.wifiOk;
+    const hint = problem ? UI.wifiProblem[problem] : open ? UI.wifiOpen : UI.wifiOk;
     if (el.wifiHint.textContent !== hint) el.wifiHint.textContent = hint;
     el.wifiHint.classList.toggle("is-problem", !!problem || open);
 
@@ -861,7 +960,11 @@
     el.wifiQrEmpty.hidden = ready;
     el.wifiPrintBtn.disabled = !ready;
     el.wifiSaveBtn.disabled = !ready;
+    // On a phone the card sits below the form; this link leads to it.
+    if (el.wifiJump) el.wifiJump.hidden = !ready;
     if (!ready) {
+      // Nothing of an old network may linger in the hidden code.
+      el.wifiQrPath.setAttribute("d", "");
       el.wifiQrEmpty.textContent = problem ? UI.wifiProblem[problem] : UI.wifiNeedName;
       return;
     }
@@ -975,28 +1078,48 @@
 
   /* ------------------------------------------------------------------ theme */
 
-  function effectiveTheme() {
-    if (document.documentElement.dataset.theme) {
-      return document.documentElement.dataset.theme;
-    }
+  // The browser-chrome colours as the page ships them: one per system theme.
+  const THEME_METAS = Array.from(document.querySelectorAll('meta[name="theme-color"]')).map(
+    (meta) => ({ meta: meta, media: meta.getAttribute("media"), content: meta.getAttribute("content") })
+  );
+
+  function systemTheme() {
     return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   }
 
+  function effectiveTheme() {
+    return document.documentElement.dataset.theme || systemTheme();
+  }
+
+  /** "light" or "dark" pins a theme; null follows the system again. */
   function setTheme(theme) {
-    document.documentElement.dataset.theme = theme;
+    const root = document.documentElement;
     try {
-      localStorage.setItem(THEME_KEY, theme);
+      if (theme) localStorage.setItem(THEME_KEY, theme);
+      else localStorage.removeItem(THEME_KEY);
     } catch (err) {
       /* private mode — the theme simply will not persist */
     }
-    document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => {
-      meta.removeAttribute("media");
-      meta.setAttribute("content", THEME_COLORS[theme]);
+    if (theme) root.dataset.theme = theme;
+    else delete root.dataset.theme;
+    THEME_METAS.forEach((item) => {
+      if (theme) {
+        item.meta.removeAttribute("media");
+        item.meta.setAttribute("content", THEME_COLORS[theme]);
+      } else {
+        if (item.media) item.meta.setAttribute("media", item.media);
+        item.meta.setAttribute("content", item.content);
+      }
     });
   }
 
+  /**
+   * Flips light and dark. Landing on the system's own theme hands control
+   * back to the system, so the page follows it again from then on.
+   */
   function toggleTheme() {
-    setTheme(effectiveTheme() === "light" ? "dark" : "light");
+    const next = effectiveTheme() === "light" ? "dark" : "light";
+    setTheme(next === systemTheme() ? null : next);
   }
 
   /* --------------------------------------------------------------- settings */
@@ -1207,13 +1330,22 @@
       });
     });
 
-    if (el.length) {
-      el.length.addEventListener("change", () => {
-        setLength(intOf(el.length, "length"));
-        syncSliders();
-        generate();
+    // Each slider has a number field beside it, committed on change.
+    [
+      [el.length, el.lengthRange, "length"],
+      [el.wordCountValue, el.wordCount, "words"],
+      [el.pinLengthValue, el.pinLength, "pinLength"],
+    ]
+      .filter(([input]) => input)
+      .forEach(([input, range, key]) => {
+        input.addEventListener("change", () => {
+          const value = intOf(input, key);
+          if (key === "length") setLength(value);
+          else range.value = input.value = value;
+          syncSliders();
+          generate();
+        });
       });
-    }
 
     el.count.addEventListener("change", () => {
       el.count.value = intOf(el.count, "count");
@@ -1232,7 +1364,7 @@
     });
 
     // Enter in a number field commits it instead of doing nothing.
-    [el.length, el.count].filter(Boolean).forEach((input) => {
+    [el.length, el.wordCountValue, el.pinLengthValue, el.count].filter(Boolean).forEach((input) => {
       input.addEventListener("keydown", (event) => {
         if (event.key === "Enter") {
           event.preventDefault();
@@ -1346,6 +1478,23 @@
     });
 
     window.addEventListener("focus", clearClipboardNow);
+    // Firefox and Safari only write to the clipboard during a user gesture
+    // (a touch counts on pointerup, a mouse on pointerdown).
+    ["pointerdown", "pointerup", "keydown"].forEach((type) =>
+      document.addEventListener(type, onGesture, true)
+    );
+
+    // Closed <details> do not print, so the FAQ opens for paper and closes
+    // again afterwards.
+    let openedForPrint = [];
+    window.addEventListener("beforeprint", () => {
+      openedForPrint = Array.from(document.querySelectorAll(".faq details:not([open])"));
+      openedForPrint.forEach((details) => (details.open = true));
+    });
+    window.addEventListener("afterprint", () => {
+      openedForPrint.forEach((details) => (details.open = false));
+      openedForPrint = [];
+    });
 
     // Leaving the page (or parking it in the back/forward cache) wipes what
     // the session list, the checker and the Wi-Fi card were holding, as the
@@ -1360,6 +1509,8 @@
       if (el.wifi) {
         el.wifiPassword.value = "";
         state.wifiGenerated = null;
+        // The guest card and the QR code hold the password too.
+        renderWifi();
       }
       if (el.copyDialog.open) el.copyDialog.close();
     });
@@ -1381,6 +1532,14 @@
     }
 
     bindPage();
+
+    // A wipe promised on another page of this tab still has to happen.
+    try {
+      const due = Number(sessionStorage.getItem(CLIPBOARD_KEY));
+      if (due > 0) setClipboardDue(due);
+    } catch (err) {
+      /* storage unavailable */
+    }
 
     if (el.generator) {
       if (MODES.indexOf(el.generator.dataset.mode) !== -1) state.mode = el.generator.dataset.mode;

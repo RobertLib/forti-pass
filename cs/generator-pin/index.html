@@ -112,7 +112,7 @@
 }
     </script>
 
-    <link rel="stylesheet" href="../../styles.css?v=aba40534e1" />
+    <link rel="stylesheet" href="../../styles.css?v=729cd690fe" />
     <script>
       (function () {
         try {
@@ -292,7 +292,7 @@
           <h1>Generátor náhodného PINu</h1>
           <p class="lede">Žádná data narození ani 1234 — každou číslici vybere kryptografický generátor náhodných čísel.</p>
           <ul class="trust">
-            <li><svg class="icon icon-sm" aria-hidden="true"><use href="#i-lock" /></svg>Vzniká v prohlížeči, nikam se neposílá</li>
+            <li><svg class="icon icon-sm" aria-hidden="true"><use href="#i-lock" /></svg>Vzniká v prohlížeči, nikam se neposílá</li>
             <li><svg class="icon icon-sm" aria-hidden="true"><use href="#i-offline" /></svg>Funguje offline</li>
             <li><svg class="icon icon-sm" aria-hidden="true"><use href="#i-code" /></svg>Open source</li>
           </ul>
@@ -312,12 +312,12 @@
           <div class="tool-body">
             <div class="pane result-pane">
               <div class="result" id="result">
-                <button type="button" class="password-display" id="heroPassword" title="Kliknutím zkopírujete"></button>
+                <button type="button" class="password-display" id="heroPassword" title="Kliknutím zkopírujete" data-copy></button>
                 <ol class="password-list bulk-list" id="passwordList" hidden></ol>
               </div>
 
               <div class="result-actions">
-                <button type="button" class="btn btn-primary" id="copyBtn" title="Kopírovat (C)">
+                <button type="button" class="btn btn-primary" id="copyBtn" title="Kopírovat (C)" data-copy>
                   <svg class="icon" aria-hidden="true"><use href="#i-copy" /></svg>
                   <span class="btn-label">Kopírovat</span>
                 </button>
@@ -339,7 +339,7 @@
               </div>
               <div class="meter-meta">
                 <strong class="strength-label" id="strengthLabel">Výborné</strong>
-                <span class="meta-item" title="Entropie v bitech — každý bit navíc zdvojnásobí počet potřebných pokusů">
+                <span class="meta-item" title="Entropie v bitech — každý bit navíc zdvojnásobí počet potřebných pokusů">
                   <svg class="icon icon-sm" aria-hidden="true"><use href="#i-gauge" /></svg>
                   <span id="entropyText">—</span>
                 </span>
@@ -355,8 +355,8 @@
                 <input type="checkbox" id="clearClipboard" />
                 <span class="switch-track" aria-hidden="true"></span>
                 <span class="switch-text">
-                  <span>Vymazat schránku 30 s po zkopírování</span>
-                  <small>Prohlížeče to dovolí jen tehdy, když je FortiPass aktivní karta, takže se schránka případně vymaže až po vašem návratu.</small>
+                  <span>Vymazat schránku 30 s po zkopírování</span>
+                  <small>Pokud to prohlížeč na pozadí nedovolí, schránka se vymaže při vašem dalším kliknutí nebo stisku klávesy na stránce FortiPass.</small>
                 </span>
               </label>
 
@@ -368,7 +368,7 @@
                   <svg class="icon icon-sm summary-chevron" aria-hidden="true"><use href="#i-chevron" /></svg>
                 </summary>
                 <div class="recent-body">
-                  <p class="hint">Co jste v této kartě vygenerovali nebo zkopírovali — jen v paměti. Obnovením nebo zavřením stránky se to smaže.</p>
+                  <p class="hint">Co jste v této kartě vygenerovali nebo zkopírovali — jen v paměti. Obnovením nebo zavřením stránky se to smaže.</p>
                   <ul class="password-list" id="historyList"></ul>
                   <button type="button" class="btn btn-sm btn-quiet" id="clearHistoryBtn">
                     <svg class="icon icon-sm" aria-hidden="true"><use href="#i-trash" /></svg>
@@ -381,11 +381,11 @@
             <div class="pane settings-pane">
             <div class="field">
               <div class="field-head">
-                <label for="pinLength">Počet číslic</label>
-                <output class="value-badge" id="pinLengthValue" for="pinLength">6</output>
+                <label for="pinLengthValue">Počet číslic</label>
+                <input type="number" id="pinLengthValue" class="num-input" min="3" max="16" value="6" inputmode="numeric" />
               </div>
-              <input type="range" id="pinLength" min="3" max="16" step="1" value="6" />
-              <p class="hint">PIN je krátký záměrně — patří k zařízení nebo kartě, které se po pár špatných pokusech zablokují.</p>
+              <input type="range" id="pinLength" min="3" max="16" step="1" value="6" aria-label="Posuvník počtu číslic" />
+              <p class="hint">PIN je krátký záměrně — patří k zařízení nebo kartě, které se po pár špatných pokusech zablokují.</p>
             </div>
 
             <div class="field">
@@ -415,7 +415,7 @@
         <div class="reading">
         <section class="content">
           <h2>Jak silný je PIN?</h2>
-          <p>Každá číslice přidá log₂ 10 ≈ 3,3 bitu, takže i 8místný PIN má méně kombinací než heslo o šesti znacích. To nevadí: PIN nemá odolat offline útoku. Chrání kartu nebo zařízení, které se po pár špatných pokusech zablokuje, zamkne nebo smaže.</p>
+          <p>Každá číslice přidá log₂ 10 ≈ 3,3 bitu, takže i 8místný PIN má méně kombinací než heslo o šesti znacích. To nevadí: PIN nemá odolat offline útoku. Chrání kartu nebo zařízení, které se po pár špatných pokusech zablokuje, zamkne nebo smaže.</p>
           <figure class="table-wrap">
             <figcaption class="table-caption" id="pinTableCaption">Náhodný PIN podle počtu číslic</figcaption>
             <div class="table-scroll" tabindex="0" role="region" aria-labelledby="pinTableCaption">
@@ -432,21 +432,21 @@
               </table>
             </div>
           </figure>
-          <p>Poslední sloupec ukazuje dobu útoku hrubou silou bez jakéhokoli blokování, pro srovnání s hesly. Když se karta po třech špatných pokusech zablokuje, má zloděj u náhodného 4místného PINu šanci 3 ku 10 000.</p>
+          <p>Poslední sloupec ukazuje dobu útoku hrubou silou bez jakéhokoli blokování, pro srovnání s hesly. Když se karta po třech špatných pokusech zablokuje, má zloděj u náhodného 4místného PINu šanci 3 ku 10 000.</p>
 
           <h2>PINy, kterým se vyhnout</h2>
-          <p>Analýza 3,4 milionu uniklých čtyřmístných PINů od DataGenetics ukázala, že samotný 1234 tvořil zhruba desetinu z nich a dvacet nejčastějších PINů přes čtvrtinu. Útočníci je zkoušejí jako první:</p>
+          <p>Analýza 3,4 milionu uniklých čtyřmístných PINů od DataGenetics ukázala, že samotný 1234 tvořil zhruba desetinu z nich a dvacet nejčastějších PINů přes čtvrtinu. Útočníci je zkoušejí jako první:</p>
           <ul class="tips">
-            <li><strong>Řady a opakování:</strong> 1234, 0000, 1111, 1212, 7777, 4321 a 2580 (svislý sloupec na klávesnici).</li>
-            <li><strong>Data:</strong> roky jako 1985 nebo 2010 a narozeniny ve tvaru DDMM — dají se snadno dohledat na sociálních sítích.</li>
+            <li><strong>Řady a opakování:</strong> 1234, 0000, 1111, 1212, 7777, 4321 a 2580 (svislý sloupec na klávesnici).</li>
+            <li><strong>Data:</strong> roky jako 1985 nebo 2010 a narozeniny ve tvaru DDMM — dají se snadno dohledat na sociálních sítích.</li>
             <li><strong>Vaše jiná čísla:</strong> konec telefonního čísla, číslo popisné nebo starý PIN.</li>
           </ul>
 
           <h2>Jak vygenerovaný PIN použít</h2>
           <ul class="tips">
-            <li>PIN ke kartě obvykle změníte v bankomatu nebo v bankovní aplikaci — tady ho vygenerujte, tam nastavte.</li>
-            <li>U telefonu a všude, kde to jde, použijte 6 číslic.</li>
-            <li>Nikdy ho nepište na kartu ani ho nenoste s ní; lepší místo jsou zabezpečené poznámky ve správci hesel.</li>
+            <li>PIN ke kartě obvykle změníte v bankomatu nebo v bankovní aplikaci — tady ho vygenerujte, tam nastavte.</li>
+            <li>U telefonu a všude, kde to jde, použijte 6 číslic.</li>
+            <li>Nikdy ho nepište na kartu ani ho nenoste s ní; lepší místo jsou zabezpečené poznámky ve správci hesel.</li>
           </ul>
         </section>
 
@@ -455,7 +455,7 @@
           <div class="faq">
             <details>
               <summary>Je čtyřmístný PIN dost bezpečný?</summary>
-              <p>U platební karty, která se po třech špatných pokusech zablokuje, ano — pokud je náhodný. U telefonu raději 6 číslic nebo heslo: telefon je větší kořist a některé dovolí víc pokusů.</p>
+              <p>U platební karty, která se po třech špatných pokusech zablokuje, ano — pokud je náhodný. U telefonu raději 6 číslic nebo heslo: telefon je větší kořist a některé dovolí víc pokusů.</p>
             </details>
             <details>
               <summary>Proč náhodný PIN někdy vypadá jako vzor?</summary>
@@ -463,11 +463,11 @@
             </details>
             <details>
               <summary>Můžu vygenerovat víc PINů najednou?</summary>
-              <p>Ano. Nastavte „Kolik najednou“ až na 50 a pak je všechny zkopírujte nebo stáhněte jako textový soubor — hodí se na kódy ke dveřím, testovací data nebo jednorázové kódy.</p>
+              <p>Ano. Nastavte „Kolik najednou“ až na 50 a pak je všechny zkopírujte nebo stáhněte jako textový soubor — hodí se na kódy ke dveřím, testovací data nebo jednorázové kódy.</p>
             </details>
             <details>
               <summary>Posílá se něco na server?</summary>
-              <p>Ne. Všechno vzniká v kartě vašeho prohlížeče pomocí Web Crypto API a bezpečnostní politika stránky (Content Security Policy) zakazuje jakýkoli síťový požadavek — otevřete si v prohlížeči panel Síť a uvidíte, že zůstane prázdný. Na zařízení se ukládá jen vaše nastavení, vygenerované hodnoty nikdy.</p>
+              <p>Ne. Všechno vzniká v kartě vašeho prohlížeče pomocí Web Crypto API a bezpečnostní politika stránky (Content Security Policy) zakazuje jakýkoli síťový požadavek — otevřete si v prohlížeči panel Síť a uvidíte, že zůstane prázdný. Na zařízení se ukládá jen vaše nastavení, vygenerované hodnoty nikdy.</p>
             </details>
           </div>
         </section>
@@ -481,23 +481,23 @@
           <span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="#i-shield" /></svg></span>
           <span class="brand-text">Forti<span class="brand-accent">Pass</span></span>
         </a>
-          <p>Silná hesla, hesla ze slov, PINy a kódy k Wi-Fi vytvořené ve vašem zařízení. Bez účtů, bez sledování, bez síťových požadavků.</p>
+          <p>Silná hesla, hesla ze slov, PINy a kódy k Wi-Fi vytvořené ve vašem zařízení. Bez účtů, bez sledování, bez síťových požadavků.</p>
         </div>
         <ul class="footer-links">
             <li><a href="../../cs/">Generátor hesel</a></li>
             <li><a href="../../cs/generator-hesel-ze-slov/">Generátor hesel ze slov</a></li>
             <li><a href="../../cs/generator-pin/" aria-current="page">Generátor PIN</a></li>
             <li><a href="../../cs/kontrola-sily-hesla/">Kontrola síly hesla</a></li>
-            <li><a href="../../cs/generator-hesla-wifi/">Heslo k Wi-Fi a QR kód</a></li>
+            <li><a href="../../cs/generator-hesla-wifi/">Heslo k Wi-Fi a QR kód</a></li>
             <li><a href="../../cs/jak-dlouho-trva-prolomit-heslo/">Jak dlouho trvá prolomit heslo</a></li>
         </ul>
         <div class="footer-bottom">
           <p>
-            &copy; 2025–2026 Robert Libšanský · Zdarma a open source ·
+            &copy; 2025–2026 Robert Libšanský · Zdarma a open source ·
             <a href="https://github.com/robertlib/forti-pass" rel="noopener">Zdrojový kód na GitHubu</a> ·
             <button type="button" class="link-btn" id="shortcutsBtn">Klávesové zkratky</button>
           </p>
-          <p class="footer-note">FortiPass žádné z vygenerovaných hesel neukládá. Je to nástroj, ne náhrada správce hesel a dvoufázového ověření. Anglická slova: <a href="https://www.eff.org/dice" rel="noopener">EFF Large Wordlist</a> (CC BY 3.0 US). Česká slova: vlastní seznam FortiPass.</p>
+          <p class="footer-note">FortiPass žádné z vygenerovaných hesel neukládá. Je to nástroj, ne náhrada správce hesel a dvoufázového ověření. Anglická slova: <a href="https://www.eff.org/dice" rel="noopener">EFF Large Wordlist</a> (CC BY 3.0 US). Česká slova: vlastní seznam FortiPass.</p>
         </div>
       </div>
     </footer>
@@ -535,13 +535,11 @@
     </dialog>
 
     <noscript>
-      <div class="noscript">FortiPass vytváří hesla ve vašem prohlížeči, a k tomu potřebuje zapnutý JavaScript. Na server se nic neposílá v žádném případě.</div>
+      <div class="noscript">FortiPass vytváří hesla ve vašem prohlížeči, a k tomu potřebuje zapnutý JavaScript. Na server se nic neposílá v žádném případě.</div>
     </noscript>
 
-    <script src="../../wordlist-en.js?v=aba40534e1"></script>
-    <script src="../../wordlist-cs.js?v=aba40534e1"></script>
-    <script src="../../locale-cs.js?v=aba40534e1"></script>
-    <script src="../../core.js?v=aba40534e1"></script>
-    <script src="../../script.js?v=aba40534e1"></script>
+    <script src="../../locale-cs.js?v=729cd690fe"></script>
+    <script src="../../core.js?v=729cd690fe"></script>
+    <script src="../../script.js?v=729cd690fe"></script>
   </body>
 </html>

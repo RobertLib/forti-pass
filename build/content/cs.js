@@ -45,7 +45,7 @@ module.exports = function content(f, href, c) {
 
           <h2>Jak vybrat dobré heslo</h2>
           <ul class="tips">
-            <li><strong>Délka je víc než složitost.</strong> Náhodné heslo o 16 znacích by útočník lámal ${f.pw(16, 90)}, heslo o 8 znacích ${f.pw(8, 90)}. Podívejte se na <a href="${href("crack")}">celou tabulku doby prolomení</a>.</li>
+            <li><strong>Délka je víc než složitost.</strong> Heslo o 16 znacích z tohoto generátoru by útočník lámal ${f.gen(16)}, heslo o 8 znacích ${f.gen(8)}. Podívejte se na <a href="${href("crack")}">celou tabulku doby prolomení</a>.</li>
             <li><strong>Nikdy nepoužívejte stejné heslo dvakrát.</strong> Únik dat z jednoho e-shopu nesmí odemknout váš e-mail. Právě na jedinečná hesla je správce hesel.</li>
             <li><strong>Co píšete ručně, ať je ze slov.</strong> Přihlášení do počítače nebo hlavní heslo správce hesel se lépe píše jako šest a víc <a href="${href("passphrase")}">náhodných slov</a>.</li>
             <li><strong>Zapněte dvoufázové ověření.</strong> Ani dokonalé heslo vás samo neochrání před phishingem.</li>
@@ -302,7 +302,7 @@ module.exports = function content(f, href, c) {
               all: "Písmena, číslice a symboly",
             },
           })}
-          <p class="table-note">Barvy odpovídají hodnocení v generátoru: červená je velmi slabé, zelená výborné. Sloupec „Písmena, číslice a symboly“ počítá s 28 symboly, které FortiPass používá. Písmena jsou bez diakritiky.</p>
+          <p class="table-note">Barvy odpovídají hodnocení v generátoru: červená je velmi slabé, zelená výborné. Sloupec „Písmena, číslice a symboly“ počítá s 28 symboly, které FortiPass používá. Písmena jsou bez diakritiky. Samotný generátor ukazuje o něco kratší časy, když je zapnuté „Použít každý vybraný typ aspoň jednou“: heslo, kterému nějaký typ chybí, nikdy nevytvoří, takže útočník má méně možností.</p>
 
           <h2>Hesla ze slov</h2>
           <p>Každé slovo vybrané náhodně ze seznamu ${csWords} českých slov přidá ${bpw} bitu — asi jako dva náhodné znaky, ale zapamatuje se mnohem snáz. Vytvořte si ho v <a href="${href("passphrase")}">generátoru hesel ze slov</a>.</p>

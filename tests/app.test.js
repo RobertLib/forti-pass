@@ -169,6 +169,21 @@ test("impossible options show an error instead of a password", { skip }, async (
     return { disabled: button.disabled, error: button.classList.contains("is-error"), text: button.textContent };
   });
   assert.deepEqual(state, { disabled: true, error: true, text: "Select at least one character type." });
+
+  // Nothing to copy or hide, and the character types are marked as the cause.
+  const controls = await page.evaluate(() => ({
+    copy: document.getElementById("copyBtn").disabled,
+    hide: document.getElementById("maskBtn").disabled,
+    marked: document.getElementById("uppercase").closest("fieldset").classList.contains("is-invalid"),
+  }));
+  assert.deepEqual(controls, { copy: true, hide: true, marked: true });
+
+  await page.evaluate(() => document.getElementById("numbers").click());
+  const fixed = await page.evaluate(() => ({
+    copy: document.getElementById("copyBtn").disabled,
+    marked: document.getElementById("uppercase").closest("fieldset").classList.contains("is-invalid"),
+  }));
+  assert.deepEqual(fixed, { copy: false, marked: false });
 });
 
 test("hiding masks the value, describes it and carries over to the next mode", { skip }, async (t) => {
@@ -208,6 +223,66 @@ test("copying puts the value on the clipboard and in the session list", { skip }
   assert.deepEqual(state, { label: "Copied", history: "1", historyHidden: false });
 });
 
+test("a promised clipboard wipe survives a page change and waits for a gesture if refused", { skip }, async (t) => {
+  const page = await open(t, "");
+  // A clipboard that, like Firefox and Safari, refuses writes outside a
+  // user gesture until __allow is set, and records every write.
+  await page.send("Page.addScriptToEvaluateOnNewDocument", {
+    source: `
+      window.__writes = [];
+      window.__allow = false;
+      Object.defineProperty(navigator, "clipboard", {
+        configurable: true,
+        value: {
+          writeText(text) {
+            window.__writes.push(text);
+            return window.__allow ? Promise.resolve() : Promise.reject(new Error("NotAllowedError"));
+          },
+        },
+      });`,
+  });
+  await page.send("Emulation.setFocusEmulationEnabled", { enabled: true });
+  await page.reload();
+
+  await page.evaluate(() => {
+    window.__allow = true;
+    const option = document.getElementById("clearClipboard");
+    option.checked = true;
+    option.dispatchEvent(new Event("change", { bubbles: true }));
+    document.getElementById("copyBtn").click();
+  });
+  await sleep(200);
+  assert.ok(await page.evaluate(() => Number(sessionStorage.getItem("fortipass:clipboardDue")) > 0));
+
+  // Overdue, and the user has moved on to another generator page.
+  await page.evaluate(() => sessionStorage.setItem("fortipass:clipboardDue", String(Date.now() - 1)));
+  await page.navigate(base + "passphrase-generator/");
+  await sleep(300);
+  let s = await page.evaluate(() => ({ writes: window.__writes, due: sessionStorage.getItem("fortipass:clipboardDue") }));
+  assert.deepEqual(s.writes, [""], "tried on arrival");
+  assert.ok(Number(s.due) > 0, "still due after the refusal");
+
+  // Ctrl combinations (the user's own Ctrl+C) and gestures that copy anyway
+  // leave the clipboard alone…
+  await page.evaluate(() => {
+    window.__allow = true;
+    document.body.dispatchEvent(new KeyboardEvent("keydown", { key: "c", ctrlKey: true, bubbles: true }));
+    document.getElementById("copyBtn").dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
+  });
+  await sleep(100);
+  assert.deepEqual(await page.evaluate(() => window.__writes), [""]);
+
+  // …and any other click finishes the job.
+  await page.evaluate(() => document.body.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true })));
+  await sleep(200);
+  s = await page.evaluate(() => ({
+    writes: window.__writes,
+    due: sessionStorage.getItem("fortipass:clipboardDue"),
+    toast: document.getElementById("toasts").textContent.trim(),
+  }));
+  assert.deepEqual(s, { writes: ["", ""], due: null, toast: "Clipboard cleared" });
+});
+
 test("passphrase and PIN pages generate their own kind of value", { skip }, async (t) => {
   const words = await open(t, "passphrase-generator/");
   assert.match(await hero(words), /^([A-Z][a-z]+-){5}[A-Z][a-z]+\d$/);
@@ -239,6 +314,10 @@ test("the checker scores as you type and its reveal button keeps one name", { sk
   }));
   assert.equal(result.verdict, "Weak");
   assert.match(result.findings, /keyboard or alphabet run/);
+
+  // Screen readers hear the verdict once typing pauses.
+  await sleep(1000);
+  assert.match(await page.evaluate(() => document.getElementById("checkStatus").textContent), /^Strength weak, \d+ bits, /);
 
   await page.evaluate(() => document.getElementById("checkRevealBtn").click());
   const reveal = await page.evaluate(() => {
@@ -279,12 +358,27 @@ test("the Wi-Fi card draws a QR code once it has a name and a valid password", {
   assert.deepEqual(await qr(), { shown: true, path: true, print: true });
   assert.equal(await page.evaluate(() => window.hintWrites), 0);
 
+  // 17 accented letters are 34 bytes: more than an SSID may hold.
+  await page.evaluate(() => {
+    const ssid = document.getElementById("wifiSsid");
+    ssid.value = "č".repeat(17);
+    ssid.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+  assert.equal((await qr()).shown, false, "a 34-byte network name");
+  assert.match(await page.evaluate(() => document.getElementById("wifiHint").textContent), /32 bytes/);
+  await page.evaluate(() => {
+    const ssid = document.getElementById("wifiSsid");
+    ssid.value = "Home";
+    ssid.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+
   await page.evaluate(() => {
     const password = document.getElementById("wifiPassword");
     password.value = "short";
     password.dispatchEvent(new Event("input", { bubbles: true }));
   });
   assert.equal((await qr()).shown, false, "a router would refuse a 5-character key");
+  assert.equal(await page.evaluate(() => document.getElementById("wifiQrPath").getAttribute("d")), "", "no stale code left behind");
 
   await page.evaluate(() => {
     const security = document.getElementById("wifiSecurity");
@@ -305,4 +399,12 @@ test("T switches the theme and remembers it", { skip }, async (t) => {
   }));
   const expected = before ? "light" : "dark";
   assert.deepEqual(state, { theme: expected, saved: expected });
+
+  // Back to the system's own theme: the page follows the system again.
+  await page.press("t");
+  const back = await page.evaluate(() => ({
+    theme: document.documentElement.dataset.theme || null,
+    saved: localStorage.getItem("fortipass:theme"),
+  }));
+  assert.deepEqual(back, { theme: null, saved: null });
 });

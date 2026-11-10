@@ -83,9 +83,9 @@
         mostGuessed:
           "Tohle je jedno z nejčastějších hesel vůbec — změňte ho všude, kde ho používáte.",
         dressedUp:
-          "Známé heslo převlečené za předvídatelné záměny (@ místo a, 0 místo o, číslo na konci). Programy na lámání hesel zkoušejí právě tohle jako první.",
+          "Známé heslo převlečené předvídatelnými úpravami (@ místo a, 0 místo o, oddělovače, číslo na konci). Programy na lámání hesel zkoušejí právě tohle jako první.",
         tooShort: (n) =>
-          "Jen " + count(n, "znak", "znaky", "znaků") + ". Cokoli pod 8 znaků padne během pár sekund.",
+          "Jen " + count(n, "znak", "znaky", "znaků") + ". Cokoli pod 8 znaků padne nanejvýš během minut.",
         short: (n) => count(n, "znak", "znaky", "znaků") + " je málo. Mířte na 16 a víc.",
         goodLength: (n) => count(n, "znak", "znaky", "znaků") + " je dobrá délka.",
         commonName:

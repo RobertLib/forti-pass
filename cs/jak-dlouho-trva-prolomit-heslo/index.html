@@ -118,7 +118,7 @@
 }
     </script>
 
-    <link rel="stylesheet" href="../../styles.css?v=aba40534e1" />
+    <link rel="stylesheet" href="../../styles.css?v=729cd690fe" />
     <script>
       (function () {
         try {
@@ -275,7 +275,7 @@
         <nav class="app-nav" aria-label="Nástroje">
           <div class="app-nav-inner">
             <a href="../../cs/"><svg class="icon" aria-hidden="true"><use href="#i-key" /></svg><span>Generátor</span></a>
-            <a href="../../cs/kontrola-sily-hesla/"><svg class="icon" aria-hidden="true"><use href="#i-search" /></svg><span>Kontrola</span></a>
+            <a href="../../cs/kontrola-sily-hesla/" aria-current="true"><svg class="icon" aria-hidden="true"><use href="#i-search" /></svg><span>Kontrola</span></a>
             <a href="../../cs/generator-hesla-wifi/"><svg class="icon" aria-hidden="true"><use href="#i-wifi" /></svg><span>Wi-Fi</span></a>
           </div>
         </nav>
@@ -296,7 +296,7 @@
     <main id="main" class="container">
       <header class="page-head">
           <h1>Jak dlouho trvá prolomit heslo?</h1>
-          <p class="lede">Průměrná doba útoku hrubou silou na opravdu náhodná hesla, spočítaná z počtu všech možností. Aktualizováno: listopad 2026.</p>
+          <p class="lede">Průměrná doba útoku hrubou silou na opravdu náhodná hesla, spočítaná z počtu všech možností. Aktualizováno: listopad 2026.</p>
         </header>
 
         <div class="reading reading-article">
@@ -306,7 +306,7 @@
             <figcaption class="table-caption" id="crackTableCaption">Průměrná doba útoku hrubou silou při 100 miliardách pokusů za sekundu</figcaption>
             <div class="table-scroll" tabindex="0" role="region" aria-labelledby="crackTableCaption">
               <table class="crack-table" aria-labelledby="crackTableCaption">
-                <thead><tr><th scope="col">Délka</th><th scope="col">Jen číslice<span class="th-sub">10 znaků</span></th><th scope="col">Malá písmena<span class="th-sub">26 znaků</span></th><th scope="col">Malá a velká písmena<span class="th-sub">52 znaků</span></th><th scope="col">Písmena a číslice<span class="th-sub">62 znaků</span></th><th scope="col">Písmena, číslice a symboly<span class="th-sub">90 znaků</span></th></tr></thead>
+                <thead><tr><th scope="col">Délka</th><th scope="col">Jen číslice<span class="th-sub">10 znaků</span></th><th scope="col">Malá písmena<span class="th-sub">26 znaků</span></th><th scope="col">Malá a velká písmena<span class="th-sub">52 znaků</span></th><th scope="col">Písmena a číslice<span class="th-sub">62 znaků</span></th><th scope="col">Písmena, číslice a symboly<span class="th-sub">90 znaků</span></th></tr></thead>
                 <tbody>
                   <tr><th scope="row">4</th><td data-score="1">okamžitě</td><td data-score="1">okamžitě</td><td data-score="1">okamžitě</td><td data-score="1">okamžitě</td><td data-score="1">okamžitě</td></tr>
                   <tr><th scope="row">5</th><td data-score="1">okamžitě</td><td data-score="1">okamžitě</td><td data-score="1">okamžitě</td><td data-score="1">okamžitě</td><td data-score="2">okamžitě</td></tr>
@@ -327,12 +327,12 @@
               </table>
             </div>
           </figure>
-          <p class="table-note">Barvy odpovídají hodnocení v generátoru: červená je velmi slabé, zelená výborné. Sloupec „Písmena, číslice a symboly“ počítá s 28 symboly, které FortiPass používá. Písmena jsou bez diakritiky.</p>
+          <p class="table-note">Barvy odpovídají hodnocení v generátoru: červená je velmi slabé, zelená výborné. Sloupec „Písmena, číslice a symboly“ počítá s 28 symboly, které FortiPass používá. Písmena jsou bez diakritiky. Samotný generátor ukazuje o něco kratší časy, když je zapnuté „Použít každý vybraný typ aspoň jednou“: heslo, kterému nějaký typ chybí, nikdy nevytvoří, takže útočník má méně možností.</p>
 
           <h2>Hesla ze slov</h2>
-          <p>Každé slovo vybrané náhodně ze seznamu 7 776 českých slov přidá 12,9 bitu — asi jako dva náhodné znaky, ale zapamatuje se mnohem snáz. Vytvořte si ho v <a href="../../cs/generator-hesel-ze-slov/">generátoru hesel ze slov</a>.</p>
+          <p>Každé slovo vybrané náhodně ze seznamu 7 776 českých slov přidá 12,9 bitu — asi jako dva náhodné znaky, ale zapamatuje se mnohem snáz. Vytvořte si ho v <a href="../../cs/generator-hesel-ze-slov/">generátoru hesel ze slov</a>.</p>
           <figure class="table-wrap">
-            <figcaption class="table-caption" id="passphraseTableCaption-cs">Hesla z českých slov při 100 miliardách pokusů za sekundu</figcaption>
+            <figcaption class="table-caption" id="passphraseTableCaption-cs">Hesla z českých slov při 100 miliardách pokusů za sekundu</figcaption>
             <div class="table-scroll" tabindex="0" role="region" aria-labelledby="passphraseTableCaption-cs">
               <table class="crack-table crack-table-narrow" aria-labelledby="passphraseTableCaption-cs">
                 <thead><tr><th scope="col">Slov</th><th scope="col">Entropie (bity)</th><th scope="col">Průměrná doba prolomení</th></tr></thead>
@@ -351,30 +351,30 @@
           </figure>
 
           <h2>Jak se čísla počítají</h2>
-          <p>Náhodné heslo délky <var>L</var> ze sady <var>N</var> znaků má <var>N</var><sup><var>L</var></sup> možností, tedy <var>L</var> × log₂ <var>N</var> bitů. Útočník ho v průměru najde po vyzkoušení poloviny z nich. Tabulka to dělí číslem 10¹¹ — 100 miliard pokusů za sekundu, což zhruba zvládne jedna současná výkonná grafická karta proti rychlému nesolenému hashi jako MD5 nebo NTLM po úniku databáze. Sestava osmi takových karet zkrátí každý čas v tabulce zhruba desetkrát — to odpovídá asi půl znaku náhodného hesla.</p>
+          <p>Náhodné heslo délky <var>L</var> ze sady <var>N</var> znaků má <var>N</var><sup><var>L</var></sup> možností, tedy <var>L</var> × log₂ <var>N</var> bitů. Útočník ho v průměru najde po vyzkoušení poloviny z nich. Tabulka to dělí číslem 10¹¹ — 100 miliard pokusů za sekundu, což zhruba zvládne jedna současná výkonná grafická karta proti rychlému nesolenému hashi jako MD5 nebo NTLM po úniku databáze. Sestava osmi takových karet zkrátí každý čas v tabulce zhruba desetkrát — to odpovídá asi půl znaku náhodného hesla.</p>
           <ul class="tips">
-            <li><strong>Pomalé hashe pomáhají ohromně.</strong> Weby, které hesla ukládají pomocí bcrypt, scrypt nebo Argon2, srazí útočníka na tisíce až miliony pokusů za sekundu, takže každý čas v tabulce se znásobí sto tisíckrát i víc.</li>
+            <li><strong>Pomalé hashe pomáhají ohromně.</strong> Weby, které hesla ukládají pomocí bcrypt, scrypt nebo Argon2, srazí útočníka na tisíce až miliony pokusů za sekundu, takže každý čas v tabulce se znásobí sto tisíckrát i víc.</li>
             <li><strong>Útok přes přihlašovací formulář je ještě pomalejší.</strong> Omezení pokusů dovolí jen pár pokusů za minutu — ale nespoléhejte na to: databáze unikají.</li>
-            <li><strong>Hardware je čím dál rychlejší.</strong> Nechte si rezervu. Náhodné heslo o 16 znacích jí má dost.</li>
+            <li><strong>Hardware je čím dál rychlejší.</strong> Nechte si rezervu. Náhodné heslo o 16 znacích jí má dost.</li>
           </ul>
 
           <h2>Proč vaše heslo může padnout mnohem dřív</h2>
-          <p>Tabulka platí pro náhodná hesla. Hesla, která si lidé vymyslí — slovo, velké písmeno, rok, vykřičník —, se lámou slovníky a pravidly, ne hrubou silou, a padnou za pár sekund bez ohledu na délku. A heslo, které už uniklo, padne okamžitě, protože útočníci zkoušejí známá hesla jako první. Otestujte to svoje v <a href="../../cs/kontrola-sily-hesla/">kontrole síly hesla</a>, nebo ho nahraďte <a href="../../cs/">náhodným</a>.</p>
+          <p>Tabulka platí pro náhodná hesla. Hesla, která si lidé vymyslí — slovo, velké písmeno, rok, vykřičník —, se lámou slovníky a pravidly, ne hrubou silou, a padnou za pár sekund bez ohledu na délku. A heslo, které už uniklo, padne okamžitě, protože útočníci zkoušejí známá hesla jako první. Otestujte to svoje v <a href="../../cs/kontrola-sily-hesla/">kontrole síly hesla</a>, nebo ho nahraďte <a href="../../cs/">náhodným</a>.</p>
 
           <h2>Použijte tabulku</h2>
-          <p>Tabulku můžete volně převzít do článků, prezentací a školení — uveďte prosím jako zdroj <em>FortiPass</em> s odkazem na tuto stránku. Čísla generuje stejný <a href="https://github.com/robertlib/forti-pass" rel="noopener">otevřený kód</a>, který pohání generátor, takže vždy odpovídají tomu, co ukazuje aplikace.</p>
+          <p>Tabulku můžete volně převzít do článků, prezentací a školení — uveďte prosím jako zdroj <em>FortiPass</em> s odkazem na tuto stránku. Čísla generuje stejný <a href="https://github.com/robertlib/forti-pass" rel="noopener">otevřený kód</a>, který pohání generátor, takže vždy odpovídají tomu, co ukazuje aplikace.</p>
         </section>
 
         <section class="content faq-section" aria-labelledby="faqHeading">
           <h2 id="faqHeading">Časté otázky</h2>
           <div class="faq">
             <details>
-              <summary>Jak dlouho trvá prolomit heslo o 8 znacích?</summary>
-              <p>Náhodné heslo o 8 znacích s velkými a malými písmeny, číslicemi a symboly vydrží při 100 miliardách pokusů za sekundu v průměru 6 hodin. Jen z malých písmen: 1 sekunda. Heslo o 8 znacích, které si vymyslel člověk, obvykle padne slovníkovému útoku během sekund.</p>
+              <summary>Jak dlouho trvá prolomit heslo o 8 znacích?</summary>
+              <p>Náhodné heslo o 8 znacích s velkými a malými písmeny, číslicemi a symboly vydrží při 100 miliardách pokusů za sekundu v průměru 6 hodin. Jen z malých písmen: 1 sekunda. Heslo o 8 znacích, které si vymyslel člověk, obvykle padne slovníkovému útoku během sekund.</p>
             </details>
             <details>
-              <summary>Stačí heslo o 12 znacích?</summary>
-              <p>Náhodné heslo o 12 znacích se všemi čtyřmi typy znaků vydrží v průměru 45 tisíc let, což dnes stačí. Jen z malých písmen: 6 dní. Pro důležité účty raději 16 znaků: 2,9 bilionu let.</p>
+              <summary>Stačí heslo o 12 znacích?</summary>
+              <p>Náhodné heslo o 12 znacích se všemi čtyřmi typy znaků vydrží v průměru 45 tisíc let, což dnes stačí. Jen z malých písmen: 6 dní. Pro důležité účty raději 16 znaků: 2,9 bilionu let.</p>
             </details>
             <details>
               <summary>Jak dlouho trvá prolomit heslo ze čtyř slov?</summary>
@@ -382,11 +382,11 @@
             </details>
             <details>
               <summary>Proč jiné tabulky ukazují jiné časy?</summary>
-              <p>Zveřejněné tabulky se liší hlavně v tom, jaký hash a jaký hardware předpokládají. Rychlý hash na grafických kartách dává krátké časy jako tady (na sestavě s mnoha kartami ještě kratší), pomalý hash jako bcrypt mnohem delší. Tvar je ale ve všech tabulkách stejný: každý znak navíc vynásobí čas velikostí sady znaků.</p>
+              <p>Zveřejněné tabulky se liší hlavně v tom, jaký hash a jaký hardware předpokládají. Rychlý hash na grafických kartách dává krátké časy jako tady (na sestavě s mnoha kartami ještě kratší), pomalý hash jako bcrypt mnohem delší. Tvar je ale ve všech tabulkách stejný: každý znak navíc vynásobí čas velikostí sady znaků.</p>
             </details>
             <details>
               <summary>Udělá symbol heslo výrazně silnějším?</summary>
-              <p>Méně než délka. U 12 znaků přidá přechod z písmen a číslic na všechny čtyři typy asi 6,5 bitu; dvě písmena nebo číslice navíc přidají asi 11,9 bitu.</p>
+              <p>Méně než délka. U 12 znaků přidá přechod z písmen a číslic na všechny čtyři typy asi 6,5 bitu; dvě písmena nebo číslice navíc přidají asi 11,9 bitu.</p>
             </details>
           </div>
         </section>
@@ -400,23 +400,23 @@
           <span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="#i-shield" /></svg></span>
           <span class="brand-text">Forti<span class="brand-accent">Pass</span></span>
         </a>
-          <p>Silná hesla, hesla ze slov, PINy a kódy k Wi-Fi vytvořené ve vašem zařízení. Bez účtů, bez sledování, bez síťových požadavků.</p>
+          <p>Silná hesla, hesla ze slov, PINy a kódy k Wi-Fi vytvořené ve vašem zařízení. Bez účtů, bez sledování, bez síťových požadavků.</p>
         </div>
         <ul class="footer-links">
             <li><a href="../../cs/">Generátor hesel</a></li>
             <li><a href="../../cs/generator-hesel-ze-slov/">Generátor hesel ze slov</a></li>
             <li><a href="../../cs/generator-pin/">Generátor PIN</a></li>
             <li><a href="../../cs/kontrola-sily-hesla/">Kontrola síly hesla</a></li>
-            <li><a href="../../cs/generator-hesla-wifi/">Heslo k Wi-Fi a QR kód</a></li>
+            <li><a href="../../cs/generator-hesla-wifi/">Heslo k Wi-Fi a QR kód</a></li>
             <li><a href="../../cs/jak-dlouho-trva-prolomit-heslo/" aria-current="page">Jak dlouho trvá prolomit heslo</a></li>
         </ul>
         <div class="footer-bottom">
           <p>
-            &copy; 2025–2026 Robert Libšanský · Zdarma a open source ·
+            &copy; 2025–2026 Robert Libšanský · Zdarma a open source ·
             <a href="https://github.com/robertlib/forti-pass" rel="noopener">Zdrojový kód na GitHubu</a> ·
             <button type="button" class="link-btn" id="shortcutsBtn">Klávesové zkratky</button>
           </p>
-          <p class="footer-note">FortiPass žádné z vygenerovaných hesel neukládá. Je to nástroj, ne náhrada správce hesel a dvoufázového ověření. Anglická slova: <a href="https://www.eff.org/dice" rel="noopener">EFF Large Wordlist</a> (CC BY 3.0 US). Česká slova: vlastní seznam FortiPass.</p>
+          <p class="footer-note">FortiPass žádné z vygenerovaných hesel neukládá. Je to nástroj, ne náhrada správce hesel a dvoufázového ověření. Anglická slova: <a href="https://www.eff.org/dice" rel="noopener">EFF Large Wordlist</a> (CC BY 3.0 US). Česká slova: vlastní seznam FortiPass.</p>
         </div>
       </div>
     </footer>
@@ -450,10 +450,10 @@
     </dialog>
 
     <noscript>
-      <div class="noscript">FortiPass vytváří hesla ve vašem prohlížeči, a k tomu potřebuje zapnutý JavaScript. Na server se nic neposílá v žádném případě.</div>
+      <div class="noscript">FortiPass vytváří hesla ve vašem prohlížeči, a k tomu potřebuje zapnutý JavaScript. Na server se nic neposílá v žádném případě.</div>
     </noscript>
 
-    <script src="../../locale-cs.js?v=aba40534e1"></script>
-    <script src="../../script.js?v=aba40534e1"></script>
+    <script src="../../locale-cs.js?v=729cd690fe"></script>
+    <script src="../../script.js?v=729cd690fe"></script>
   </body>
 </html>

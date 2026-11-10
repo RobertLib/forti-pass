@@ -97,7 +97,7 @@
       "name": "Can I generate many PINs at once?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. Set “How many at once” up to 50, then copy them all or download them as a text file — handy for door codes, test data or one-time codes."
+        "text": "Yes. Set “How many” up to 50, then copy them all or download them as a text file — handy for door codes, test data or one-time codes."
       }
     },
     {
@@ -112,7 +112,7 @@
 }
     </script>
 
-    <link rel="stylesheet" href="../styles.css?v=aba40534e1" />
+    <link rel="stylesheet" href="../styles.css?v=729cd690fe" />
     <script>
       (function () {
         try {
@@ -312,12 +312,12 @@
           <div class="tool-body">
             <div class="pane result-pane">
               <div class="result" id="result">
-                <button type="button" class="password-display" id="heroPassword" title="Click to copy"></button>
+                <button type="button" class="password-display" id="heroPassword" title="Click to copy" data-copy></button>
                 <ol class="password-list bulk-list" id="passwordList" hidden></ol>
               </div>
 
               <div class="result-actions">
-                <button type="button" class="btn btn-primary" id="copyBtn" title="Copy (C)">
+                <button type="button" class="btn btn-primary" id="copyBtn" title="Copy (C)" data-copy>
                   <svg class="icon" aria-hidden="true"><use href="#i-copy" /></svg>
                   <span class="btn-label">Copy</span>
                 </button>
@@ -356,7 +356,7 @@
                 <span class="switch-track" aria-hidden="true"></span>
                 <span class="switch-text">
                   <span>Clear the clipboard 30 s after copying</span>
-                  <small>Browsers only allow this while FortiPass is the active tab, so it may wait until you come back.</small>
+                  <small>If the browser will not allow it in the background, it happens at your next click or key press on a FortiPass page.</small>
                 </span>
               </label>
 
@@ -381,10 +381,10 @@
             <div class="pane settings-pane">
             <div class="field">
               <div class="field-head">
-                <label for="pinLength">Digits</label>
-                <output class="value-badge" id="pinLengthValue" for="pinLength">6</output>
+                <label for="pinLengthValue">Digits</label>
+                <input type="number" id="pinLengthValue" class="num-input" min="3" max="16" value="6" inputmode="numeric" />
               </div>
-              <input type="range" id="pinLength" min="3" max="16" step="1" value="6" />
+              <input type="range" id="pinLength" min="3" max="16" step="1" value="6" aria-label="Number of digits slider" />
               <p class="hint">PINs are short by design — pair them with a device that locks after a few wrong attempts.</p>
             </div>
 
@@ -463,7 +463,7 @@
             </details>
             <details>
               <summary>Can I generate many PINs at once?</summary>
-              <p>Yes. Set “How many at once” up to 50, then copy them all or download them as a text file — handy for door codes, test data or one-time codes.</p>
+              <p>Yes. Set “How many” up to 50, then copy them all or download them as a text file — handy for door codes, test data or one-time codes.</p>
             </details>
             <details>
               <summary>Is anything sent to a server?</summary>
@@ -538,8 +538,7 @@
       <div class="noscript">FortiPass generates passwords in your browser, which needs JavaScript enabled. Nothing is sent to a server either way.</div>
     </noscript>
 
-    <script src="../wordlist-en.js?v=aba40534e1"></script>
-    <script src="../core.js?v=aba40534e1"></script>
-    <script src="../script.js?v=aba40534e1"></script>
+    <script src="../core.js?v=729cd690fe"></script>
+    <script src="../script.js?v=729cd690fe"></script>
   </body>
 </html>

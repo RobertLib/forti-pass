@@ -120,7 +120,7 @@
 }
     </script>
 
-    <link rel="stylesheet" href="../styles.css?v=aba40534e1" />
+    <link rel="stylesheet" href="../styles.css?v=729cd690fe" />
     <script>
       (function () {
         try {
@@ -297,7 +297,7 @@
 
     <main id="main" class="container">
       <header class="page-head">
-          <h1>Wi-Fi password generator with QR code</h1>
+          <h1><span class="nowrap">Wi-Fi</span> password generator with QR code</h1>
           <p class="lede">A strong password for your network, and a QR code guests scan to join instead of typing it.</p>
           <ul class="trust">
             <li><svg class="icon icon-sm" aria-hidden="true"><use href="#i-lock" /></svg>Made in your browser, never sent</li>
@@ -319,8 +319,8 @@
                 <label for="wifiSecurity">Security</label>
                 <div class="select-wrap">
                 <select id="wifiSecurity" class="select">
-                  <option value="WPA">WPA2 / WPA3 (recommended)</option>
-                  <option value="nopass">Open network (no password)</option>
+                  <option value="WPA">WPA2 / WPA3</option>
+                  <option value="nopass">Open, no password</option>
                 </select>
                 <svg class="icon select-icon" aria-hidden="true"><use href="#i-chevron" /></svg>
               </div>
@@ -331,10 +331,10 @@
                   <label for="wifiStyle">Password style</label>
                   <div class="select-wrap">
                 <select id="wifiStyle" class="select">
-                  <option value="easy">20 letters and digits — easy to type on a TV</option>
-                  <option value="words">5 random words — easy to read out to guests</option>
+                  <option value="easy">20 letters & digits — easy on a TV</option>
+                  <option value="words">5 random words — easy to read out</option>
                   <option value="strong">32 characters with symbols</option>
-                  <option value="max">63 letters and digits — the WPA maximum</option>
+                  <option value="max">63 letters & digits — WPA maximum</option>
                 </select>
                 <svg class="icon select-icon" aria-hidden="true"><use href="#i-chevron" /></svg>
               </div>
@@ -347,7 +347,7 @@
                     <button type="button" class="icon-btn icon-btn-lg" id="wifiNewBtn" aria-label="New" title="Generate a new one (G)">
                       <svg class="icon" aria-hidden="true"><use href="#i-refresh" /></svg>
                     </button>
-                    <button type="button" class="icon-btn icon-btn-lg" id="wifiCopyBtn" aria-label="Copy" title="Copy (C)">
+                    <button type="button" class="icon-btn icon-btn-lg" id="wifiCopyBtn" aria-label="Copy" title="Copy (C)" data-copy>
                       <svg class="icon" aria-hidden="true"><use href="#i-copy" /></svg>
                     </button>
                   </div>
@@ -382,6 +382,7 @@
                 </label>
 
               <p class="notice" id="wifiHint" role="status" aria-live="polite"></p>
+              <a class="btn btn-sm qr-jump" id="wifiJump" href="#wifiCard" hidden><svg class="icon icon-sm" aria-hidden="true"><use href="#i-arrow" /></svg>Show the QR code</a>
             </div>
 
             <div class="pane wifi-side">
@@ -403,7 +404,7 @@
               </figure>
               <div class="wifi-actions screen-only">
                 <button type="button" class="btn btn-primary" id="wifiPrintBtn"><svg class="icon" aria-hidden="true"><use href="#i-print" /></svg> Print card</button>
-                <button type="button" class="btn" id="wifiSaveBtn"><svg class="icon" aria-hidden="true"><use href="#i-download" /></svg> Save QR (SVG)</button>
+                <button type="button" class="btn" id="wifiSaveBtn"><svg class="icon" aria-hidden="true"><use href="#i-download" /></svg> Save as SVG</button>
               </div>
               <p class="privacy-note screen-only"><svg class="icon icon-sm" aria-hidden="true"><use href="#i-lock" /></svg><span>The QR code is drawn in your browser. The network name and password are never sent or stored.</span></p>
             </div>
@@ -412,7 +413,7 @@
 
         <div class="reading">
         <section class="content">
-          <h2>How to change your Wi-Fi password</h2>
+          <h2>How to change your <span class="nowrap">Wi-Fi</span> password</h2>
           <ol class="steps">
             <li>Open your router's admin page — usually <code>192.168.0.1</code> or <code>192.168.1.1</code>, or the address on the sticker under the router — and sign in. Your provider's app may do the same job.</li>
             <li>Find the wireless (WLAN) settings and choose <strong>WPA2-Personal</strong> or <strong>WPA3-Personal</strong>, or the mixed WPA2/WPA3 mode if you have older devices.</li>
@@ -427,7 +428,7 @@
             <li><strong>32 characters with symbols</strong> or <strong>63 characters</strong> — for networks no human types: smart-home gadgets, or an office network everyone joins with the QR code.</li>
           </ul>
 
-          <h2>Is sharing Wi-Fi by QR code safe?</h2>
+          <h2>Is sharing <span class="nowrap">Wi-Fi</span> by QR code safe?</h2>
           <p>The QR code is simply the network name and password in a standard text format (<code>WIFI:T:WPA;S:…;P:…;;</code>) that phone cameras understand. Anyone who can photograph it can join, so treat a printed card like the password itself — on the fridge, not in the window. For visitors, consider a separate guest network that cannot reach your own devices.</p>
         </section>
 
@@ -435,12 +436,12 @@
           <h2 id="faqHeading">Questions people ask</h2>
           <div class="faq">
             <details>
-              <summary>How long should a Wi-Fi password be?</summary>
+              <summary>How long should a <span class="nowrap">Wi-Fi</span> password be?</summary>
               <p>WPA2 and WPA3 accept 8 to 63 characters. Because a WPA2 handshake can be captured and attacked offline, use at least 16 random characters or 5 random words. WPA3 resists that offline attack, but most networks still let WPA2 devices in.</p>
             </details>
             <details>
               <summary>Does the QR code work on iPhone and Android?</summary>
-              <p>Yes. The built-in camera app recognises Wi-Fi QR codes on iPhone (iOS 11 and later) and on most Android phones (Android 10 and later, or through Google Lens).</p>
+              <p>Yes. The built-in camera app recognises <span class="nowrap">Wi-Fi</span> QR codes on iPhone (iOS 11 and later) and on most Android phones (Android 10 and later, or through Google Lens).</p>
             </details>
             <details>
               <summary>Can I make a QR code for the password I already have?</summary>
@@ -521,9 +522,9 @@
       <div class="noscript">FortiPass generates passwords in your browser, which needs JavaScript enabled. Nothing is sent to a server either way.</div>
     </noscript>
 
-    <script src="../wordlist-en.js?v=aba40534e1"></script>
-    <script src="../core.js?v=aba40534e1"></script>
-    <script src="../qr.js?v=aba40534e1"></script>
-    <script src="../script.js?v=aba40534e1"></script>
+    <script src="../wordlist-en.js?v=729cd690fe"></script>
+    <script src="../core.js?v=729cd690fe"></script>
+    <script src="../qr.js?v=729cd690fe"></script>
+    <script src="../script.js?v=729cd690fe"></script>
   </body>
 </html>

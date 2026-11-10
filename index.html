@@ -136,7 +136,7 @@
 }
     </script>
 
-    <link rel="stylesheet" href="styles.css?v=aba40534e1" />
+    <link rel="stylesheet" href="styles.css?v=729cd690fe" />
     <script>
       (function () {
         try {
@@ -336,12 +336,12 @@
           <div class="tool-body">
             <div class="pane result-pane">
               <div class="result" id="result">
-                <button type="button" class="password-display" id="heroPassword" title="Click to copy"></button>
+                <button type="button" class="password-display" id="heroPassword" title="Click to copy" data-copy></button>
                 <ol class="password-list bulk-list" id="passwordList" hidden></ol>
               </div>
 
               <div class="result-actions">
-                <button type="button" class="btn btn-primary" id="copyBtn" title="Copy (C)">
+                <button type="button" class="btn btn-primary" id="copyBtn" title="Copy (C)" data-copy>
                   <svg class="icon" aria-hidden="true"><use href="#i-copy" /></svg>
                   <span class="btn-label">Copy</span>
                 </button>
@@ -380,7 +380,7 @@
                 <span class="switch-track" aria-hidden="true"></span>
                 <span class="switch-text">
                   <span>Clear the clipboard 30 s after copying</span>
-                  <small>Browsers only allow this while FortiPass is the active tab, so it may wait until you come back.</small>
+                  <small>If the browser will not allow it in the background, it happens at your next click or key press on a FortiPass page.</small>
                 </span>
               </label>
 
@@ -532,7 +532,7 @@
 
           <h2>Choosing a good password</h2>
           <ul class="tips">
-            <li><strong>Length beats complexity.</strong> A random 16-character password needs about 2.9 trillion years to brute-force; an 8-character one, about 6 hours. See the <a href="how-long-to-crack-a-password/">full crack-time table</a>.</li>
+            <li><strong>Length beats complexity.</strong> A 16-character password from this generator needs about 2.5 trillion years to brute-force; an 8-character one, about 3 hours. See the <a href="how-long-to-crack-a-password/">full crack-time table</a>.</li>
             <li><strong>Never reuse a password.</strong> One breach elsewhere should not unlock your email. Unique passwords are what a manager is for.</li>
             <li><strong>Use a passphrase for what you must type.</strong> Device logins and your password-manager vault are easier as six or more <a href="passphrase-generator/">random words</a>.</li>
             <li><strong>Turn on two-factor authentication.</strong> Even a perfect password cannot protect you from a phished session on its own.</li>
@@ -640,8 +640,7 @@
       <div class="noscript">FortiPass generates passwords in your browser, which needs JavaScript enabled. Nothing is sent to a server either way.</div>
     </noscript>
 
-    <script src="wordlist-en.js?v=aba40534e1"></script>
-    <script src="core.js?v=aba40534e1"></script>
-    <script src="script.js?v=aba40534e1"></script>
+    <script src="core.js?v=729cd690fe"></script>
+    <script src="script.js?v=729cd690fe"></script>
   </body>
 </html>

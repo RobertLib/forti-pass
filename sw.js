@@ -6,7 +6,7 @@
    installs a fresh cache, so a page never mixes new HTML with stale
    JavaScript or CSS from an older one. */
 
-const ASSET_VERSION = "aba40534e1";
+const ASSET_VERSION = "729cd690fe";
 const CACHE_VERSION = "fortipass-v" + ASSET_VERSION;
 
 // Every page, relative to the scope (the folder this file lives in).
@@ -47,6 +47,9 @@ const STATIC = [
 ];
 
 const SHELL = PAGES.map((page) => page || "./").concat(VERSIONED, STATIC);
+
+// How long a page request may hang before the cached copy is shown instead.
+const NETWORK_TIMEOUT_MS = 4000;
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -109,26 +112,49 @@ self.addEventListener("fetch", (event) => {
     const page = pageFor(url);
     if (page === null) return;
 
-    // Network first so updates land; fall back to the cached page offline,
-    // and to that language's home page if this one was never cached.
+    // Network first so updates land, and the fresh copy is cached. Offline,
+    // the cached page — or that language's home page if this one was never
+    // cached. On a connection that hangs, the cached page after a few
+    // seconds, while the network copy still lands in the cache for next time.
+    const network = fetch(request).then((response) => {
+      const type = response.headers.get("content-type") || "";
+      if (response.ok && type.indexOf("text/html") !== -1) {
+        const copy = response.clone();
+        event.waitUntil(
+          caches.open(CACHE_VERSION).then((cache) => cache.put(cacheUrl(page), copy))
+        );
+      }
+      return response;
+    });
+    // Keeps the worker alive until the network answers, even if the cached
+    // page was served first.
+    event.waitUntil(network.catch(() => undefined));
+
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          const type = response.headers.get("content-type") || "";
-          if (response.ok && type.indexOf("text/html") !== -1) {
-            const copy = response.clone();
-            event.waitUntil(
-              caches.open(CACHE_VERSION).then((cache) => cache.put(cacheUrl(page), copy))
-            );
+      new Promise((resolve) => {
+        let answered = false;
+        const answer = (response) => {
+          if (answered || !response) return;
+          answered = true;
+          resolve(response);
+        };
+        const timer = setTimeout(() => {
+          caches.match(cacheUrl(page)).then(answer);
+        }, NETWORK_TIMEOUT_MS);
+        network.then(
+          (response) => {
+            clearTimeout(timer);
+            answer(response);
+          },
+          () => {
+            clearTimeout(timer);
+            caches
+              .match(cacheUrl(page))
+              .then((cached) => cached || caches.match(cacheUrl(page.startsWith("cs/") ? "cs/" : "")))
+              .then((cached) => answer(cached || Response.error()));
           }
-          return response;
-        })
-        .catch(() =>
-          caches
-            .match(cacheUrl(page))
-            .then((cached) => cached || caches.match(cacheUrl(page.startsWith("cs/") ? "cs/" : "")))
-            .then((cached) => cached || Response.error())
-        )
+        );
+      })
     );
     return;
   }

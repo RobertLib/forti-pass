@@ -49,8 +49,10 @@ Also available as a [command-line tool](#command-line) and a
   than an offline crack time (PINs rely on lockouts, not length)
 - **Wi-Fi** — WPA2/WPA3 passwords in four styles (easy to type on a TV, words,
   32 characters, 63 characters) and a QR code phones can scan to join; print a
-  guest card or save the code as SVG. The QR encoder (`qr.js`) is written from
-  scratch with no dependencies, so the page still makes no network requests.
+  guest card or save the code as SVG. The network name is checked against the
+  32-byte SSID limit (an accented letter takes two). The QR encoder (`qr.js`)
+  is written from scratch with no dependencies, so the page still makes no
+  network requests.
 
 ### Strength you can actually reason about
 
@@ -71,7 +73,10 @@ glued together, as in `correcthorse`, and with accents folded, so `kocicka` is
 QWERTY and QWERTZ, the Shift layer as in `!@#$%`, column walks such as
 `1qaz2wsx`, and the Czech `+ěščřžý` row) and copies of an earlier block
 (`Ab3$Ab3$Ab3$`) — so patterned passwords are not scored as if every character
-were random.
+were random. A well-known password with cheap dressing — leet swaps, a year or
+`!!` at either end, separators as in `correct horse battery staple` — is capped
+as very weak; random characters around a common word (`4829!2Martin%93&1`)
+keep the strength they genuinely add.
 
 ### Usability
 
@@ -82,11 +87,14 @@ were random.
   regeneration
 - Colour-coded characters so digits and symbols are easy to read off the screen
 - Click-to-copy anywhere, plus a hide/show toggle for shoulder surfers
-- Optional clipboard clearing 30 seconds after a copy
+- Optional clipboard clearing 30 seconds after a copy. The deadline survives
+  moving between FortiPass pages; Firefox and Safari only allow the wipe during
+  a click or key press, so there it happens at your next one on the page
 - Session list of what you generated and copied — memory only, gone on reload
 - Advanced options: avoid look-alike characters, forbid repeats, require every
   selected type, exclude specific characters
-- Light and dark themes, remembered settings, keyboard shortcuts
+- Light and dark themes (toggling back to your system's theme follows the
+  system again), remembered settings, keyboard shortcuts
 - Installable PWA that works fully offline, in English and Czech
 
 ### Keyboard shortcuts
@@ -156,7 +164,8 @@ line and run `npm publish` to make `npx fortipass` work.
 `extension/` is a Manifest V3 popup for Chrome, Edge and Firefox (140+) with
 the same generators and limits as the website, in English and Czech. It
 requests **no permissions**, declares to Firefox that it collects no data, and
-its CSP forbids network access.
+its CSP forbids network access. Its version is the project's (`package.json`),
+and `npm test` fails if the two drift apart.
 
 ```bash
 npm run build:extension
@@ -172,7 +181,10 @@ Firefox Add-ons and Edge Add-ons. The zip is written by the build script itself
 
 The pages are generated: templates and content live in `build/`, the word
 lists in `wordlists/`. Generated files are committed, so GitHub Pages serves
-the repository as it is.
+the repository as it is (`.nojekyll` turns off Jekyll, which would otherwise
+skip `_`-prefixed folders and render Markdown files as pages). The build also
+typesets the Czech text — a one-letter preposition never ends a line — and
+loads the word lists only on the pages that use them.
 
 ```bash
 npm run build      # regenerate pages, word-list scripts, manifests, sitemap, sw.js

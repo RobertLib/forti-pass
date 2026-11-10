@@ -129,6 +129,7 @@
     if (result.error) {
       current = "";
       $("value").textContent = result.error;
+      $("announce").textContent = result.error;
       $("meter").dataset.score = "0";
       $("meta").hidden = true;
       return;
@@ -142,6 +143,7 @@
     $("meta").hidden = false;
     $("label").textContent = core.SCORE_LABELS[score];
     $("bits").textContent = t("bits", [String(Math.round(result.entropy))]);
+    $("announce").textContent = core.SCORE_LABELS[score] + ", " + $("bits").textContent;
     $("crack").textContent = time === INSTANTLY ? t("crackedInstantly") : t("toCrack", [time]);
     save();
   }

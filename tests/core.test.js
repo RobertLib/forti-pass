@@ -119,6 +119,11 @@ test("password errors explain what is wrong", () => {
 
   const tooLong = core.makePassword(opts({ length: 100, noRepeats: true }));
   assert.match(tooLong.error, /unique characters/);
+
+  // The page marks the control at fault, so every error says which it is.
+  assert.equal(none.code, "noTypes");
+  assert.equal(allExcluded.code, "allExcluded");
+  assert.equal(tooLong.code, "notEnoughUnique");
 });
 
 /** Counts valid strings by brute force, for checking the closed form. */
@@ -218,6 +223,10 @@ test("checker rates well-known weak patterns as weak", () => {
     "!@#$%^&*()_+": 1,
     "zxcvbnm,./": 1,
     "+ěščřžýáíé": 1,
+    // The XKCD phrase is in cracking lists with any of the usual separators.
+    "correct horse battery staple": 1,
+    "Correct-Horse-Battery-Staple7": 1,
+    "Password2024!!": 1,
   };
   for (const [password, maxScore] of Object.entries(cases)) {
     const { score } = core.analyze(password);
@@ -234,6 +243,19 @@ test("checker does not call random strings common passwords", () => {
       password
     );
   }
+});
+
+test("random characters around a common word keep the strength they add", () => {
+  // Stripping a short prefix and suffix finds "martin", but six random
+  // characters on each side are not "dressing": they cost what they cost.
+  const result = core.analyze("4829!2Martin%93&1");
+  assert.ok(result.score >= 4, "scored " + result.score);
+  assert.ok(!result.findings.some((f) => /well-known password/.test(f[1])));
+
+  // A year and an exclamation mark are dressing, and say so.
+  const dressed = core.analyze("Martin1985!");
+  assert.equal(dressed.score, 1);
+  assert.ok(dressed.findings.some((f) => /well-known password/.test(f[1])));
 });
 
 test("checker agrees with the generator on generated output", () => {
@@ -434,6 +456,14 @@ test("Wi-Fi password rules match WPA: 8–63 printable ASCII", () => {
   assert.equal(core.wifiPasswordProblem("a".repeat(64).replace(/a/g, "f")), null, "64 hex digits are a raw key");
   assert.equal(core.wifiPasswordProblem("Correct-Horse-7"), null);
   assert.equal(core.wifiPasswordProblem("x".repeat(63)), null);
+});
+
+test("a network name may take 32 bytes, and accents take two", () => {
+  assert.equal(core.wifiSsidProblem("x".repeat(32)), null);
+  assert.equal(core.wifiSsidProblem("x".repeat(33)), "ssidLong");
+  assert.equal(core.wifiSsidProblem("č".repeat(16)), null);
+  assert.equal(core.wifiSsidProblem("č".repeat(17)), "ssidLong");
+  assert.equal(core.wifiSsidProblem("Kavárna U Zlatého Kohouta 5GHz"), null);
 });
 
 test("fold strips accents but keeps length", () => {

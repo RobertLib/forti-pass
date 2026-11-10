@@ -71,7 +71,7 @@ function structuredData(ctx, content) {
     blocks.push({
       "@context": "https://schema.org",
       "@type": "WebApplication",
-      name: "FortiPass — " + ctx.t.toolNames[page.id],
+      name: "FortiPass — " + text(ctx.t.toolNames[page.id]),
       description: content.description,
       url: url,
       inLanguage: lang,
@@ -286,12 +286,14 @@ function dialogs(ctx) {
 function scripts(ctx) {
   const { page, lang, root, assetVersion } = ctx;
   const files = [];
-  if (page.type !== "article") {
+  // Word lists only where words are used: the checker knows English and
+  // Czech words in either language, the passphrase page offers its own
+  // language's list (and English), the Wi-Fi page makes words in its own.
+  if (page.type === "checker") files.push("wordlist-en.js", "wordlist-cs.js");
+  else if (page.mode === "passphrase") {
     files.push("wordlist-en.js");
-    // The checker page knows Czech words in every language; elsewhere only
-    // Czech pages need the Czech list.
-    if (lang === "cs" || page.type === "checker") files.push("wordlist-cs.js");
-  }
+    if (lang === "cs") files.push("wordlist-cs.js");
+  } else if (page.type === "wifi") files.push(`wordlist-${lang}.js`);
   if (lang === "cs") files.push("locale-cs.js");
   if (page.type !== "article") files.push("core.js");
   if (page.type === "wifi") files.push("qr.js");

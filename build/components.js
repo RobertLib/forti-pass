@@ -166,10 +166,10 @@ function passphraseSettings(t, ctx) {
 
   return `<div class="field">
               <div class="field-head">
-                <label for="wordCount">${t.words}</label>
-                <output class="value-badge" id="wordCountValue" for="wordCount">6</output>
+                <label for="wordCountValue">${t.words}</label>
+                <input type="number" id="wordCountValue" class="num-input" min="3" max="12" value="6" inputmode="numeric" />
               </div>
-              <input type="range" id="wordCount" min="3" max="12" step="1" value="6" />
+              <input type="range" id="wordCount" min="3" max="12" step="1" value="6" aria-label="${esc(t.wordsSlider)}" />
               <p class="hint">${t.wordsHint(wordBits)}</p>
             </div>
 ${languagePicker}
@@ -191,10 +191,10 @@ ${languagePicker}
 function pinSettings(t) {
   return `<div class="field">
               <div class="field-head">
-                <label for="pinLength">${t.digits}</label>
-                <output class="value-badge" id="pinLengthValue" for="pinLength">6</output>
+                <label for="pinLengthValue">${t.digits}</label>
+                <input type="number" id="pinLengthValue" class="num-input" min="3" max="16" value="6" inputmode="numeric" />
               </div>
-              <input type="range" id="pinLength" min="3" max="16" step="1" value="6" />
+              <input type="range" id="pinLength" min="3" max="16" step="1" value="6" aria-label="${esc(t.digitsSlider)}" />
               <p class="hint">${t.pinHint}</p>
             </div>
 
@@ -215,12 +215,12 @@ function generator(t, ctx) {
           <div class="tool-body">
             <div class="pane result-pane">
               <div class="result" id="result">
-                <button type="button" class="password-display" id="heroPassword" title="${esc(t.clickToCopy)}"></button>
+                <button type="button" class="password-display" id="heroPassword" title="${esc(t.clickToCopy)}" data-copy></button>
                 <ol class="password-list bulk-list" id="passwordList" hidden></ol>
               </div>
 
               <div class="result-actions">
-                <button type="button" class="btn btn-primary" id="copyBtn" title="${esc(t.copyTitle)}">
+                <button type="button" class="btn btn-primary" id="copyBtn" title="${esc(t.copyTitle)}" data-copy>
                   ${icon("i-copy")}
                   <span class="btn-label">${t.copy}</span>
                 </button>
@@ -309,6 +309,7 @@ function checker(t, ctx) {
               </div>
 
               ${meter("checkMeter", 0, t.waiting, { name: t.strengthMeter, label: "checkVerdict", bitsId: "checkEntropy", crackId: "checkCrack", bitsTitle: t.entropyTitle, crackTitle: t.crackTitle })}
+              <p class="sr-only" id="checkStatus" role="status" aria-live="polite"></p>
 
               <p class="privacy-note" id="checkPrivacy">${icon("i-lock", "icon-sm")}<span>${t.checkPrivacy}</span></p>
             </div>
@@ -351,7 +352,7 @@ function wifi(t) {
                     <button type="button" class="icon-btn icon-btn-lg" id="wifiNewBtn" aria-label="${esc(t.new)}" title="${esc(t.newTitle)}">
                       ${icon("i-refresh")}
                     </button>
-                    <button type="button" class="icon-btn icon-btn-lg" id="wifiCopyBtn" aria-label="${esc(t.copy)}" title="${esc(t.copyTitle)}">
+                    <button type="button" class="icon-btn icon-btn-lg" id="wifiCopyBtn" aria-label="${esc(t.copy)}" title="${esc(t.copyTitle)}" data-copy>
                       ${icon("i-copy")}
                     </button>
                   </div>
@@ -364,6 +365,7 @@ function wifi(t) {
               ${switchRow("wifiHidden", t.hiddenNetwork, t.hiddenNetworkNote, false)}
 
               <p class="notice" id="wifiHint" role="status" aria-live="polite"></p>
+              <a class="btn btn-sm qr-jump" id="wifiJump" href="#wifiCard" hidden>${icon("i-arrow", "icon-sm")}${t.showQr}</a>
             </div>
 
             <div class="pane wifi-side">

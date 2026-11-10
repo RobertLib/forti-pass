@@ -55,6 +55,7 @@
   --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
   --shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 12px 32px -16px rgba(16, 24, 40, 0.16);
   --shadow-lg: 0 24px 48px -16px rgba(16, 24, 40, 0.25);
+  --scroll-shadow: rgba(16, 24, 40, 0.16);
 
   --r-lg: 20px;
   --r: 12px;
@@ -100,6 +101,7 @@
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
     --shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 16px 40px -20px rgba(0, 0, 0, 0.7);
     --shadow-lg: 0 24px 60px -16px rgba(0, 0, 0, 0.7);
+    --scroll-shadow: rgba(0, 0, 0, 0.55);
   }
 }
 
@@ -138,6 +140,7 @@
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
     --shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 16px 40px -20px rgba(0, 0, 0, 0.7);
     --shadow-lg: 0 24px 60px -16px rgba(0, 0, 0, 0.7);
+    --scroll-shadow: rgba(0, 0, 0, 0.55);
   }
 }
 
@@ -246,6 +249,10 @@ ol {
 
 [hidden] {
   display: none !important;
+}
+
+.nowrap {
+  white-space: nowrap;
 }
 
 .sr-only {
@@ -739,10 +746,12 @@ ol {
 
 .result {
   display: grid;
+  container-type: inline-size;
 }
 
 .password-display {
   --pw-size: 1.9rem;
+  --pw-fit: 16;
   display: block;
   width: 100%;
   min-height: 148px;
@@ -753,6 +762,10 @@ ol {
   color: var(--text);
   font-family: var(--font-mono);
   font-size: var(--pw-size);
+  /* Never wider than the box allows for --pw-fit characters a line (a mono
+     character is about 0.62em with the letter spacing), so the default 16
+     stay on one line even on a 320px phone. 46px is padding and border. */
+  font-size: min(var(--pw-size), calc((100cqi - 46px) / (var(--pw-fit) * 0.64)));
   font-weight: 600;
   line-height: 1.4;
   letter-spacing: 0.02em;
@@ -768,14 +781,17 @@ ol {
 
 .password-display[data-size="m"] {
   --pw-size: 1.5rem;
+  --pw-fit: 18;
 }
 
 .password-display[data-size="s"] {
   --pw-size: 1.2rem;
+  --pw-fit: 22;
 }
 
 .password-display[data-size="xs"] {
   --pw-size: 0.98rem;
+  --pw-fit: 26;
   text-align: left;
 }
 
@@ -801,8 +817,9 @@ ol {
   display: none;
 }
 
+/* Bullets take the spacing of the characters they stand for, so a hidden
+   value breaks where the visible one would — never one dot on its own. */
 .password-display.is-masked {
-  letter-spacing: 0.12em;
   color: var(--text-3);
 }
 
@@ -1120,7 +1137,6 @@ details[open] > summary .summary-chevron {
   color: var(--text-3);
 }
 
-.value-badge,
 .num-input {
   min-width: 52px;
   height: 34px;
@@ -1131,13 +1147,6 @@ details[open] > summary .summary-chevron {
   font-weight: 650;
   font-variant-numeric: tabular-nums;
   text-align: center;
-}
-
-.value-badge {
-  display: inline-grid;
-  place-items: center;
-  border-color: var(--border);
-  background: var(--sunken);
 }
 
 .num-input {
@@ -1161,6 +1170,18 @@ details[open] > summary .summary-chevron {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--focus);
+}
+
+/* The control behind a generation error. */
+.num-input[aria-invalid="true"],
+.text-input[aria-invalid="true"],
+.is-invalid .toggle-body {
+  border-color: var(--bad);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--bad) 16%, transparent);
+}
+
+.is-invalid > legend {
+  color: var(--bad);
 }
 
 .text-input,
@@ -1810,7 +1831,7 @@ input[type="range"]:focus-visible::-moz-range-thumb {
 
 .wifi-details dd {
   font-weight: 650;
-  word-break: break-all;
+  overflow-wrap: anywhere;
   color: #0f1424;
 }
 
@@ -1825,11 +1846,32 @@ input[type="range"]:focus-visible::-moz-range-thumb {
   color: #6c7489;
 }
 
+/* Two equal buttons under the card, as wide as the card, in any language. */
 .wifi-actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.wifi-actions .btn {
+  padding: 0 12px;
+}
+
+/* On a phone the card is below the form; this leads there once it is ready. */
+.qr-jump {
+  display: none;
+  align-self: flex-start;
+  text-decoration: none;
+}
+
+.qr-jump .icon {
+  transform: rotate(90deg);
+}
+
+.wifi-card {
+  scroll-margin-top: 16px;
 }
 
 .wifi-side .privacy-note {
@@ -1865,6 +1907,17 @@ input[type="range"]:focus-visible::-moz-range-thumb {
 
 .reading-article {
   margin-top: 0;
+}
+
+/* On a wide screen the FAQ sits beside the text instead of leaving the
+   right third of the page empty under the tool card. Article pages keep one
+   column, so their tables get the full width. */
+@media (min-width: 1100px) {
+  .reading:not(.reading-article):has(> .faq-section) {
+    grid-template-columns: minmax(0, 1fr) 340px;
+    column-gap: 56px;
+    align-items: start;
+  }
 }
 
 .content h2 {
@@ -1984,8 +2037,16 @@ input[type="range"]:focus-visible::-moz-range-thumb {
   color: var(--text-3);
 }
 
+/* A table wider than the screen shows a shadow on the side that has more
+   to scroll to: the covers scroll with the content (local), the shadows
+   stay put (scroll), so a shadow shows only where content is hidden. */
 .table-scroll {
   overflow-x: auto;
+  background:
+    linear-gradient(to right, var(--surface) 30%, transparent) left / 28px 100% no-repeat local,
+    linear-gradient(to left, var(--surface) 30%, transparent) right / 28px 100% no-repeat local,
+    radial-gradient(farthest-side at 0 50%, var(--scroll-shadow), transparent) left / 12px 100% no-repeat scroll,
+    radial-gradient(farthest-side at 100% 50%, var(--scroll-shadow), transparent) right / 12px 100% no-repeat scroll;
 }
 
 /* Inside the card's clipped corners, so draw the ring inward. */
@@ -2017,6 +2078,19 @@ input[type="range"]:focus-visible::-moz-range-thumb {
 
 .crack-table tbody th {
   font-weight: 650;
+}
+
+/* The row label stays in view while the other columns scroll past. */
+.crack-table th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--surface);
+  box-shadow: inset -1px 0 0 var(--border);
+}
+
+.crack-table thead th:first-child {
+  background: var(--sunken);
 }
 
 .th-sub {
@@ -2143,17 +2217,28 @@ input[type="range"]:focus-visible::-moz-range-thumb {
   align-content: start;
 }
 
-.footer-links a,
-.footer-bottom a {
+.footer-links a {
   color: var(--text-2);
   text-decoration: none;
 }
 
 .footer-links a:hover,
-.footer-bottom a:hover,
 .footer-links a[aria-current] {
   color: var(--text);
   text-decoration: underline;
+}
+
+/* Links inside a sentence need more than colour to stand out (WCAG 1.4.1),
+   and they match the "Keyboard shortcuts" button beside them. */
+.footer-bottom a {
+  color: var(--text-2);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.footer-bottom a:hover {
+  color: var(--text);
 }
 
 .footer-bottom {
@@ -2166,10 +2251,6 @@ input[type="range"]:focus-visible::-moz-range-thumb {
 
 .footer-note {
   font-size: 0.8rem;
-}
-
-.footer-note a {
-  color: inherit;
 }
 
 /* --------------------------------------------------------- dialog, toasts */
@@ -2327,38 +2408,90 @@ input[type="range"]:focus-visible::-moz-range-thumb {
 
 /* -------------------------------------------------------------------- 404 */
 
+/* The 404 page: one card per language, each a list of the tools. */
 .not-found {
-  padding-block: 40px 80px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: 20px;
+  padding-block: 44px 72px;
 }
 
-.not-found h2 {
-  font-size: 1.6rem;
+.not-found-card {
+  padding: 28px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.not-found-code {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+}
+
+.not-found-card h1,
+.not-found-card h2 {
+  margin-top: 6px;
+  font-size: clamp(1.6rem, 1.3rem + 1vw, 2rem);
+  letter-spacing: -0.03em;
 }
 
 .not-found-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 18px;
+  display: grid;
+  margin-top: 20px;
+  border-top: 1px solid var(--border);
 }
 
 .not-found-links a {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  height: 38px;
-  padding: 0 14px;
-  border-radius: 999px;
-  border: 1px solid var(--border-strong);
-  background: var(--surface);
+  gap: 12px;
+  min-height: 48px;
+  padding: 8px 4px;
+  border-bottom: 1px solid var(--border);
   color: var(--text);
-  font-size: 0.9rem;
   font-weight: 600;
   text-decoration: none;
 }
 
-.not-found-links a:hover {
-  border-color: var(--accent);
+.not-found-links a > .icon:first-child {
   color: var(--accent);
+}
+
+.not-found-links span {
+  flex: 1;
+}
+
+.not-found-arrow {
+  color: var(--text-3);
+  transition: transform 0.15s;
+}
+
+.not-found-links a:hover {
+  color: var(--accent);
+}
+
+.not-found-links a:hover .not-found-arrow {
+  transform: translateX(3px);
+  color: var(--accent);
+}
+
+[data-page="not-found"] .site-footer {
+  margin-top: 0;
+}
+
+/* No tab bar on the 404 page, so no room kept for one. */
+[data-page="not-found"] body {
+  padding-bottom: 0;
+}
+
+[data-page="not-found"] .site-footer a {
+  color: var(--text-2);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 /* ------------------------------------------------------------- responsive */
@@ -2379,6 +2512,24 @@ input[type="range"]:focus-visible::-moz-range-thumb {
 
   .field-count {
     margin-top: 0;
+  }
+
+  /* One column: the mode switch spans the card like the panes below it. */
+  .segmented {
+    max-width: none;
+  }
+
+  .qr-jump {
+    display: inline-flex;
+  }
+
+  /* Before there is a code, a short placeholder instead of an empty square. */
+  .qr-frame:has(> .qr[hidden]) {
+    aspect-ratio: auto;
+  }
+
+  .qr-empty {
+    min-height: 96px;
   }
 }
 
@@ -2471,10 +2622,6 @@ input[type="range"]:focus-visible::-moz-range-thumb {
     padding: 10px;
   }
 
-  .segmented {
-    max-width: none;
-  }
-
   .pane {
     padding: 18px;
   }
@@ -2558,6 +2705,12 @@ input[type="range"]:focus-visible::-moz-range-thumb {
 
 /* A list adds the download button; on a phone "New" then gives up its label. */
 @media (max-width: 480px) {
+  /* Narrow tables fit the screen; wide ones scroll a little less. */
+  .crack-table th,
+  .crack-table td {
+    padding: 8px 10px;
+  }
+
   .result-actions:has(#downloadBtn:not([hidden])) #refreshBtn {
     width: 44px;
     padding: 0;
@@ -2675,6 +2828,10 @@ input[type="range"]:focus-visible::-moz-range-thumb {
     display: block;
   }
 
+  .pane + .pane {
+    border-left: 0;
+  }
+
   /* The Wi-Fi page prints only the guest card. */
   [data-page="wifi"] main > :not(#wifi),
   [data-page="wifi"] .wifi-form,
@@ -2697,6 +2854,16 @@ input[type="range"]:focus-visible::-moz-range-thumb {
     box-shadow: none;
   }
 
+  /* A typed password never goes on paper: the checker prints its verdict
+     and findings only, and nothing at all before something was typed. */
+  [data-page="checker"] #checker .field,
+  [data-page="checker"] #checker .privacy-note,
+  [data-page="checker"] #checker .findings-empty,
+  [data-page="checker"] #checker .cta,
+  [data-page="checker"] #checker:has(.findings:empty) {
+    display: none !important;
+  }
+
   /* Tables fit the page instead of scrolling: every column prints. */
   .table-wrap {
     overflow: visible;
@@ -2705,6 +2872,12 @@ input[type="range"]:focus-visible::-moz-range-thumb {
 
   .table-scroll {
     overflow: visible;
+    background: none;
+  }
+
+  .crack-table th:first-child {
+    position: static;
+    box-shadow: none;
   }
 
   .crack-table {

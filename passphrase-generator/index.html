@@ -120,7 +120,7 @@
 }
     </script>
 
-    <link rel="stylesheet" href="../styles.css?v=aba40534e1" />
+    <link rel="stylesheet" href="../styles.css?v=729cd690fe" />
     <script>
       (function () {
         try {
@@ -320,12 +320,12 @@
           <div class="tool-body">
             <div class="pane result-pane">
               <div class="result" id="result">
-                <button type="button" class="password-display" id="heroPassword" title="Click to copy"></button>
+                <button type="button" class="password-display" id="heroPassword" title="Click to copy" data-copy></button>
                 <ol class="password-list bulk-list" id="passwordList" hidden></ol>
               </div>
 
               <div class="result-actions">
-                <button type="button" class="btn btn-primary" id="copyBtn" title="Copy (C)">
+                <button type="button" class="btn btn-primary" id="copyBtn" title="Copy (C)" data-copy>
                   <svg class="icon" aria-hidden="true"><use href="#i-copy" /></svg>
                   <span class="btn-label">Copy</span>
                 </button>
@@ -364,7 +364,7 @@
                 <span class="switch-track" aria-hidden="true"></span>
                 <span class="switch-text">
                   <span>Clear the clipboard 30 s after copying</span>
-                  <small>Browsers only allow this while FortiPass is the active tab, so it may wait until you come back.</small>
+                  <small>If the browser will not allow it in the background, it happens at your next click or key press on a FortiPass page.</small>
                 </span>
               </label>
 
@@ -389,10 +389,10 @@
             <div class="pane settings-pane">
             <div class="field">
               <div class="field-head">
-                <label for="wordCount">Words</label>
-                <output class="value-badge" id="wordCountValue" for="wordCount">6</output>
+                <label for="wordCountValue">Words</label>
+                <input type="number" id="wordCountValue" class="num-input" min="3" max="12" value="6" inputmode="numeric" />
               </div>
-              <input type="range" id="wordCount" min="3" max="12" step="1" value="6" />
+              <input type="range" id="wordCount" min="3" max="12" step="1" value="6" aria-label="Number of words slider" />
               <p class="hint">Each random word adds <span id="wordBits">12.9</span> bits — six words clear the 70-bit “Strong” mark.</p>
             </div>
 
@@ -479,7 +479,7 @@
 
           <h2>Passphrase or random password?</h2>
           <ul class="tips">
-            <li><strong>Use a passphrase for what you type by hand:</strong> your password manager's master password, your computer login, disk encryption, the Wi-Fi password you read out to guests.</li>
+            <li><strong>Use a passphrase for what you type by hand:</strong> your password manager's master password, your computer login, disk encryption, the <span class="nowrap">Wi-Fi</span> password you read out to guests.</li>
             <li><strong>Use a <a href="../">random password</a> for everything a manager fills in:</strong> 16 or more random characters pack more bits into fewer keystrokes, and you never type them anyway.</li>
             <li><strong>Never pick the words yourself.</strong> People choose lyrics, quotes and words that belong together, and cracking dictionaries are full of them. The randomness is the whole point.</li>
           </ul>
@@ -580,8 +580,8 @@
       <div class="noscript">FortiPass generates passwords in your browser, which needs JavaScript enabled. Nothing is sent to a server either way.</div>
     </noscript>
 
-    <script src="../wordlist-en.js?v=aba40534e1"></script>
-    <script src="../core.js?v=aba40534e1"></script>
-    <script src="../script.js?v=aba40534e1"></script>
+    <script src="../wordlist-en.js?v=729cd690fe"></script>
+    <script src="../core.js?v=729cd690fe"></script>
+    <script src="../script.js?v=729cd690fe"></script>
   </body>
 </html>

@@ -39,6 +39,17 @@
   // it instant. The input field enforces the same limit.
   const MAX_CHECK_LENGTH = 256;
 
+  // A well-known password with predictable changes is worth at most this
+  // many bits. Changes up to DRESSING_LIMIT bits (a year, "!!", "123", a
+  // separator) are such dressing; anything costlier is real randomness and
+  // the piece-by-piece estimate prices it.
+  const DRESSED_BITS = 22;
+  const DRESSING_LIMIT = 24;
+  // A phrase of words split by one repeated separator, and what picking that
+  // separator from the usual few costs.
+  const PHRASE = /^[a-z]+([ ._+-])[a-z]+(?:\1[a-z]+)*$/;
+  const SEPARATOR_BITS = 2;
+
   // "Use every type" is enforced by rejection sampling, which needs a handful
   // of tries for any realistic option mix. This only stops a pathological one.
   const MAX_ATTEMPTS = 100000;
@@ -189,9 +200,9 @@
       mostGuessed:
         "This is one of the most guessed passwords in the world — change it everywhere it is used.",
       dressedUp:
-        "A well-known password dressed up with predictable swaps (@ for a, 0 for o, a number on the end). Cracking tools try those first.",
+        "A well-known password dressed up with predictable changes (@ for a, 0 for o, separators, a number on the end). Cracking tools try those first.",
       tooShort: (n) =>
-        "Only " + plural(n, "character", "characters") + ". Anything under 8 falls in seconds.",
+        "Only " + plural(n, "character", "characters") + ". Anything under 8 falls within minutes.",
       short: (n) => n + " characters is short. Aim for 16 or more.",
       goodLength: (n) => n + " characters is a good length.",
       commonName:
@@ -412,17 +423,22 @@
       return fraction > 0 ? base + Math.log2(fraction) : -Infinity;
     }
 
+    /** A failed generation: the message to show and a code saying why. */
+    function failure(code, message) {
+      return { error: message, code: code };
+    }
+
     function makePassword(opts) {
       if (!(opts.uppercase || opts.lowercase || opts.numbers || opts.symbols)) {
-        return { error: M.errors.noTypes };
+        return failure("noTypes", M.errors.noTypes);
       }
       const sets = buildCharacterSets(opts);
-      if (!sets.length) return { error: M.errors.allExcluded };
+      if (!sets.length) return failure("allExcluded", M.errors.allExcluded);
 
       const pool = [].concat.apply([], sets);
 
       if (opts.noRepeats && opts.length > pool.length) {
-        return { error: M.errors.notEnoughUnique(pool.length) };
+        return failure("notEnoughUnique", M.errors.notEnoughUnique(pool.length));
       }
 
       const useEach =
@@ -434,7 +450,7 @@
         !!opts.noRepeats,
         useEach
       );
-      if (!isFinite(entropy)) return { error: M.errors.unsatisfiable };
+      if (!isFinite(entropy)) return failure("unsatisfiable", M.errors.unsatisfiable);
 
       const setOf = new Map();
       sets.forEach((set, index) => set.forEach((c) => setOf.set(c, index)));
@@ -458,7 +474,7 @@
         return { value: chars.join(""), entropy: entropy };
       }
 
-      return { error: M.errors.tooRestrictive };
+      return failure("tooRestrictive", M.errors.tooRestrictive);
     }
 
     /** The list for `language`, or the first one loaded. */
@@ -468,7 +484,7 @@
 
     function makePassphrase(opts) {
       const list = listFor(opts.language);
-      if (list.length < 100) return { error: M.errors.noWordList };
+      if (list.length < 100) return failure("noWordList", M.errors.noWordList);
 
       const words = [];
       for (let i = 0; i < opts.words; i++) {
@@ -617,19 +633,20 @@
       return Math.max(size, 2);
     }
 
-    /** Strips up to `max` characters failing `keep` from both ends. Linear. */
-    function trimEdges(text, keep, max) {
+    /**
+     * What is left of `chars` after stripping up to `max` characters that
+     * fail `keep` from each end, as a span. Linear.
+     */
+    function trimSpan(chars, keep, max) {
       let start = 0;
-      let end = text.length;
-      while (start < end && start < max && !keep.test(text[start])) start++;
-      while (end > start && text.length - end < max && !keep.test(text[end - 1])) end--;
-      return text.slice(start, end);
+      let end = chars.length;
+      while (start < end && start < max && !keep.test(chars[start])) start++;
+      while (end > start && chars.length - end < max && !keep.test(chars[end - 1])) end--;
+      return { start: start, end: end };
     }
 
-    function deleet(text, map) {
-      let out = "";
-      for (const ch of text) out += map[ch] || ch;
-      return out;
+    function deleet(chars, map) {
+      return chars.map((c) => map[c] || c).join("");
     }
 
     function caseShape(text) {
@@ -780,38 +797,67 @@
       return { bits: best[n] + caseBits(words), tokens: tokens };
     }
 
+    /**
+     * The cheapest reading of the password as a well-known one with
+     * predictable changes, the way a cracker's rules would try it: leet swaps
+     * undone, up to six characters stripped from each end ("2024!!"), and the
+     * separators of a phrase ("correct-horse-battery-staple") dropped.
+     * Returns what the changes themselves cost in bits — the stripped edges
+     * as the estimator prices them, plus the choice of separator — or null
+     * when no reading is a well-known password. Edges of random characters
+     * are expensive, so they keep the strength they genuinely add.
+     */
+    function dressedCost(chars, lowerChars) {
+      const n = chars.length;
+      const spans = [
+        { start: 0, end: n },
+        trimSpan(lowerChars, /[a-z@$]/, 6),
+        trimSpan(lowerChars, /[a-z]/, 6),
+      ];
+      let best = null;
+      const consider = (text, cost) => {
+        if (text.length >= 3 && COMMON_PASSWORDS.has(text) && (best === null || cost < best)) {
+          best = cost;
+        }
+      };
+      spans.forEach((span) => {
+        const middle = lowerChars.slice(span.start, span.end);
+        if (middle.length < 3) return;
+        const edges =
+          (span.start > 0 ? estimate(chars.slice(0, span.start)).bits : 0) +
+          (span.end < n ? estimate(chars.slice(span.end)).bits : 0);
+        [middle.join(""), deleet(middle, LEET_I), deleet(middle, LEET_L)].forEach((text) => {
+          consider(text, edges);
+          const phrase = PHRASE.exec(text);
+          if (phrase) consider(text.split(phrase[1]).join(""), edges + SEPARATOR_BITS);
+        });
+      });
+      return best;
+    }
+
     function analyze(input) {
       const F = M.findings;
       const chars = Array.from(String(input).normalize("NFC")).slice(0, MAX_CHECK_LENGTH);
       const password = chars.join("");
-      const lower = fold(password.toLowerCase());
+      const lowerChars = chars.map((c) => foldChar(c.toLowerCase()));
+      const lower = lowerChars.join("");
       const length = chars.length;
 
       const result = estimate(chars);
       let bits = result.bits;
       const tokens = result.tokens;
 
-      // Compare against the common-password list the way a cracker would:
-      // after undoing leet swaps and stripping a short prefix or suffix (up to
-      // six characters, enough for "2024!!" but not for a random tail).
-      const loose = trimEdges(lower, /[a-z@$]/, 6);
-      const strict = trimEdges(lower, /[a-z]/, 6);
-      const variants = [
-        deleet(lower, LEET_I),
-        deleet(lower, LEET_L),
-        loose,
-        strict,
-        deleet(loose, LEET_I),
-        deleet(loose, LEET_L),
-      ];
-
       let common = null;
       if (COMMON_PASSWORDS.has(lower)) {
         bits = Math.min(bits, 8);
         common = F.mostGuessed;
-      } else if (variants.some((v) => v.length >= 3 && COMMON_PASSWORDS.has(v))) {
-        bits = Math.min(bits, 22);
-        common = F.dressedUp;
+      } else {
+        // Only cheap changes are dressing; random edges are real strength.
+        const changes = dressedCost(chars, lowerChars);
+        if (changes !== null && changes <= DRESSING_LIMIT) {
+          bits = Math.min(bits, DRESSED_BITS);
+          common = F.dressedUp;
+        }
       }
 
       const score = scoreFromBits(bits);
@@ -917,6 +963,24 @@
       return null;
     }
 
+    /** Bytes the text takes in UTF-8, as a router counts them. */
+    function utf8Length(text) {
+      let bytes = 0;
+      for (const ch of String(text)) {
+        const code = ch.codePointAt(0);
+        bytes += code < 0x80 ? 1 : code < 0x800 ? 2 : code < 0x10000 ? 3 : 4;
+      }
+      return bytes;
+    }
+
+    /**
+     * Why a network name would be rejected, or null: an SSID is at most 32
+     * bytes, and accented letters take two of them.
+     */
+    function wifiSsidProblem(ssid) {
+      return utf8Length(ssid) > 32 ? "ssidLong" : null;
+    }
+
     return {
       CHARS: CHARS,
       SCORE_LABELS: M.scoreLabels,
@@ -938,6 +1002,7 @@
       analyze: analyze,
       wifiPayload: wifiPayload,
       wifiPasswordProblem: wifiPasswordProblem,
+      wifiSsidProblem: wifiSsidProblem,
     };
   }
 

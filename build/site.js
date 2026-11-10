@@ -48,8 +48,10 @@ const PAGES = [
     paths: { en: "wifi-password-generator/", cs: "cs/generator-hesla-wifi/" },
   },
   {
+    // Background to the strength numbers, so it belongs with the checker.
     id: "crack",
     type: "article",
+    section: "checker",
     paths: { en: "how-long-to-crack-a-password/", cs: "cs/jak-dlouho-trva-prolomit-heslo/" },
   },
 ];

@@ -43,7 +43,7 @@ module.exports = function content(f, href, c) {
 
           <h2>Choosing a good password</h2>
           <ul class="tips">
-            <li><strong>Length beats complexity.</strong> A random 16-character password needs about ${f.pw(16, 90)} to brute-force; an 8-character one, about ${f.pw(8, 90)}. See the <a href="${href("crack")}">full crack-time table</a>.</li>
+            <li><strong>Length beats complexity.</strong> A 16-character password from this generator needs about ${f.gen(16)} to brute-force; an 8-character one, about ${f.gen(8)}. See the <a href="${href("crack")}">full crack-time table</a>.</li>
             <li><strong>Never reuse a password.</strong> One breach elsewhere should not unlock your email. Unique passwords are what a manager is for.</li>
             <li><strong>Use a passphrase for what you must type.</strong> Device logins and your password-manager vault are easier as six or more <a href="${href("passphrase")}">random words</a>.</li>
             <li><strong>Turn on two-factor authentication.</strong> Even a perfect password cannot protect you from a phished session on its own.</li>
@@ -159,7 +159,7 @@ module.exports = function content(f, href, c) {
         ],
         [
           "Can I generate many PINs at once?",
-          "Yes. Set “How many at once” up to 50, then copy them all or download them as a text file — handy for door codes, test data or one-time codes.",
+          "Yes. Set “How many” up to 50, then copy them all or download them as a text file — handy for door codes, test data or one-time codes.",
         ],
         ["Is anything sent to a server?", privacyAnswer],
       ],
@@ -284,7 +284,7 @@ module.exports = function content(f, href, c) {
               all: "Letters, digits &amp; symbols",
             },
           })}
-          <p class="table-note">Colours follow the generator's verdicts: red is very weak, green is excellent. “Letters, digits &amp; symbols” uses the 28 symbols FortiPass generates.</p>
+          <p class="table-note">Colours follow the generator's verdicts: red is very weak, green is excellent. “Letters, digits &amp; symbols” uses the 28 symbols FortiPass generates. The generator itself shows somewhat shorter times while “Use every selected type at least once” is on: it never makes a password that misses a type, so an attacker has fewer to try.</p>
 
           <h2>Passphrases</h2>
           <p>Words picked at random from the ${words}-word EFF list add ${bpw} bits each — about as much as two random characters, and far easier to remember. Create one with the <a href="${href("passphrase")}">passphrase generator</a>.</p>

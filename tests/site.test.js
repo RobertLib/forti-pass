@@ -75,7 +75,7 @@ test("the service worker pre-caches files that exist, and every page", () => {
 });
 
 test("the CSP hash matches the one inline script on every page", () => {
-  for (const { file, html } of PAGES) {
+  for (const { file, html } of PAGES.concat({ file: "404.html", html: read("404.html") })) {
     const inline = /<script>([\s\S]*?)<\/script>/.exec(html)[1];
     const hash = crypto.createHash("sha256").update(inline, "utf8").digest("base64");
     assert.ok(html.includes("'sha256-" + hash + "'"), file);
@@ -149,8 +149,8 @@ const ID_GROUPS = {
   passphrase: ["wordCount", "wordCountValue", "wordBits", "separator", "capitalize", "addNumber", "addSymbol"],
   passphraseCs: ["wordLanguage", "asciiOnly"],
   pin: ["pinLength", "pinLengthValue", "presets"],
-  checker: ["checkInput", "checkRevealBtn", "checkMeter", "checkMeterTrack", "checkFindings"],
-  wifi: ["wifi", "wifiSsid", "wifiSecurity", "wifiHidden", "wifiStyle", "wifiPassword", "wifiPasswordField", "wifiNewBtn", "wifiCopyBtn", "wifiMeter", "wifiMeterTrack", "wifiHint", "wifiQr", "wifiQrPath", "wifiQrEmpty", "wifiPrintBtn", "wifiSaveBtn", "wifiPrintSsid", "wifiPrintPassword", "wifiPrintPasswordRow"],
+  checker: ["checkInput", "checkRevealBtn", "checkMeter", "checkMeterTrack", "checkFindings", "checkStatus"],
+  wifi: ["wifi", "wifiSsid", "wifiSecurity", "wifiHidden", "wifiStyle", "wifiPassword", "wifiPasswordField", "wifiNewBtn", "wifiCopyBtn", "wifiMeter", "wifiMeterTrack", "wifiHint", "wifiQr", "wifiQrPath", "wifiQrEmpty", "wifiPrintBtn", "wifiSaveBtn", "wifiPrintSsid", "wifiPrintPassword", "wifiPrintPasswordRow", "wifiJump"],
 };
 
 function groupsFor(page, lang) {
@@ -221,13 +221,34 @@ test("the main navigation lights the page's section", () => {
   }
 });
 
-test("Czech pages load the Czech words and strings; English pages do not", () => {
-  for (const { file, html, lang } of PAGES) {
-    if (/data-page="article"/.test(html)) continue;
-    // The checker recognises Czech words whatever the page language.
-    const checkerPage = /data-page="checker"/.test(html);
-    assert.equal(html.includes("wordlist-cs.js"), lang === "cs" || checkerPage, file);
+test("pages load the word lists they use, and Czech pages the Czech strings", () => {
+  for (const { page, file, html, lang } of PAGES) {
+    // The checker knows English and Czech words whatever the page language;
+    // the passphrase page offers English and its own language's words; the
+    // Wi-Fi page makes words in its own language. Nothing else needs words.
+    const en = page.type === "checker" || page.mode === "passphrase" || (page.type === "wifi" && lang === "en");
+    const cs = page.type === "checker" || (lang === "cs" && (page.mode === "passphrase" || page.type === "wifi"));
+    assert.equal(html.includes("wordlist-en.js"), en, file + ": English words");
+    assert.equal(html.includes("wordlist-cs.js"), cs, file + ": Czech words");
     assert.equal(html.includes("locale-cs.js"), lang === "cs", file);
+  }
+});
+
+test("Czech text never ends a line with a one-letter word, nor splits Wi-Fi", () => {
+  for (const { file, html, lang } of PAGES) {
+    const main = /<main[\s\S]*?<\/main>/.exec(html)[0];
+    if (lang === "cs") {
+      const text = main.replace(/<[^>]+>/g, "\u0000");
+      const orphan = /(?:^|[\s(„])[KkSsVvZzOoUuAaIi] +\S/.exec(text);
+      assert.equal(orphan, null, `${file}: “${orphan && orphan[0]}”`);
+    }
+    // Headings and running text keep "Wi-Fi" on one line.
+    const prose = main.match(/<(h1|h2|h3|p|li|summary)\b[^>]*>[\s\S]*?<\/\1>/g) || [];
+    prose.forEach((block) => {
+      if (/^<\w+ class="sr-only"/.test(block)) return; // never seen, never wrapped
+      const bare = block.replace(/<span class="nowrap">Wi-Fi<\/span>/g, "");
+      assert.doesNotMatch(bare.replace(/<[^>]+>/g, " "), /Wi-Fi/, `${file}: ${block.slice(0, 80)}`);
+    });
   }
 });
 

@@ -65,6 +65,18 @@ test("Firefox: an add-on ID and the data-collection declaration AMO requires", (
   assert.ok(parseFloat(gecko.strict_min_version) >= 140, gecko.strict_min_version);
 });
 
+test("the extension carries the project's version", () => {
+  const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "package.json"), "utf8"));
+  assert.equal(manifest.version, pkg.version);
+});
+
+test("the popup does not read every new password aloud", () => {
+  const value = tags(popupHtml).find((t) => t.attrs.id === "value");
+  assert.notEqual(value.tag, "output", "<output> is a live region");
+  assert.equal(value.attrs["aria-live"], undefined);
+  assert.ok(tags(popupHtml).some((t) => t.attrs.id === "announce" && t.attrs.role === "status"));
+});
+
 test("every icon the manifest names exists", () => {
   const icons = Object.values(manifest.icons).concat(Object.values(manifest.action.default_icon));
   icons.forEach((icon) => assert.ok(fs.existsSync(path.join(dir, icon)), icon));

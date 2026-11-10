@@ -21,7 +21,7 @@ const site = require("./site");
 const strings = require("./strings");
 const layout = require("./layout");
 const components = require("./components");
-const { esc, icon } = require("./html");
+const { esc, icon, SPRITE_SYMBOLS } = require("./html");
 const createCore = require("../core.js");
 const LOCALE = { cs: require("../locale-cs.js") };
 const CONTENT = { en: require("./content/en"), cs: require("./content/cs") };
@@ -113,6 +113,9 @@ function makeFacts(lang) {
     excludeAmbiguous: true,
   });
   const easyPool = easySets.reduce((sum, set) => sum + set.length, 0);
+  // What the generator itself shows: every type, each at least once.
+  const allSets = core.buildCharacterSets({ uppercase: true, lowercase: true, numbers: true, symbols: true });
+  const allPool = allSets.reduce((sum, set) => sum + set.length, 0);
   const wifiWordsLang = lang === "cs" ? "cs" : "en";
 
   const date = new Date(site.UPDATED + "T12:00:00Z");
@@ -130,6 +133,9 @@ function makeFacts(lang) {
     updated: date.toLocaleDateString(lang, { month: "long", year: "numeric", timeZone: "UTC" }),
     year: site.UPDATED.slice(0, 4),
     pw: (length, pool) => crackTime(length * Math.log2(pool)),
+    // A password from the generator's default settings, as its meter shows.
+    gen: (length) =>
+      crackTime(core.passwordEntropy(allPool, allSets.map((set) => set.length), length, false, true)),
     words: (count, list) => crackTime(count * bitsPerWord[list]),
     sci: (value) => {
       const exponent = Math.floor(Math.log10(value));
@@ -199,6 +205,60 @@ const TABLE_LABELS = {
   },
 };
 
+/* ------------------------------------------------------------ typesetting */
+
+// A one-letter Czech preposition or conjunction must not end a line.
+// The next word may start after a tag ("z <code>…"), so the end counts too.
+const CZECH_ORPHAN = /(?<=^|[\s(„\u00a0])([KkSsVvZzOoUuAaIi]) +(?=\S|$)/g;
+
+/**
+ * Typesetting for the text nodes of an HTML fragment (tags are left alone):
+ * in Czech a one-letter word is tied to the next with a no-break space —
+ * the character, not &nbsp;, so it also works inside attributes — and in
+ * running text "Wi-Fi" never splits at its hyphen.
+ */
+function typeset(html, lang, options) {
+  const wifi = !options || options.wifi !== false;
+  return String(html)
+    .split(/(<[^>]+>)/)
+    .map((part, index) => {
+      if (index % 2) return part;
+      let out = part;
+      if (wifi) out = out.replace(/Wi-Fi/g, '<span class="nowrap">Wi-Fi</span>');
+      if (lang === "cs") out = out.replace(CZECH_ORPHAN, "$1\u00a0");
+      return out;
+    })
+    .join("");
+}
+
+/**
+ * The interface strings, typeset the same way. They may end up in
+ * attributes, so no markup is added — only no-break spaces.
+ */
+function typesetStrings(value, lang) {
+  if (typeof value === "string") return typeset(value, lang, { wifi: false });
+  if (typeof value === "function") return (...args) => typesetStrings(value(...args), lang);
+  if (Array.isArray(value)) return value.map((item) => typesetStrings(item, lang));
+  if (value && typeof value === "object") {
+    return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, typesetStrings(item, lang)]));
+  }
+  return value;
+}
+
+const STRINGS = Object.fromEntries(
+  Object.keys(strings).map((lang) => [lang, typesetStrings(strings[lang], lang)])
+);
+
+/** The visible text of a page: heading, introduction, body and FAQ. */
+function typesetContent(content, lang) {
+  return Object.assign({}, content, {
+    h1: typeset(content.h1, lang),
+    lede: typeset(content.lede, lang),
+    body: typeset(content.body, lang),
+    faq: (content.faq || []).map(([question, answer]) => [typeset(question, lang), typeset(answer, lang)]),
+  });
+}
+
 /* ----------------------------------------------------------------- pages */
 
 const pageById = (id) => site.PAGES.find((page) => page.id === id);
@@ -210,7 +270,7 @@ function makeContext(page, lang, facts, assetVersion) {
     page,
     lang,
     assetVersion,
-    t: strings[lang],
+    t: STRINGS[lang],
     pages: site.PAGES,
     root,
     url: site.SITE_URL + page.paths[lang],
@@ -271,7 +331,7 @@ function renderPage(page, lang, facts, assetVersion) {
     pinTable: (lengths) => components.pinTable(ctx, labels.pin, lengths),
   };
   const href = (id, targetLang) => ctx.href(pageById(id), targetLang);
-  const content = CONTENT[lang](facts, href, helpers)[page.id];
+  const content = typesetContent(CONTENT[lang](facts, href, helpers)[page.id], lang);
 
   const tool = {
     generator: () => components.generator(t, ctx),
@@ -294,43 +354,95 @@ function renderPage(page, lang, facts, assetVersion) {
   return layout.render(ctx, content, main);
 }
 
+// The tools as the 404 page lists them, each with its icon.
+const NOT_FOUND_ICONS = {
+  home: "i-key",
+  passphrase: "i-book",
+  pin: "i-lock",
+  checker: "i-search",
+  wifi: "i-wifi",
+  crack: "i-clock",
+};
+
+/** Only the sprite symbols `ids` need, so the 404 page stays small. */
+function spriteFor(ids) {
+  return ids
+    .map((id) => {
+      const match = new RegExp(`\\s*<symbol id="${id}"[\\s\\S]*?</symbol>`).exec(SPRITE_SYMBOLS);
+      if (!match) throw new Error("no sprite symbol " + id);
+      return match[0];
+    })
+    .join("");
+}
+
 /** GitHub Pages serves 404.html at whatever URL was missed, so it uses
-    absolute paths and no service worker. */
+    absolute paths and no service worker. Its one script is the theme
+    snippet every page has, allowed by the same hash. */
 function render404(assetVersion) {
   const base = new URL(site.SITE_URL).pathname;
+  const v = "?v=" + assetVersion;
+  const csp = layout.CSP.replace("script-src 'self' ", "script-src ");
   const links = (lang) =>
     site.PAGES.map(
-      (page) => `<li><a href="${base}${page.paths[lang]}">${strings[lang].toolNames[page.id]}</a></li>`
-    ).join("\n          ");
+      (page) => `<li><a href="${base}${page.paths[lang]}">${icon(NOT_FOUND_ICONS[page.id])}<span>${strings[lang].toolNames[page.id]}</span>${icon("i-arrow", "icon-sm not-found-arrow")}</a></li>`
+    ).join("\n            ");
+  const year = site.UPDATED.slice(0, 4);
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-page="not-found">
   <head>
     <meta charset="UTF-8" />
     <!-- Generated by build/build.js. -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none'; style-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="${csp}" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="robots" content="noindex" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="${layout.THEME_COLORS.dark}" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="${layout.THEME_COLORS.light}" media="(prefers-color-scheme: light)" />
     <title>Page not found · Stránka nenalezena | FortiPass</title>
     <link rel="icon" href="${base}favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="${base}styles.css?v=${assetVersion}" />
+    <link rel="stylesheet" href="${base}styles.css${v}" />
+    <script>${layout.THEME_SCRIPT}</script>
   </head>
   <body>
+    <svg class="sprite" aria-hidden="true" focusable="false">
+      <defs>${spriteFor(["i-shield", "i-arrow"].concat(Object.values(NOT_FOUND_ICONS)))}
+      </defs>
+    </svg>
+
+    <header class="topbar">
+      <div class="container topbar-inner">
+        <a class="brand" href="${base}" aria-label="FortiPass">
+          <span class="brand-mark">${icon("i-shield")}</span>
+          <span class="brand-text">Forti<span class="brand-accent">Pass</span></span>
+        </a>
+      </div>
+    </header>
+
     <main class="container not-found">
-      <section class="page-head">
+      <section class="not-found-card">
+        <p class="not-found-code" aria-hidden="true">404</p>
         <h1>Page not found</h1>
         <p class="lede">The page you asked for does not exist. Pick a tool instead:</p>
         <ul class="not-found-links">
-          ${links("en")}
+            ${links("en")}
         </ul>
       </section>
-      <section class="page-head" lang="cs">
+      <section class="not-found-card" lang="cs">
+        <p class="not-found-code" aria-hidden="true">404</p>
         <h2>Stránka nenalezena</h2>
         <p class="lede">Tahle stránka neexistuje. Vyberte si nástroj:</p>
         <ul class="not-found-links">
-          ${links("cs")}
+            ${links("cs")}
         </ul>
       </section>
     </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>&copy; 2025–${year} ${site.AUTHOR} · <a href="${site.REPO_URL}" rel="noopener">FortiPass</a></p>
+      </div>
+    </footer>
   </body>
 </html>
 `;
