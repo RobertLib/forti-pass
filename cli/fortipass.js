@@ -4,7 +4,7 @@
 /* FortiPass on the command line — the same core.js, word lists and entropy
    maths as the website, with Node's Web Crypto as the random source.
 
-     fortipass                      one 20-character password
+     fortipass                      one 16-character password
      fortipass -l 32 -n 5           five 32-character passwords
      fortipass -w 6                 a six-word passphrase
      fortipass -w 6 --lang cs       … from Czech words, without accents
@@ -19,25 +19,35 @@ const createCore = require("../core.js");
 const EN = require("../wordlist-en.js");
 const CS = require("../wordlist-cs.js");
 const LOCALE_CS = require("../locale-cs.js");
+const { version: VERSION } = require("../package.json");
+
+// Piped input is read up to the first line break and never past this many
+// characters, so `yes | fortipass --check` cannot exhaust memory. The checker
+// itself looks at the first 256 characters.
+const MAX_INPUT = 4096;
 
 const HELP = `Usage: fortipass [options]
 
 Passwords (default)
-  -l, --length <n>      length, 4–128 (default 20)
+  -l, --length <n>      length, 4–128 (default 16)
       --no-upper        leave out A–Z
       --no-lower        leave out a–z
       --no-digits       leave out 0–9
       --no-symbols      leave out symbols
       --readable        avoid look-alike characters (I l 1 O 0 …)
+      --no-repeats      use every character at most once
       --exclude <chars> never use these characters
 
 Passphrases
-  -w, --words <n>       passphrase of n random words, 3–20
-      --lang <en|cs>    word list: English (EFF) or Czech (default en)
+  -w, --words <n>       passphrase of n random words, 3–12
+      --lang <en|cs>    English (EFF) or Czech words, and the language of
+                        the summary and messages (default en)
       --accents         keep Czech accents (default: without)
-  -s, --separator <c>   between words (default "-")
+  -s, --separator <c>   between words (default "-"); "digit" puts a random
+                        digit between the words
       --lower           do not capitalise the words
       --no-number       do not append a digit
+      --symbol          append a symbol as well
 
 PINs
       --pin <n>         PIN of n digits, 3–16
@@ -46,8 +56,13 @@ General
   -n, --count <n>       how many to generate, 1–1000 (default 1)
       --check           rate a password from stdin instead of generating
       --json            machine-readable output
-  -q, --quiet           no strength summary on stderr
+  -q, --quiet           no strength summary on stderr; with --check, print
+                        nothing and only set the exit status
+  -V, --version         print the version
   -h, --help            this help
+
+Exit status: 0 on success, 1 when --check rates the password below Strong,
+2 for a usage error.
 `;
 
 function fail(message) {
@@ -55,14 +70,22 @@ function fail(message) {
   process.exit(2);
 }
 
+// `fortipass -n 1000 | head -1` closes the pipe early; that is not an error.
+process.stdout.on("error", (err) => {
+  if (err.code === "EPIPE") process.exit(0);
+  throw err;
+});
+process.stderr.on("error", () => {});
+
 function parse(argv) {
   const o = {
-    length: 20,
+    length: 16,
     upper: true,
     lower: true,
     digits: true,
     symbols: true,
     readable: false,
+    noRepeats: false,
     exclude: "",
     words: 0,
     lang: "en",
@@ -70,6 +93,7 @@ function parse(argv) {
     separator: "-",
     capitalize: true,
     number: true,
+    symbol: false,
     pin: 0,
     count: 1,
     check: false,
@@ -94,18 +118,21 @@ function parse(argv) {
       case "--no-digits": o.digits = false; break;
       case "--no-symbols": o.symbols = false; break;
       case "--readable": o.readable = true; break;
+      case "--no-repeats": o.noRepeats = true; break;
       case "--exclude": o.exclude = next(); break;
-      case "-w": case "--words": o.words = int("--words", next(), 3, 20); break;
+      case "-w": case "--words": o.words = int("--words", next(), 3, 12); break;
       case "--lang": o.lang = next(); if (!["en", "cs"].includes(o.lang)) fail("--lang is en or cs"); break;
       case "--accents": o.accents = true; break;
       case "-s": case "--separator": o.separator = next(); break;
       case "--lower": o.capitalize = false; break;
       case "--no-number": o.number = false; break;
+      case "--symbol": o.symbol = true; break;
       case "--pin": o.pin = int("--pin", next(), 3, 16); break;
       case "-n": case "--count": o.count = int("--count", next(), 1, 1000); break;
       case "--check": o.check = true; break;
       case "--json": o.json = true; break;
       case "-q": case "--quiet": o.quiet = true; break;
+      case "-V": case "--version": process.stdout.write(VERSION + "\n"); process.exit(0); break;
       case "-h": case "--help": process.stdout.write(HELP); process.exit(0); break;
       default: fail(`unknown option ${arg} (try --help)`);
     }
@@ -114,73 +141,116 @@ function parse(argv) {
   return o;
 }
 
-/** Reads one line from stdin; on a terminal the typing is not echoed. */
-function readSecret(prompt) {
-  const stdin = process.stdin;
-  if (!stdin.isTTY) {
-    return new Promise((resolve) => {
-      let data = "";
-      stdin.setEncoding("utf8");
-      stdin.on("data", (chunk) => (data += chunk));
-      stdin.on("end", () => resolve(data.split(/\r?\n/)[0]));
-    });
-  }
+/** First line of piped input; stops reading at the line break or MAX_INPUT. */
+function readLine(stdin) {
+  return new Promise((resolve) => {
+    let data = "";
+    const finish = () => {
+      stdin.removeListener("data", onData);
+      stdin.removeListener("end", finish);
+      stdin.destroy();
+      resolve(data.split(/\r?\n/)[0].slice(0, MAX_INPUT));
+    };
+    const onData = (chunk) => {
+      data += chunk;
+      if (data.includes("\n") || data.length >= MAX_INPUT) finish();
+    };
+    stdin.setEncoding("utf8");
+    stdin.on("data", onData);
+    stdin.on("end", finish);
+  });
+}
+
+/**
+ * One line typed at the terminal without echo. Enter or Ctrl-D ends it,
+ * Ctrl-C exits with 130, Backspace deletes, and escape sequences (arrow and
+ * function keys) and other control characters are ignored.
+ */
+function readHidden(stdin, prompt) {
   return new Promise((resolve) => {
     process.stderr.write(prompt);
     let value = "";
-    stdin.setRawMode(true);
-    stdin.setEncoding("utf8");
-    stdin.resume();
+    const done = () => {
+      stdin.setRawMode(false);
+      stdin.removeListener("data", onData);
+      stdin.pause();
+      process.stderr.write("\n");
+    };
     const onData = (chunk) => {
+      // "esc" after a lone ESC, "csi" inside ESC [ … final byte, "ss3" after ESC O.
+      let state = "";
       for (const ch of chunk) {
-        if (ch === "\r" || ch === "\n") {
-          stdin.setRawMode(false);
-          stdin.pause();
-          stdin.removeListener("data", onData);
-          process.stderr.write("\n");
+        const code = ch.codePointAt(0);
+        if (state === "esc") {
+          state = ch === "[" ? "csi" : ch === "O" ? "ss3" : "";
+          continue;
+        }
+        if (state === "csi") {
+          if (code >= 0x40 && code <= 0x7e) state = "";
+          continue;
+        }
+        if (state === "ss3") {
+          state = "";
+          continue;
+        }
+        if (ch === "\r" || ch === "\n" || ch === "\u0004") {
+          done();
           resolve(value);
           return;
         }
         if (ch === "\u0003") {
-          process.stderr.write("\n");
+          done();
           process.exit(130);
         }
-        if (ch === "\u007f" || ch === "\b") value = Array.from(value).slice(0, -1).join("");
-        else value += ch;
+        if (ch === "\u001b") state = "esc";
+        else if (ch === "\u007f" || ch === "\b") value = Array.from(value).slice(0, -1).join("");
+        else if (code >= 0x20 && value.length < MAX_INPUT) value += ch;
       }
     };
+    stdin.setRawMode(true);
+    stdin.setEncoding("utf8");
     stdin.on("data", onData);
+    stdin.resume();
   });
+}
+
+async function check(o, core, bits) {
+  const stdin = process.stdin;
+  const password = stdin.isTTY
+    ? await readHidden(stdin, o.lang === "cs" ? "Heslo: " : "Password: ")
+    : await readLine(stdin);
+  if (!password) fail("no password to check — pipe one in or type it at the prompt");
+
+  const result = core.analyze(password);
+  process.exitCode = result.score >= 4 ? 0 : 1;
+  if (o.quiet) return;
+
+  const label = core.SCORE_LABELS[result.score];
+  const crack = core.formatCrackTime(result.bits);
+  if (o.json) {
+    process.stdout.write(
+      JSON.stringify({ score: result.score, label, bits: result.bits, crackTime: crack, findings: result.findings }) + "\n"
+    );
+    return;
+  }
+  process.stdout.write(`${label} · ${bits(result.bits)} · ${crack}\n`);
+  result.findings.forEach(([kind, text]) =>
+    process.stdout.write(`  ${kind === "good" ? "✓" : "!"} ${text}\n`)
+  );
 }
 
 async function main() {
   const o = parse(process.argv.slice(2));
+  const czech = o.lang === "cs";
   const core = createCore({
     crypto: webcrypto,
     wordLists: { en: EN, cs: CS },
-    messages: o.lang === "cs" ? LOCALE_CS.core : undefined,
+    messages: czech ? LOCALE_CS.core : undefined,
   });
   if (!core.hasCrypto) fail("no secure random number generator available");
-  const czech = o.lang === "cs";
   const bits = (n) => (czech ? LOCALE_CS.ui.bits(Math.round(n)) : Math.round(n) + " bits");
 
-  if (o.check) {
-    const password = await readSecret(o.lang === "cs" ? "Heslo: " : "Password: ");
-    const result = core.analyze(password);
-    const label = core.SCORE_LABELS[result.score];
-    const crack = core.formatCrackTime(result.bits);
-    if (o.json) {
-      process.stdout.write(
-        JSON.stringify({ score: result.score, label, bits: result.bits, crackTime: crack, findings: result.findings }) + "\n"
-      );
-    } else {
-      process.stdout.write(`${label} · ${bits(result.bits)} · ${crack}\n`);
-      result.findings.forEach(([kind, text]) =>
-        process.stdout.write(`  ${kind === "good" ? "✓" : "!"} ${text}\n`)
-      );
-    }
-    process.exit(result.score >= 4 ? 0 : 1);
-  }
+  if (o.check) return check(o, core, bits);
 
   const options = {
     length: o.length,
@@ -190,7 +260,7 @@ async function main() {
     symbols: o.symbols,
     requireEach: true,
     excludeAmbiguous: o.readable,
-    noRepeats: false,
+    noRepeats: o.noRepeats,
     excludeChars: o.exclude,
     words: o.words,
     language: o.lang,
@@ -198,7 +268,7 @@ async function main() {
     separator: o.separator,
     capitalize: o.capitalize,
     addNumber: o.number,
-    addSymbol: false,
+    addSymbol: o.symbol,
     pinLength: o.pin,
   };
   const make = o.words ? core.makePassphrase : o.pin ? core.makePin : core.makePassword;
@@ -217,8 +287,9 @@ async function main() {
     process.stdout.write(
       JSON.stringify({
         values,
-        bits: entropy,
+        score,
         label: core.SCORE_LABELS[score],
+        bits: entropy,
         crackTime: core.formatCrackTime(entropy),
       }) + "\n"
     );

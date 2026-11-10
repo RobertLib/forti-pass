@@ -8,10 +8,10 @@
          rule. The hash is the inline theme script below. -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-S7JAEiUrU4H4LCVYmy289mUQCOerSE4ipEaKk4kMhPU='; style-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'" />
     <meta name="referrer" content="no-referrer" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <title>Jak dlouho trvá prolomit heslo? Tabulka 2026 | FortiPass</title>
-    <meta name="description" content="Doba prolomení náhodných hesel o 4 až 20 znacích pro každou sadu znaků, plus hesla ze slov a PINy, při 100 miliardách pokusů za sekundu. Průhledný výpočet, volně k použití." />
+    <meta name="description" content="Doba prolomení náhodných hesel o 4 až 20 znacích pro každou sadu znaků i pro hesla ze slov, při 100 miliardách pokusů za sekundu. Průhledný výpočet, volně k použití." />
     <meta name="author" content="Robert Libšanský" />
     <meta name="robots" content="index, follow" />
     <meta name="color-scheme" content="dark light" />
@@ -32,14 +32,14 @@
     <meta property="og:locale" content="cs_CZ" />
     <meta property="og:locale:alternate" content="en_US" />
     <meta property="og:title" content="Jak dlouho trvá prolomit heslo? Tabulka 2026 | FortiPass" />
-    <meta property="og:description" content="Doba prolomení náhodných hesel o 4 až 20 znacích pro každou sadu znaků, plus hesla ze slov a PINy, při 100 miliardách pokusů za sekundu. Průhledný výpočet, volně k použití." />
+    <meta property="og:description" content="Doba prolomení náhodných hesel o 4 až 20 znacích pro každou sadu znaků i pro hesla ze slov, při 100 miliardách pokusů za sekundu. Průhledný výpočet, volně k použití." />
     <meta property="og:image" content="https://robertlib.github.io/forti-pass/og-image-cs.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="Logo FortiPass s heslem „Silná hesla, vytvořená ve vašem zařízení“ a ukázkou vygenerovaného hesla" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Jak dlouho trvá prolomit heslo? Tabulka 2026 | FortiPass" />
-    <meta name="twitter:description" content="Doba prolomení náhodných hesel o 4 až 20 znacích pro každou sadu znaků, plus hesla ze slov a PINy, při 100 miliardách pokusů za sekundu. Průhledný výpočet, volně k použití." />
+    <meta name="twitter:description" content="Doba prolomení náhodných hesel o 4 až 20 znacích pro každou sadu znaků i pro hesla ze slov, při 100 miliardách pokusů za sekundu. Průhledný výpočet, volně k použití." />
     <meta name="twitter:image" content="https://robertlib.github.io/forti-pass/og-image-cs.png" />
     <meta name="twitter:image:alt" content="Logo FortiPass s heslem „Silná hesla, vytvořená ve vašem zařízení“ a ukázkou vygenerovaného hesla" />
 
@@ -52,7 +52,7 @@
   "@context": "https://schema.org",
   "@type": "Article",
   "headline": "Jak dlouho trvá prolomit heslo?",
-  "description": "Doba prolomení náhodných hesel o 4 až 20 znacích pro každou sadu znaků, plus hesla ze slov a PINy, při 100 miliardách pokusů za sekundu. Průhledný výpočet, volně k použití.",
+  "description": "Doba prolomení náhodných hesel o 4 až 20 znacích pro každou sadu znaků i pro hesla ze slov, při 100 miliardách pokusů za sekundu. Průhledný výpočet, volně k použití.",
   "inLanguage": "cs",
   "url": "https://robertlib.github.io/forti-pass/cs/jak-dlouho-trva-prolomit-heslo/",
   "datePublished": "2026-11-09",
@@ -103,7 +103,7 @@
       "name": "Proč jiné tabulky ukazují jiné časy?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Zveřejněné tabulky se liší hlavně v tom, jaký hash a jaký hardware předpokládají. Rychlý hash na mnoha grafických kartách dává krátké časy jako tady, pomalý hash jako bcrypt mnohem delší. Tvar je ale ve všech tabulkách stejný: každý znak navíc vynásobí čas velikostí sady znaků."
+        "text": "Zveřejněné tabulky se liší hlavně v tom, jaký hash a jaký hardware předpokládají. Rychlý hash na grafických kartách dává krátké časy jako tady (na sestavě s mnoha kartami ještě kratší), pomalý hash jako bcrypt mnohem delší. Tvar je ale ve všech tabulkách stejný: každý znak navíc vynásobí čas velikostí sady znaků."
       }
     },
     {
@@ -118,7 +118,7 @@
 }
     </script>
 
-    <link rel="stylesheet" href="../../styles.css?v=5" />
+    <link rel="stylesheet" href="../../styles.css?v=19c6db3e6e" />
     <script>
       (function () {
         try {
@@ -302,52 +302,56 @@
         <div class="reading reading-article">
         <section class="content">
           <h2>Náhodná hesla</h2>
-          <div class="table-wrap" tabindex="0" role="region" aria-label="Průměrná doba útoku hrubou silou při 100 miliardách pokusů za sekundu">
-            <table class="crack-table">
-              <caption>Průměrná doba útoku hrubou silou při 100 miliardách pokusů za sekundu</caption>
-              <thead><tr><th scope="col">Délka</th><th scope="col">Jen číslice<span class="th-sub">10 znaků</span></th><th scope="col">Malá písmena<span class="th-sub">26 znaků</span></th><th scope="col">Malá a velká písmena<span class="th-sub">52 znaků</span></th><th scope="col">Písmena a číslice<span class="th-sub">62 znaků</span></th><th scope="col">Písmena, číslice a symboly<span class="th-sub">90 znaků</span></th></tr></thead>
-              <tbody>
-                <tr><th scope="row">4</th><td data-score="1">okamžitě</td><td data-score="1">okamžitě</td><td data-score="1">okamžitě</td><td data-score="1">okamžitě</td><td data-score="1">okamžitě</td></tr>
-                <tr><th scope="row">5</th><td data-score="1">okamžitě</td><td data-score="1">okamžitě</td><td data-score="1">okamžitě</td><td data-score="1">okamžitě</td><td data-score="2">okamžitě</td></tr>
-                <tr><th scope="row">6</th><td data-score="1">okamžitě</td><td data-score="1">okamžitě</td><td data-score="2">okamžitě</td><td data-score="2">okamžitě</td><td data-score="2">3 sekundy</td></tr>
-                <tr><th scope="row">7</th><td data-score="1">okamžitě</td><td data-score="2">okamžitě</td><td data-score="2">5 sekund</td><td data-score="2">18 sekund</td><td data-score="2">4 minuty</td></tr>
-                <tr><th scope="row">8</th><td data-score="1">okamžitě</td><td data-score="2">1 sekunda</td><td data-score="2">4 minuty</td><td data-score="2">18 minut</td><td data-score="3">6 hodin</td></tr>
-                <tr><th scope="row">9</th><td data-score="1">okamžitě</td><td data-score="2">27 sekund</td><td data-score="3">4 hodiny</td><td data-score="3">19 hodin</td><td data-score="3">22 dní</td></tr>
-                <tr><th scope="row">10</th><td data-score="2">okamžitě</td><td data-score="2">12 minut</td><td data-score="3">8 dní</td><td data-score="3">49 dní</td><td data-score="3">6 let</td></tr>
-                <tr><th scope="row">11</th><td data-score="2">okamžitě</td><td data-score="3">5 hodin</td><td data-score="3">1 rok</td><td data-score="3">8 let</td><td data-score="4">497 let</td></tr>
-                <tr><th scope="row">12</th><td data-score="2">5 sekund</td><td data-score="3">6 dní</td><td data-score="3">62 let</td><td data-score="4">511 let</td><td data-score="4">45 tisíc let</td></tr>
-                <tr><th scope="row">13</th><td data-score="2">50 sekund</td><td data-score="3">144 dní</td><td data-score="4">3,2 tisíce let</td><td data-score="4">32 tisíc let</td><td data-score="4">4 miliony let</td></tr>
-                <tr><th scope="row">14</th><td data-score="2">8 minut</td><td data-score="3">10 let</td><td data-score="4">167 tisíc let</td><td data-score="4">2 miliony let</td><td data-score="5">362 milionů let</td></tr>
-                <tr><th scope="row">15</th><td data-score="2">1 hodina</td><td data-score="4">266 let</td><td data-score="4">8,7 milionu let</td><td data-score="4">122 milionů let</td><td data-score="5">33 miliard let</td></tr>
-                <tr><th scope="row">16</th><td data-score="3">14 hodin</td><td data-score="4">6,9 tisíce let</td><td data-score="5">453 milionů let</td><td data-score="5">7,6 miliardy let</td><td data-score="5">2,9 bilionu let</td></tr>
-                <tr><th scope="row">18</th><td data-score="3">58 dní</td><td data-score="4">4,7 milionu let</td><td data-score="5">1,2 bilionu let</td><td data-score="5">29 bilionů let</td><td data-score="5">24 biliard let</td></tr>
-                <tr><th scope="row">20</th><td data-score="3">16 let</td><td data-score="5">3,2 miliardy let</td><td data-score="5">3,3 biliardy let</td><td data-score="5">112 biliard let</td><td data-score="5">10^20 let</td></tr>
-              </tbody>
-            </table>
-          </div>
+          <figure class="table-wrap">
+            <figcaption class="table-caption" id="crackTableCaption">Průměrná doba útoku hrubou silou při 100 miliardách pokusů za sekundu</figcaption>
+            <div class="table-scroll" tabindex="0" role="region" aria-labelledby="crackTableCaption">
+              <table class="crack-table" aria-labelledby="crackTableCaption">
+                <thead><tr><th scope="col">Délka</th><th scope="col">Jen číslice<span class="th-sub">10 znaků</span></th><th scope="col">Malá písmena<span class="th-sub">26 znaků</span></th><th scope="col">Malá a velká písmena<span class="th-sub">52 znaků</span></th><th scope="col">Písmena a číslice<span class="th-sub">62 znaků</span></th><th scope="col">Písmena, číslice a symboly<span class="th-sub">90 znaků</span></th></tr></thead>
+                <tbody>
+                  <tr><th scope="row">4</th><td data-score="1">okamžitě</td><td data-score="1">okamžitě</td><td data-score="1">okamžitě</td><td data-score="1">okamžitě</td><td data-score="1">okamžitě</td></tr>
+                  <tr><th scope="row">5</th><td data-score="1">okamžitě</td><td data-score="1">okamžitě</td><td data-score="1">okamžitě</td><td data-score="1">okamžitě</td><td data-score="2">okamžitě</td></tr>
+                  <tr><th scope="row">6</th><td data-score="1">okamžitě</td><td data-score="1">okamžitě</td><td data-score="2">okamžitě</td><td data-score="2">okamžitě</td><td data-score="2">3 sekundy</td></tr>
+                  <tr><th scope="row">7</th><td data-score="1">okamžitě</td><td data-score="2">okamžitě</td><td data-score="2">5 sekund</td><td data-score="2">18 sekund</td><td data-score="2">4 minuty</td></tr>
+                  <tr><th scope="row">8</th><td data-score="1">okamžitě</td><td data-score="2">1 sekunda</td><td data-score="2">4 minuty</td><td data-score="2">18 minut</td><td data-score="3">6 hodin</td></tr>
+                  <tr><th scope="row">9</th><td data-score="1">okamžitě</td><td data-score="2">27 sekund</td><td data-score="3">4 hodiny</td><td data-score="3">19 hodin</td><td data-score="3">22 dní</td></tr>
+                  <tr><th scope="row">10</th><td data-score="2">okamžitě</td><td data-score="2">12 minut</td><td data-score="3">8 dní</td><td data-score="3">49 dní</td><td data-score="3">6 let</td></tr>
+                  <tr><th scope="row">11</th><td data-score="2">okamžitě</td><td data-score="3">5 hodin</td><td data-score="3">1 rok</td><td data-score="3">8 let</td><td data-score="4">497 let</td></tr>
+                  <tr><th scope="row">12</th><td data-score="2">5 sekund</td><td data-score="3">6 dní</td><td data-score="3">62 let</td><td data-score="4">511 let</td><td data-score="4">45 tisíc let</td></tr>
+                  <tr><th scope="row">13</th><td data-score="2">50 sekund</td><td data-score="3">144 dní</td><td data-score="4">3,2 tisíce let</td><td data-score="4">32 tisíc let</td><td data-score="4">4 miliony let</td></tr>
+                  <tr><th scope="row">14</th><td data-score="2">8 minut</td><td data-score="3">10 let</td><td data-score="4">167 tisíc let</td><td data-score="4">2 miliony let</td><td data-score="5">362 milionů let</td></tr>
+                  <tr><th scope="row">15</th><td data-score="2">1 hodina</td><td data-score="4">266 let</td><td data-score="4">8,7 milionu let</td><td data-score="4">122 milionů let</td><td data-score="5">33 miliard let</td></tr>
+                  <tr><th scope="row">16</th><td data-score="3">14 hodin</td><td data-score="4">6,9 tisíce let</td><td data-score="5">453 milionů let</td><td data-score="5">7,6 miliardy let</td><td data-score="5">2,9 bilionu let</td></tr>
+                  <tr><th scope="row">18</th><td data-score="3">58 dní</td><td data-score="4">4,7 milionu let</td><td data-score="5">1,2 bilionu let</td><td data-score="5">29 bilionů let</td><td data-score="5">24 biliard let</td></tr>
+                  <tr><th scope="row">20</th><td data-score="3">16 let</td><td data-score="5">3,2 miliardy let</td><td data-score="5">3,3 biliardy let</td><td data-score="5">112 biliard let</td><td data-score="5">10²⁰ let</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </figure>
           <p class="table-note">Barvy odpovídají hodnocení v generátoru: červená je velmi slabé, zelená výborné. Sloupec „Písmena, číslice a symboly“ počítá s 28 symboly, které FortiPass používá. Písmena jsou bez diakritiky.</p>
 
           <h2>Hesla ze slov</h2>
           <p>Každé slovo vybrané náhodně ze seznamu 7 776 českých slov přidá 12,9 bitu — asi jako dva náhodné znaky, ale zapamatuje se mnohem snáz. Vytvořte si ho v <a href="../../cs/generator-hesel-ze-slov/">generátoru hesel ze slov</a>.</p>
-          <div class="table-wrap" tabindex="0" role="region" aria-label="Hesla z českých slov při 100 miliardách pokusů za sekundu">
-            <table class="crack-table crack-table-narrow">
-              <caption>Hesla z českých slov při 100 miliardách pokusů za sekundu</caption>
-              <thead><tr><th scope="col">Slov</th><th scope="col">Entropie (bity)</th><th scope="col">Průměrná doba prolomení</th></tr></thead>
-              <tbody>
-                <tr><th scope="row">3</th><td>38,8</td><td data-score="2">2 sekundy</td></tr>
-                <tr><th scope="row">4</th><td>51,7</td><td data-score="3">5 hodin</td></tr>
-                <tr><th scope="row">5</th><td>64,6</td><td data-score="3">5 let</td></tr>
-                <tr><th scope="row">6</th><td>77,5</td><td data-score="4">35 tisíc let</td></tr>
-                <tr><th scope="row">7</th><td>90,5</td><td data-score="5">272 milionů let</td></tr>
-                <tr><th scope="row">8</th><td>103,4</td><td data-score="5">2,1 bilionu let</td></tr>
-                <tr><th scope="row">9</th><td>116,3</td><td data-score="5">16 biliard let</td></tr>
-                <tr><th scope="row">10</th><td>129,2</td><td data-score="5">10^20 let</td></tr>
-              </tbody>
-            </table>
-          </div>
+          <figure class="table-wrap">
+            <figcaption class="table-caption" id="passphraseTableCaption-cs">Hesla z českých slov při 100 miliardách pokusů za sekundu</figcaption>
+            <div class="table-scroll" tabindex="0" role="region" aria-labelledby="passphraseTableCaption-cs">
+              <table class="crack-table crack-table-narrow" aria-labelledby="passphraseTableCaption-cs">
+                <thead><tr><th scope="col">Slov</th><th scope="col">Entropie (bity)</th><th scope="col">Průměrná doba prolomení</th></tr></thead>
+                <tbody>
+                  <tr><th scope="row">3</th><td>38,8</td><td data-score="2">2 sekundy</td></tr>
+                  <tr><th scope="row">4</th><td>51,7</td><td data-score="3">5 hodin</td></tr>
+                  <tr><th scope="row">5</th><td>64,6</td><td data-score="3">5 let</td></tr>
+                  <tr><th scope="row">6</th><td>77,5</td><td data-score="4">35 tisíc let</td></tr>
+                  <tr><th scope="row">7</th><td>90,5</td><td data-score="5">272 milionů let</td></tr>
+                  <tr><th scope="row">8</th><td>103,4</td><td data-score="5">2,1 bilionu let</td></tr>
+                  <tr><th scope="row">9</th><td>116,3</td><td data-score="5">16 biliard let</td></tr>
+                  <tr><th scope="row">10</th><td>129,2</td><td data-score="5">10²⁰ let</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </figure>
 
           <h2>Jak se čísla počítají</h2>
-          <p>Náhodné heslo délky <var>L</var> ze sady <var>N</var> znaků má <var>N</var><sup><var>L</var></sup> možností, tedy <var>L</var> × log₂ <var>N</var> bitů. Útočník ho v průměru najde po vyzkoušení poloviny z nich. Tabulka to dělí číslem 10¹¹ — 100 miliard pokusů za sekundu, což je reálná rychlost sestavy s několika grafickými kartami proti rychlému nesolenému hashi jako MD5 nebo NTLM po úniku databáze.</p>
+          <p>Náhodné heslo délky <var>L</var> ze sady <var>N</var> znaků má <var>N</var><sup><var>L</var></sup> možností, tedy <var>L</var> × log₂ <var>N</var> bitů. Útočník ho v průměru najde po vyzkoušení poloviny z nich. Tabulka to dělí číslem 10¹¹ — 100 miliard pokusů za sekundu, což zhruba zvládne jedna současná výkonná grafická karta proti rychlému nesolenému hashi jako MD5 nebo NTLM po úniku databáze. Sestava osmi takových karet zkrátí každý čas v tabulce zhruba desetkrát — to odpovídá asi půl znaku náhodného hesla.</p>
           <ul class="tips">
             <li><strong>Pomalé hashe pomáhají ohromně.</strong> Weby, které hesla ukládají pomocí bcrypt, scrypt nebo Argon2, srazí útočníka na tisíce až miliony pokusů za sekundu, takže každý čas v tabulce se znásobí sto tisíckrát i víc.</li>
             <li><strong>Útok přes přihlašovací formulář je ještě pomalejší.</strong> Omezení pokusů dovolí jen pár pokusů za minutu — ale nespoléhejte na to: databáze unikají.</li>
@@ -378,7 +382,7 @@
             </details>
             <details>
               <summary>Proč jiné tabulky ukazují jiné časy?</summary>
-              <p>Zveřejněné tabulky se liší hlavně v tom, jaký hash a jaký hardware předpokládají. Rychlý hash na mnoha grafických kartách dává krátké časy jako tady, pomalý hash jako bcrypt mnohem delší. Tvar je ale ve všech tabulkách stejný: každý znak navíc vynásobí čas velikostí sady znaků.</p>
+              <p>Zveřejněné tabulky se liší hlavně v tom, jaký hash a jaký hardware předpokládají. Rychlý hash na grafických kartách dává krátké časy jako tady (na sestavě s mnoha kartami ještě kratší), pomalý hash jako bcrypt mnohem delší. Tvar je ale ve všech tabulkách stejný: každý znak navíc vynásobí čas velikostí sady znaků.</p>
             </details>
             <details>
               <summary>Udělá symbol heslo výrazně silnějším?</summary>
@@ -449,7 +453,7 @@
       <div class="noscript">FortiPass vytváří hesla ve vašem prohlížeči, a k tomu potřebuje zapnutý JavaScript. Na server se nic neposílá v žádném případě.</div>
     </noscript>
 
-    <script src="../../locale-cs.js?v=5"></script>
-    <script src="../../script.js?v=5"></script>
+    <script src="../../locale-cs.js?v=19c6db3e6e"></script>
+    <script src="../../script.js?v=19c6db3e6e"></script>
   </body>
 </html>

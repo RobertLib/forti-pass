@@ -8,7 +8,7 @@
          rule. The hash is the inline theme script below. -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-S7JAEiUrU4H4LCVYmy289mUQCOerSE4ipEaKk4kMhPU='; style-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'" />
     <meta name="referrer" content="no-referrer" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <title>Generátor hesla k Wi-Fi a QR kód pro hosty | FortiPass</title>
     <meta name="description" content="Vytvořte silné heslo k Wi-Fi (WPA2/WPA3) a QR kód, kterým se hosté připojí bez opisování. Hesla snadná na psaní i na televizi, kartička k vytisknutí, stažení SVG. Vše ve vašem prohlížeči." />
@@ -128,7 +128,7 @@
 }
     </script>
 
-    <link rel="stylesheet" href="../../styles.css?v=5" />
+    <link rel="stylesheet" href="../../styles.css?v=19c6db3e6e" />
     <script>
       (function () {
         try {
@@ -363,7 +363,7 @@
                 </div>
 
                 <div class="meter" id="wifiMeter" data-score="0">
-              <div class="meter-track" role="meter" aria-labelledby="wifiVerdict" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" id="wifiMeterTrack">
+              <div class="meter-track" role="meter" aria-label="Síla hesla" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="Čekám na zadání" id="wifiMeterTrack">
                 <span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span>
               </div>
               <div class="meter-meta">
@@ -431,7 +431,7 @@
           <h2>Jaký typ hesla zvolit</h2>
           <ul class="tips">
             <li><strong>20 písmen a číslic</strong> — asi 111 bitů, daleko mimo dosah hrubé síly, a bez podobných znaků, takže se dá napsat i ovladačem od televize.</li>
-            <li><strong>5 náhodných slov</strong> — asi 68 bitů a snadno se nadiktuje návštěvě. Na stránce v češtině jsou to česká slova bez diakritiky. Handshake WPA2 jde útočit offline, proto nechoďte pod pět slov.</li>
+            <li><strong>5 náhodných slov</strong> — asi 68 bitů a snadno se nadiktuje návštěvě. Na stránce v češtině jsou to česká slova bez diakritiky. Na handshake WPA2 se dá útočit offline, proto nechoďte pod pět slov.</li>
             <li><strong>32 znaků se symboly</strong> nebo <strong>63 znaků</strong> — pro sítě, kam nikdo heslo ručně nepíše: chytrá domácnost nebo kancelář, kde se všichni připojují QR kódem.</li>
           </ul>
 
@@ -533,11 +533,11 @@
       <div class="noscript">FortiPass vytváří hesla ve vašem prohlížeči, a k tomu potřebuje zapnutý JavaScript. Na server se nic neposílá v žádném případě.</div>
     </noscript>
 
-    <script src="../../wordlist-en.js?v=5"></script>
-    <script src="../../wordlist-cs.js?v=5"></script>
-    <script src="../../locale-cs.js?v=5"></script>
-    <script src="../../core.js?v=5"></script>
-    <script src="../../qr.js?v=5"></script>
-    <script src="../../script.js?v=5"></script>
+    <script src="../../wordlist-en.js?v=19c6db3e6e"></script>
+    <script src="../../wordlist-cs.js?v=19c6db3e6e"></script>
+    <script src="../../locale-cs.js?v=19c6db3e6e"></script>
+    <script src="../../core.js?v=19c6db3e6e"></script>
+    <script src="../../qr.js?v=19c6db3e6e"></script>
+    <script src="../../script.js?v=19c6db3e6e"></script>
   </body>
 </html>

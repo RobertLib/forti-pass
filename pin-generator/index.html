@@ -8,7 +8,7 @@
          rule. The hash is the inline theme script below. -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-S7JAEiUrU4H4LCVYmy289mUQCOerSE4ipEaKk4kMhPU='; style-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'" />
     <meta name="referrer" content="no-referrer" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <title>PIN Generator – Random 4, 6 or 8-Digit PINs | FortiPass</title>
     <meta name="description" content="Generate truly random PIN codes of 3 to 16 digits with your browser's cryptographic randomness — no birthdays, no 1234. Bulk generation, free, offline, nothing sent." />
@@ -112,7 +112,7 @@
 }
     </script>
 
-    <link rel="stylesheet" href="../styles.css?v=5" />
+    <link rel="stylesheet" href="../styles.css?v=19c6db3e6e" />
     <script>
       (function () {
         try {
@@ -334,7 +334,7 @@
               </div>
 
               <div class="meter" id="meter" data-score="5">
-              <div class="meter-track" role="meter" aria-labelledby="strengthLabel" aria-valuemin="0" aria-valuemax="5" aria-valuenow="5" id="meterTrack">
+              <div class="meter-track" role="meter" aria-label="Password strength" aria-valuemin="0" aria-valuemax="5" aria-valuenow="5" aria-valuetext="Excellent" id="meterTrack">
                 <span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span>
               </div>
               <div class="meter-meta">
@@ -416,20 +416,22 @@
         <section class="content">
           <h2>How strong is a PIN?</h2>
           <p>Each digit adds log₂ 10 ≈ 3.3 bits, so even an 8-digit PIN has fewer combinations than a 6-character password. That is fine, because a PIN is not meant to survive an offline attack: it guards a card or device that locks, wipes or gets blocked after a few wrong tries.</p>
-          <div class="table-wrap" tabindex="0" role="region" aria-label="Random PINs by number of digits">
-            <table class="crack-table">
-              <caption>Random PINs by number of digits</caption>
-              <thead><tr><th scope="col">Digits</th><th scope="col">Combinations</th><th scope="col">Bits</th><th scope="col">Brute force, no lockout</th></tr></thead>
-              <tbody>
-                <tr><th scope="row">4</th><td>10,000</td><td>13.3</td><td data-score="1">instantly</td></tr>
-                <tr><th scope="row">5</th><td>100,000</td><td>16.6</td><td data-score="1">instantly</td></tr>
-                <tr><th scope="row">6</th><td>1,000,000</td><td>19.9</td><td data-score="1">instantly</td></tr>
-                <tr><th scope="row">8</th><td>100,000,000</td><td>26.6</td><td data-score="1">instantly</td></tr>
-                <tr><th scope="row">10</th><td>10,000,000,000</td><td>33.2</td><td data-score="2">instantly</td></tr>
-                <tr><th scope="row">12</th><td>1,000,000,000,000</td><td>39.9</td><td data-score="2">5 seconds</td></tr>
-              </tbody>
-            </table>
-          </div>
+          <figure class="table-wrap">
+            <figcaption class="table-caption" id="pinTableCaption">Random PINs by number of digits</figcaption>
+            <div class="table-scroll" tabindex="0" role="region" aria-labelledby="pinTableCaption">
+              <table class="crack-table" aria-labelledby="pinTableCaption">
+                <thead><tr><th scope="col">Digits</th><th scope="col">Combinations</th><th scope="col">Bits</th><th scope="col">Brute force, no lockout</th></tr></thead>
+                <tbody>
+                  <tr><th scope="row">4</th><td>10,000</td><td>13.3</td><td data-score="1">instantly</td></tr>
+                  <tr><th scope="row">5</th><td>100,000</td><td>16.6</td><td data-score="1">instantly</td></tr>
+                  <tr><th scope="row">6</th><td>1,000,000</td><td>19.9</td><td data-score="1">instantly</td></tr>
+                  <tr><th scope="row">8</th><td>100,000,000</td><td>26.6</td><td data-score="1">instantly</td></tr>
+                  <tr><th scope="row">10</th><td>10,000,000,000</td><td>33.2</td><td data-score="2">instantly</td></tr>
+                  <tr><th scope="row">12</th><td>1,000,000,000,000</td><td>39.9</td><td data-score="2">5 seconds</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </figure>
           <p>The last column is the brute-force time with no lockout at all, for comparison with passwords. With a card blocked after three wrong attempts, a random 4-digit PIN gives a thief a 3 in 10,000 chance.</p>
 
           <h2>PINs to avoid</h2>
@@ -536,8 +538,8 @@
       <div class="noscript">FortiPass generates passwords in your browser, which needs JavaScript enabled. Nothing is sent to a server either way.</div>
     </noscript>
 
-    <script src="../wordlist-en.js?v=5"></script>
-    <script src="../core.js?v=5"></script>
-    <script src="../script.js?v=5"></script>
+    <script src="../wordlist-en.js?v=19c6db3e6e"></script>
+    <script src="../core.js?v=19c6db3e6e"></script>
+    <script src="../script.js?v=19c6db3e6e"></script>
   </body>
 </html>

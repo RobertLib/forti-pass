@@ -100,7 +100,7 @@ function structuredData(ctx, content) {
 
 function head(ctx, content) {
   const { lang, root, url, page } = ctx;
-  const v = "?v=" + site.ASSET_VERSION;
+  const v = "?v=" + ctx.assetVersion;
   const alternates = site.LANGUAGES.map(
     (code) =>
       `<link rel="alternate" hreflang="${code}" href="${site.SITE_URL}${page.paths[code]}" />`
@@ -118,7 +118,7 @@ function head(ctx, content) {
          rule. The hash is the inline theme script below. -->
     <meta http-equiv="Content-Security-Policy" content="${CSP}" />
     <meta name="referrer" content="no-referrer" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <title>${esc(content.title)}</title>
     <meta name="description" content="${esc(content.description)}" />
@@ -284,7 +284,7 @@ function dialogs(ctx) {
 
 /** Scripts in load order: data and strings first, then core, then the UI. */
 function scripts(ctx) {
-  const { page, lang, root } = ctx;
+  const { page, lang, root, assetVersion } = ctx;
   const files = [];
   if (page.type !== "article") {
     files.push("wordlist-en.js");
@@ -297,7 +297,7 @@ function scripts(ctx) {
   if (page.type === "wifi") files.push("qr.js");
   files.push("script.js");
   return files
-    .map((file) => `<script src="${root}${file}?v=${site.ASSET_VERSION}"></script>`)
+    .map((file) => `<script src="${root}${file}?v=${assetVersion}"></script>`)
     .join("\n    ");
 }
 

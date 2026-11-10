@@ -1,6 +1,7 @@
 {
   "extName": { "message": "FortiPass – Password Generator" },
   "extDescription": { "message": "Strong passwords, passphrases and PINs generated on your device. No permissions, no network, no tracking." },
+  "modes": { "message": "Generator type" },
   "password": { "message": "Password" },
   "passphrase": { "message": "Passphrase" },
   "pin": { "message": "PIN" },
@@ -20,6 +21,7 @@
   "langCs": { "message": "Czech" },
   "bits": { "message": "$N$ bits", "placeholders": { "n": { "content": "$1" } } },
   "toCrack": { "message": "$T$ to crack", "placeholders": { "t": { "content": "$1" } } },
+  "crackedInstantly": { "message": "cracked instantly" },
   "moreTools": { "message": "Wi-Fi QR codes, strength checker and more" },
   "privacy": { "message": "Made on this device. Nothing is sent or stored." },
   "copyFailed": { "message": "Select the text and copy it yourself." }

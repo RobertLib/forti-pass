@@ -39,7 +39,7 @@ module.exports = function content(f, href, c) {
             </article>
             <article class="feature">
               <h3>Česká slova i klávesnice</h3>
-              <p>Hesla ze slov umí vlastní seznam ${csWords} českých slov, s diakritikou i bez ní. Kontrola síly zná česká slova, jména a nejčastější česká hesla.</p>
+              <p>Hesla ze slov se skládají z vlastního seznamu ${csWords} českých slov, s diakritikou i bez ní. Kontrola síly zná česká slova, jména a nejčastější česká hesla i řady z české klávesnice (<code>+ěščř</code>, <code>qwertz</code>).</p>
             </article>
           </div>
 
@@ -63,7 +63,7 @@ module.exports = function content(f, href, c) {
         ],
         [
           "Co přesně znamená „entropie“?",
-          "Entropie vyjadřuje nepředvídatelnost hesla v bitech. Každý bit navíc zdvojnásobí počet pokusů, které útočník potřebuje. FortiPass označuje méně než 50 bitů za slabé, 50 až 70 bitů za průměrné, 70 a víc za silné a 90 a víc za výborné prakticky pro jakoukoli hrozbu.",
+          "Entropie vyjadřuje nepředvídatelnost hesla v bitech. Každý bit navíc zdvojnásobí počet pokusů, které útočník potřebuje. FortiPass označuje méně než 50 bitů za slabé, 50 až 70 bitů za průměrné, 70 a víc za silné a 90 a víc za výborné, odolné prakticky vůči jakékoli hrozbě.",
         ],
         [
           "Je heslo ze skutečných slov bezpečné?",
@@ -101,7 +101,7 @@ module.exports = function content(f, href, c) {
           <h2>Kolik slov stačí</h2>
           <p>Každé slovo vybrané náhodně ze ${csWords} možností přidá log₂ ${csWords} ≈ ${bpw} bitu. Výpočet počítá s tím, že útočník seznam zná i ví, kolik slov jste použili.</p>
           ${c.passphraseTable("cs", 3, 10)}
-          <p>Doby prolomení počítají s offline útokem se 100 miliardami pokusů za sekundu proti rychlému hashi, tedy s nejhorším případem. Web, který hesla ukládá správně (bcrypt, scrypt, Argon2), útočníka zpomalí o mnoho řádů.</p>
+          <p>Doby prolomení počítají s offline útokem se 100 miliardami pokusů za sekundu proti rychlému hashi — zhruba výkon jedné současné výkonné grafické karty proti MD5 nebo NTLM. Útočník s celou sestavou karet je desetkrát až stokrát rychlejší, proto si nechte rezervu. Web, který hesla ukládá správně (bcrypt, scrypt, Argon2), útočníka zpomalí o mnoho řádů.</p>
 
           <h2>Heslo ze slov, nebo náhodné znaky?</h2>
           <ul class="tips">
@@ -136,7 +136,7 @@ module.exports = function content(f, href, c) {
     },
 
     pin: {
-      title: "Generátor PIN – náhodný 4, 6 nebo 8místný PIN | FortiPass",
+      title: "Generátor PIN – náhodný 4-, 6- nebo 8místný PIN | FortiPass",
       description:
         "Vygenerujte opravdu náhodný PIN o 3 až 16 číslicích pomocí kryptografické náhody prohlížeče — žádné datum narození ani 1234. Hromadné generování, zdarma, offline, nic se neodesílá.",
       h1: "Generátor náhodného PINu",
@@ -216,11 +216,11 @@ module.exports = function content(f, href, c) {
         ],
         [
           "S čím počítá doba prolomení?",
-          "S útočníkem, který ukradl databázi hashů hesel a zkouší 100 miliard možností za sekundu — to je reálné pro rychlé hashe jako MD5 nebo NTLM na sestavě s několika grafickými kartami. Jde o průměrnou dobu, tedy polovinu všech možností. Weby s bcrypt, scrypt nebo Argon2 útok výrazně zpomalí a přihlašovací formulář s omezením pokusů ještě víc.",
+          "S útočníkem, který ukradl databázi hashů hesel a zkouší 100 miliard možností za sekundu — zhruba tolik zvládne jedna současná výkonná grafická karta proti rychlým hashům jako MD5 nebo NTLM. Jde o průměrnou dobu, tedy polovinu všech možností. Sestava s více kartami je úměrně rychlejší; weby s bcrypt, scrypt nebo Argon2 útok výrazně zpomalí a přihlašovací formulář s omezením pokusů ještě víc.",
         ],
         [
           "Zjistí kontrola, jestli moje heslo neuniklo?",
-          "Ne — to by znamenalo něco odeslat po síti, a to FortiPass nikdy nedělá. Have I Been Pwned nabízí kontrolu úniků, které se posílá jen prvních pět znaků hashe SHA-1 vašeho hesla.",
+          "Ne — to by znamenalo něco odeslat po síti, a to FortiPass nikdy nedělá. Have I Been Pwned nabízí kontrolu úniků, při které se odesílá jen prvních pět znaků hashe SHA-1 vašeho hesla.",
         ],
         [
           "Proč různé kontroly hesel ukazují různé výsledky?",
@@ -247,7 +247,7 @@ module.exports = function content(f, href, c) {
           <h2>Jaký typ hesla zvolit</h2>
           <ul class="tips">
             <li><strong>20 písmen a číslic</strong> — asi ${f.format0(f.wifiBits.easy)} bitů, daleko mimo dosah hrubé síly, a bez podobných znaků, takže se dá napsat i ovladačem od televize.</li>
-            <li><strong>5 náhodných slov</strong> — asi ${f.format0(f.wifiBits.words)} bitů a snadno se nadiktuje návštěvě. Na stránce v češtině jsou to česká slova bez diakritiky. Handshake WPA2 jde útočit offline, proto nechoďte pod pět slov.</li>
+            <li><strong>5 náhodných slov</strong> — asi ${f.format0(f.wifiBits.words)} bitů a snadno se nadiktuje návštěvě. Na stránce v češtině jsou to česká slova bez diakritiky. Na handshake WPA2 se dá útočit offline, proto nechoďte pod pět slov.</li>
             <li><strong>32 znaků se symboly</strong> nebo <strong>63 znaků</strong> — pro sítě, kam nikdo heslo ručně nepíše: chytrá domácnost nebo kancelář, kde se všichni připojují QR kódem.</li>
           </ul>
 
@@ -283,9 +283,9 @@ module.exports = function content(f, href, c) {
     },
 
     crack: {
-      title: "Jak dlouho trvá prolomit heslo? Tabulka 2026 | FortiPass",
+      title: `Jak dlouho trvá prolomit heslo? Tabulka ${f.year} | FortiPass`,
       description:
-        "Doba prolomení náhodných hesel o 4 až 20 znacích pro každou sadu znaků, plus hesla ze slov a PINy, při 100 miliardách pokusů za sekundu. Průhledný výpočet, volně k použití.",
+        "Doba prolomení náhodných hesel o 4 až 20 znacích pro každou sadu znaků i pro hesla ze slov, při 100 miliardách pokusů za sekundu. Průhledný výpočet, volně k použití.",
       h1: "Jak dlouho trvá prolomit heslo?",
       lede: `Průměrná doba útoku hrubou silou na opravdu náhodná hesla, spočítaná z počtu všech možností. Aktualizováno: ${f.updated}.`,
       body: `<section class="content">
@@ -309,7 +309,7 @@ module.exports = function content(f, href, c) {
           ${c.passphraseTable("cs", 3, 10)}
 
           <h2>Jak se čísla počítají</h2>
-          <p>Náhodné heslo délky <var>L</var> ze sady <var>N</var> znaků má <var>N</var><sup><var>L</var></sup> možností, tedy <var>L</var> × log₂ <var>N</var> bitů. Útočník ho v průměru najde po vyzkoušení poloviny z nich. Tabulka to dělí číslem 10¹¹ — 100 miliard pokusů za sekundu, což je reálná rychlost sestavy s několika grafickými kartami proti rychlému nesolenému hashi jako MD5 nebo NTLM po úniku databáze.</p>
+          <p>Náhodné heslo délky <var>L</var> ze sady <var>N</var> znaků má <var>N</var><sup><var>L</var></sup> možností, tedy <var>L</var> × log₂ <var>N</var> bitů. Útočník ho v průměru najde po vyzkoušení poloviny z nich. Tabulka to dělí číslem 10¹¹ — 100 miliard pokusů za sekundu, což zhruba zvládne jedna současná výkonná grafická karta proti rychlému nesolenému hashi jako MD5 nebo NTLM po úniku databáze. Sestava osmi takových karet zkrátí každý čas v tabulce zhruba desetkrát — to odpovídá asi půl znaku náhodného hesla.</p>
           <ul class="tips">
             <li><strong>Pomalé hashe pomáhají ohromně.</strong> Weby, které hesla ukládají pomocí bcrypt, scrypt nebo Argon2, srazí útočníka na tisíce až miliony pokusů za sekundu, takže každý čas v tabulce se znásobí sto tisíckrát i víc.</li>
             <li><strong>Útok přes přihlašovací formulář je ještě pomalejší.</strong> Omezení pokusů dovolí jen pár pokusů za minutu — ale nespoléhejte na to: databáze unikají.</li>
@@ -337,7 +337,7 @@ module.exports = function content(f, href, c) {
         ],
         [
           "Proč jiné tabulky ukazují jiné časy?",
-          "Zveřejněné tabulky se liší hlavně v tom, jaký hash a jaký hardware předpokládají. Rychlý hash na mnoha grafických kartách dává krátké časy jako tady, pomalý hash jako bcrypt mnohem delší. Tvar je ale ve všech tabulkách stejný: každý znak navíc vynásobí čas velikostí sady znaků.",
+          "Zveřejněné tabulky se liší hlavně v tom, jaký hash a jaký hardware předpokládají. Rychlý hash na grafických kartách dává krátké časy jako tady (na sestavě s mnoha kartami ještě kratší), pomalý hash jako bcrypt mnohem delší. Tvar je ale ve všech tabulkách stejný: každý znak navíc vynásobí čas velikostí sady znaků.",
         ],
         [
           "Udělá symbol heslo výrazně silnějším?",

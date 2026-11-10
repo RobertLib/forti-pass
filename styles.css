@@ -22,10 +22,12 @@
   --hover: #eef0f5;
   --border: #e3e6ee;
   --border-strong: #d0d5e0;
+  /* Outlines that alone show where a control is: 3:1 against any surface. */
+  --control-border: #848b9d;
 
   --text: #0f1424;
   --text-2: #464e64;
-  --text-3: #6c7489;
+  --text-3: #646c80;
 
   --accent: #4f46e5;
   --accent-soft: #eef0ff;
@@ -34,6 +36,7 @@
   --primary-hover: #4338ca;
   --on-primary: #ffffff;
   --focus: rgba(79, 70, 229, 0.32);
+  --focus-ring: #4f46e5;
 
   --char-digit: #0369a1;
   --char-symbol: #be185d;
@@ -45,6 +48,7 @@
   --s4: #4d7c0f;
   --s5: #047857;
   --ok: #047857;
+  --on-ok: #ffffff;
   --warn: #b45309;
   --bad: #dc2626;
 
@@ -60,7 +64,8 @@
   --nav-h: 64px;
 }
 
-@media (prefers-color-scheme: dark) {
+/* Dark tokens apply on screen only: printing always uses the light palette. */
+@media screen and (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
     --bg: #0c0e14;
@@ -70,15 +75,17 @@
     --hover: #1c212c;
     --border: #232937;
     --border-strong: #333b4c;
+    --control-border: #636c82;
     --text: #eceef5;
     --text-2: #b3b9ca;
     --text-3: #838b9f;
     --accent: #8f96ff;
     --accent-soft: rgba(143, 150, 255, 0.12);
     --accent-line: rgba(143, 150, 255, 0.4);
-    --primary: #6366f1;
-    --primary-hover: #7477f4;
+    --primary: #5b5eef;
+    --primary-hover: #4f46e5;
     --focus: rgba(143, 150, 255, 0.4);
+    --focus-ring: #8f96ff;
     --char-digit: #67d3f6;
     --char-symbol: #f79cc6;
     --s1: #f87171;
@@ -87,6 +94,7 @@
     --s4: #a3e635;
     --s5: #34d399;
     --ok: #34d399;
+    --on-ok: #062a1c;
     --warn: #fbbf24;
     --bad: #f87171;
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
@@ -95,37 +103,42 @@
   }
 }
 
-:root[data-theme="dark"] {
-  color-scheme: dark;
-  --bg: #0c0e14;
-  --glow: rgba(99, 102, 241, 0.16);
-  --surface: #141821;
-  --sunken: #0f1219;
-  --hover: #1c212c;
-  --border: #232937;
-  --border-strong: #333b4c;
-  --text: #eceef5;
-  --text-2: #b3b9ca;
-  --text-3: #838b9f;
-  --accent: #8f96ff;
-  --accent-soft: rgba(143, 150, 255, 0.12);
-  --accent-line: rgba(143, 150, 255, 0.4);
-  --primary: #6366f1;
-  --primary-hover: #7477f4;
-  --focus: rgba(143, 150, 255, 0.4);
-  --char-digit: #67d3f6;
-  --char-symbol: #f79cc6;
-  --s1: #f87171;
-  --s2: #fb923c;
-  --s3: #facc15;
-  --s4: #a3e635;
-  --s5: #34d399;
-  --ok: #34d399;
-  --warn: #fbbf24;
-  --bad: #f87171;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 16px 40px -20px rgba(0, 0, 0, 0.7);
-  --shadow-lg: 0 24px 60px -16px rgba(0, 0, 0, 0.7);
+@media screen {
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0c0e14;
+    --glow: rgba(99, 102, 241, 0.16);
+    --surface: #141821;
+    --sunken: #0f1219;
+    --hover: #1c212c;
+    --border: #232937;
+    --border-strong: #333b4c;
+    --control-border: #636c82;
+    --text: #eceef5;
+    --text-2: #b3b9ca;
+    --text-3: #838b9f;
+    --accent: #8f96ff;
+    --accent-soft: rgba(143, 150, 255, 0.12);
+    --accent-line: rgba(143, 150, 255, 0.4);
+    --primary: #5b5eef;
+    --primary-hover: #4f46e5;
+    --focus: rgba(143, 150, 255, 0.4);
+    --focus-ring: #8f96ff;
+    --char-digit: #67d3f6;
+    --char-symbol: #f79cc6;
+    --s1: #f87171;
+    --s2: #fb923c;
+    --s3: #facc15;
+    --s4: #a3e635;
+    --s5: #34d399;
+    --ok: #34d399;
+    --on-ok: #062a1c;
+    --warn: #fbbf24;
+    --bad: #f87171;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 16px 40px -20px rgba(0, 0, 0, 0.7);
+    --shadow-lg: 0 24px 60px -16px rgba(0, 0, 0, 0.7);
+  }
 }
 
 /* ------------------------------------------------------------------- base */
@@ -301,11 +314,13 @@ ol {
   top: 12px;
 }
 
+/* The page runs edge to edge (viewport-fit=cover), so the side padding
+   grows to clear a phone's notch in landscape. */
 .container {
   width: 100%;
   max-width: 1120px;
   margin-inline: auto;
-  padding-inline: 24px;
+  padding-inline: max(24px, env(safe-area-inset-left, 0px)) max(24px, env(safe-area-inset-right, 0px));
 }
 
 /* Smooth hand-over between pages; the top bar and the mode pill stay put. */
@@ -524,12 +539,12 @@ ol {
 .icon-btn.is-done {
   border-color: transparent;
   background: var(--ok);
-  color: #fff;
+  color: var(--on-ok);
 }
 
 .btn.is-done:hover:not(:disabled) {
   background: var(--ok);
-  color: #fff;
+  color: var(--on-ok);
 }
 
 .btn-sm {
@@ -1111,7 +1126,7 @@ details[open] > summary .summary-chevron {
   height: 34px;
   padding: 0 8px;
   border-radius: var(--r-sm);
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--control-border);
   background: var(--surface);
   font-weight: 650;
   font-variant-numeric: tabular-nums;
@@ -1154,7 +1169,7 @@ details[open] > summary .summary-chevron {
   height: 44px;
   padding: 0 14px;
   border-radius: var(--r);
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--control-border);
   background: var(--surface);
   color: var(--text);
   font-size: 0.95rem;
@@ -1163,7 +1178,7 @@ details[open] > summary .summary-chevron {
 
 .text-input::placeholder {
   color: var(--text-3);
-  opacity: 0.85;
+  opacity: 1;
   font-family: var(--font-sans);
 }
 
@@ -1231,7 +1246,7 @@ input[type="range"]::-webkit-slider-runnable-track {
     to right,
     var(--primary) 0,
     var(--primary) var(--fill, 50%),
-    var(--border-strong) var(--fill, 50%)
+    var(--control-border) var(--fill, 50%)
   );
 }
 
@@ -1250,7 +1265,7 @@ input[type="range"]::-webkit-slider-thumb {
 input[type="range"]::-moz-range-track {
   height: 6px;
   border-radius: 999px;
-  background: var(--border-strong);
+  background: var(--control-border);
 }
 
 input[type="range"]::-moz-range-progress {
@@ -1268,12 +1283,13 @@ input[type="range"]::-moz-range-thumb {
   box-shadow: 0 1px 3px rgba(16, 24, 40, 0.3);
 }
 
+/* A solid ring with a gap, readable on any surface. */
 input[type="range"]:focus-visible::-webkit-slider-thumb {
-  box-shadow: 0 0 0 4px var(--focus), 0 1px 3px rgba(16, 24, 40, 0.3);
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--focus-ring);
 }
 
 input[type="range"]:focus-visible::-moz-range-thumb {
-  box-shadow: 0 0 0 4px var(--focus), 0 1px 3px rgba(16, 24, 40, 0.3);
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--focus-ring);
 }
 
 /* Character-type toggles */
@@ -1305,7 +1321,7 @@ input[type="range"]:focus-visible::-moz-range-thumb {
   gap: 2px;
   padding: 11px 6px 10px;
   border-radius: var(--r);
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--control-border);
   background: var(--surface);
   text-align: center;
   transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
@@ -1344,8 +1360,10 @@ input[type="range"]:focus-visible::-moz-range-thumb {
   color: var(--text-2);
 }
 
+/* An outline, so a checked tile keeps its inset accent ring while focused. */
 .toggle input:focus-visible + .toggle-body {
-  box-shadow: 0 0 0 3px var(--focus);
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 
 /* Preset chips */
@@ -1409,7 +1427,7 @@ input[type="range"]:focus-visible::-moz-range-thumb {
   width: 40px;
   height: 24px;
   border-radius: 999px;
-  background: var(--border-strong);
+  background: var(--control-border);
   transition: background-color 0.2s var(--ease);
 }
 
@@ -1435,7 +1453,8 @@ input[type="range"]:focus-visible::-moz-range-thumb {
 }
 
 .switch input:focus-visible + .switch-track {
-  box-shadow: 0 0 0 3px var(--focus);
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 
 .switch-text {
@@ -1517,13 +1536,28 @@ input[type="range"]:focus-visible::-moz-range-thumb {
   gap: 2px;
 }
 
+/* No overflow clipping: it would cut off the focus rings. The end buttons
+   round their own corners instead. */
 .stepper {
   display: inline-flex;
   flex: none;
   border-radius: var(--r-sm);
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--control-border);
   background: var(--surface);
-  overflow: hidden;
+}
+
+.stepper-btn:first-child {
+  border-radius: calc(var(--r-sm) - 1px) 0 0 calc(var(--r-sm) - 1px);
+}
+
+.stepper-btn:last-child {
+  border-radius: 0 calc(var(--r-sm) - 1px) calc(var(--r-sm) - 1px) 0;
+}
+
+.stepper > :focus-visible,
+.stepper input:focus {
+  position: relative;
+  z-index: 1;
 }
 
 .stepper-btn {
@@ -1927,13 +1961,29 @@ input[type="range"]:focus-visible::-moz-range-thumb {
   font-size: 0.92rem;
 }
 
-/* Tables */
+/* Tables: a card with the caption on top, outside the horizontal scroller,
+   so it wraps to the screen instead of running off it on a phone. */
 .table-wrap {
   margin: 18px 0;
-  overflow-x: auto;
   border-radius: 14px;
   border: 1px solid var(--border);
   background: var(--surface);
+  overflow: hidden;
+}
+
+.table-caption {
+  padding: 12px 14px;
+  font-size: 0.82rem;
+  color: var(--text-3);
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+/* Inside the card's clipped corners, so draw the ring inward. */
+.table-scroll:focus-visible {
+  outline-offset: -2px;
 }
 
 .crack-table {
@@ -1941,14 +1991,6 @@ input[type="range"]:focus-visible::-moz-range-thumb {
   border-collapse: collapse;
   font-size: 0.88rem;
   font-variant-numeric: tabular-nums;
-}
-
-.crack-table caption {
-  padding: 12px 14px;
-  caption-side: top;
-  text-align: left;
-  font-size: 0.82rem;
-  color: var(--text-3);
 }
 
 .crack-table th,
@@ -2341,7 +2383,7 @@ input[type="range"]:focus-visible::-moz-range-thumb {
   }
 
   .container {
-    padding-inline: 16px;
+    padding-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px));
   }
 
   /* Static, so the fixed tab bar inside it is placed against the viewport
@@ -2366,7 +2408,8 @@ input[type="range"]:focus-visible::-moz-range-thumb {
     right: 0;
     bottom: 0;
     z-index: 60;
-    padding: 6px 10px env(safe-area-inset-bottom, 0px);
+    padding: 6px max(10px, env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px)
+      max(10px, env(safe-area-inset-left, 0px));
     background: color-mix(in srgb, var(--surface) 86%, transparent);
     backdrop-filter: saturate(1.6) blur(18px);
     -webkit-backdrop-filter: saturate(1.6) blur(18px);
@@ -2587,8 +2630,7 @@ input[type="range"]:focus-visible::-moz-range-thumb {
 /* ------------------------------------------------------------------ print */
 
 @media print {
-  :root,
-  :root[data-theme] {
+  :root {
     color-scheme: light;
     --bg: #fff;
     --surface: #fff;
@@ -2647,5 +2689,25 @@ input[type="range"]:focus-visible::-moz-range-thumb {
     padding: 0.8cm;
     border: 2px dashed #9aa1b1;
     box-shadow: none;
+  }
+
+  /* Tables fit the page instead of scrolling: every column prints. */
+  .table-wrap {
+    overflow: visible;
+    break-inside: avoid;
+  }
+
+  .table-scroll {
+    overflow: visible;
+  }
+
+  .crack-table {
+    font-size: 8.5pt;
+  }
+
+  .crack-table th,
+  .crack-table td {
+    padding: 5px 7px;
+    white-space: normal;
   }
 }

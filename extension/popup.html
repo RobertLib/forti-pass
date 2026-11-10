@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,10 +7,10 @@
     <link rel="stylesheet" href="popup.css" />
   </head>
   <body>
-    <div class="tabs" role="tablist">
-      <button type="button" role="tab" data-mode="password" data-i18n="password"></button>
-      <button type="button" role="tab" data-mode="passphrase" data-i18n="passphrase"></button>
-      <button type="button" role="tab" data-mode="pin" data-i18n="pin"></button>
+    <div class="tabs" role="tablist" data-i18n-label="modes">
+      <button type="button" role="tab" id="tab-password" aria-controls="panel-password" data-mode="password" data-i18n="password"></button>
+      <button type="button" role="tab" id="tab-passphrase" aria-controls="panel-passphrase" data-mode="passphrase" data-i18n="passphrase"></button>
+      <button type="button" role="tab" id="tab-pin" aria-controls="panel-pin" data-mode="pin" data-i18n="pin"></button>
     </div>
 
     <output class="value" id="value" aria-live="polite"></output>
@@ -19,16 +19,17 @@
       <button type="button" id="newBtn" data-i18n="regenerate"></button>
       <button type="button" id="copyBtn" class="primary" data-i18n="copy"></button>
     </div>
+    <p class="sr-only" id="status" role="status"></p>
 
     <div class="meter" id="meter" data-score="0" aria-hidden="true">
       <span></span><span></span><span></span><span></span><span></span>
     </div>
-    <p class="meta"><strong id="label"></strong> · <span id="bits"></span> · <span id="crack"></span></p>
+    <p class="meta" id="meta"><strong id="label"></strong> · <span id="bits"></span> · <span id="crack"></span></p>
 
-    <div class="panel" data-panel="password">
+    <div class="panel" role="tabpanel" id="panel-password" aria-labelledby="tab-password" data-panel="password">
       <label class="range">
         <span><span data-i18n="length"></span> <output id="lengthValue"></output></span>
-        <input type="range" id="length" min="8" max="64" value="20" />
+        <input type="range" id="length" min="4" max="64" value="16" />
       </label>
       <div class="checks">
         <label><input type="checkbox" id="upper" checked /> <span data-i18n="uppercase"></span></label>
@@ -39,10 +40,10 @@
       <label class="check-line"><input type="checkbox" id="readable" /> <span data-i18n="readable"></span></label>
     </div>
 
-    <div class="panel" data-panel="passphrase" hidden>
+    <div class="panel" role="tabpanel" id="panel-passphrase" aria-labelledby="tab-passphrase" data-panel="passphrase" hidden>
       <label class="range">
         <span><span data-i18n="words"></span> <output id="wordsValue"></output></span>
-        <input type="range" id="words" min="3" max="10" value="6" />
+        <input type="range" id="words" min="3" max="12" value="6" />
       </label>
       <label class="select-line">
         <span data-i18n="language"></span>
@@ -53,10 +54,10 @@
       </label>
     </div>
 
-    <div class="panel" data-panel="pin" hidden>
+    <div class="panel" role="tabpanel" id="panel-pin" aria-labelledby="tab-pin" data-panel="pin" hidden>
       <label class="range">
         <span><span data-i18n="digits"></span> <output id="pinValue"></output></span>
-        <input type="range" id="pin" min="4" max="12" value="6" />
+        <input type="range" id="pin" min="3" max="16" value="6" />
       </label>
     </div>
 

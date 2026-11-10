@@ -46,6 +46,7 @@ const en = {
   clearClipboardNote:
     "Browsers only allow this while FortiPass is the active tab, so it may wait until you come back.",
   excellent: "Excellent",
+  strengthMeter: "Password strength",
   entropyTitle: "Bits of entropy — every extra bit doubles the guessing effort",
   crackTitle: "Estimated average time for an offline attack at 100 billion guesses per second",
 
@@ -230,8 +231,9 @@ const cs = {
   download: "Stáhnout jako textový soubor",
   clearClipboard: "Vymazat schránku 30 s po zkopírování",
   clearClipboardNote:
-    "Prohlížeče to dovolí jen tehdy, když je FortiPass aktivní karta, takže to může počkat, až se vrátíte.",
+    "Prohlížeče to dovolí jen tehdy, když je FortiPass aktivní karta, takže se schránka případně vymaže až po vašem návratu.",
   excellent: "Výborné",
+  strengthMeter: "Síla hesla",
   entropyTitle: "Entropie v bitech — každý bit navíc zdvojnásobí počet potřebných pokusů",
   crackTitle: "Odhad průměrné doby offline útoku při 100 miliardách pokusů za sekundu",
 

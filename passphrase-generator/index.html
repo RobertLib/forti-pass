@@ -8,7 +8,7 @@
          rule. The hash is the inline theme script below. -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-S7JAEiUrU4H4LCVYmy289mUQCOerSE4ipEaKk4kMhPU='; style-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'" />
     <meta name="referrer" content="no-referrer" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <title>Passphrase Generator – Random, Memorable Word Passwords | FortiPass</title>
     <meta name="description" content="Generate random passphrases from the 7,776-word EFF list right in your browser. Choose the words, separator, capitals and a number, and see the exact entropy. Free, offline, nothing sent." />
@@ -120,7 +120,7 @@
 }
     </script>
 
-    <link rel="stylesheet" href="../styles.css?v=5" />
+    <link rel="stylesheet" href="../styles.css?v=19c6db3e6e" />
     <script>
       (function () {
         try {
@@ -342,7 +342,7 @@
               </div>
 
               <div class="meter" id="meter" data-score="5">
-              <div class="meter-track" role="meter" aria-labelledby="strengthLabel" aria-valuemin="0" aria-valuemax="5" aria-valuenow="5" id="meterTrack">
+              <div class="meter-track" role="meter" aria-label="Password strength" aria-valuemin="0" aria-valuemax="5" aria-valuenow="5" aria-valuetext="Excellent" id="meterTrack">
                 <span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span>
               </div>
               <div class="meter-meta">
@@ -457,23 +457,25 @@
         <section class="content">
           <h2>Where a passphrase gets its strength</h2>
           <p>Strength comes from how the words are picked, not from how clever they look. FortiPass draws each word uniformly at random from the 7,776-word EFF large list with <code>crypto.getRandomValues()</code>, so every word adds log₂ 7,776 ≈ 12.9 bits — even if an attacker knows the list and your settings. Six words give about 77.5 bits; a number and a symbol add a few more.</p>
-          <div class="table-wrap" tabindex="0" role="region" aria-label="Passphrases from the EFF list, at 100 billion guesses per second">
-            <table class="crack-table crack-table-narrow">
-              <caption>Passphrases from the EFF list, at 100 billion guesses per second</caption>
-              <thead><tr><th scope="col">Words</th><th scope="col">Entropy (bits)</th><th scope="col">Average crack time</th></tr></thead>
-              <tbody>
-                <tr><th scope="row">3</th><td>38.8</td><td data-score="2">2 seconds</td></tr>
-                <tr><th scope="row">4</th><td>51.7</td><td data-score="3">5 hours</td></tr>
-                <tr><th scope="row">5</th><td>64.6</td><td data-score="3">5 years</td></tr>
-                <tr><th scope="row">6</th><td>77.5</td><td data-score="4">35 thousand years</td></tr>
-                <tr><th scope="row">7</th><td>90.5</td><td data-score="5">272 million years</td></tr>
-                <tr><th scope="row">8</th><td>103.4</td><td data-score="5">2.1 trillion years</td></tr>
-                <tr><th scope="row">9</th><td>116.3</td><td data-score="5">16 quadrillion years</td></tr>
-                <tr><th scope="row">10</th><td>129.2</td><td data-score="5">10^20 years</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <p>The crack times assume an offline attacker making 100 billion guesses per second against a fast hash — a worst case. A site that stores passwords properly (bcrypt, scrypt or Argon2) slows that attacker down by many orders of magnitude.</p>
+          <figure class="table-wrap">
+            <figcaption class="table-caption" id="passphraseTableCaption-en">Passphrases from the EFF list, at 100 billion guesses per second</figcaption>
+            <div class="table-scroll" tabindex="0" role="region" aria-labelledby="passphraseTableCaption-en">
+              <table class="crack-table crack-table-narrow" aria-labelledby="passphraseTableCaption-en">
+                <thead><tr><th scope="col">Words</th><th scope="col">Entropy (bits)</th><th scope="col">Average crack time</th></tr></thead>
+                <tbody>
+                  <tr><th scope="row">3</th><td>38.8</td><td data-score="2">2 seconds</td></tr>
+                  <tr><th scope="row">4</th><td>51.7</td><td data-score="3">5 hours</td></tr>
+                  <tr><th scope="row">5</th><td>64.6</td><td data-score="3">5 years</td></tr>
+                  <tr><th scope="row">6</th><td>77.5</td><td data-score="4">35 thousand years</td></tr>
+                  <tr><th scope="row">7</th><td>90.5</td><td data-score="5">272 million years</td></tr>
+                  <tr><th scope="row">8</th><td>103.4</td><td data-score="5">2.1 trillion years</td></tr>
+                  <tr><th scope="row">9</th><td>116.3</td><td data-score="5">16 quadrillion years</td></tr>
+                  <tr><th scope="row">10</th><td>129.2</td><td data-score="5">10²⁰ years</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </figure>
+          <p>The crack times assume an offline attacker making 100 billion guesses per second against a fast hash — roughly one current high-end graphics card against MD5 or NTLM. An attacker with a rack of them is ten or a hundred times faster, so leave a margin. A site that stores passwords properly (bcrypt, scrypt or Argon2) slows any attacker down by many orders of magnitude.</p>
 
           <h2>Passphrase or random password?</h2>
           <ul class="tips">
@@ -578,8 +580,8 @@
       <div class="noscript">FortiPass generates passwords in your browser, which needs JavaScript enabled. Nothing is sent to a server either way.</div>
     </noscript>
 
-    <script src="../wordlist-en.js?v=5"></script>
-    <script src="../core.js?v=5"></script>
-    <script src="../script.js?v=5"></script>
+    <script src="../wordlist-en.js?v=19c6db3e6e"></script>
+    <script src="../core.js?v=19c6db3e6e"></script>
+    <script src="../script.js?v=19c6db3e6e"></script>
   </body>
 </html>

@@ -7,11 +7,6 @@
 // Must end with a slash.
 const SITE_URL = "https://robertlib.github.io/forti-pass/";
 
-// Bump on every release: it busts the service-worker cache and the ?v= query
-// on every script and stylesheet, so a returning visitor never mixes new HTML
-// with old JavaScript.
-const ASSET_VERSION = "5";
-
 // Shown as "last updated" and written to the sitemap. Bump it when content
 // changes; it is fixed (not today's date) so the build is reproducible.
 const UPDATED = "2026-11-09";
@@ -62,4 +57,4 @@ const PAGES = [
 const AUTHOR = "Robert Libšanský";
 const REPO_URL = "https://github.com/robertlib/forti-pass";
 
-module.exports = { SITE_URL, ASSET_VERSION, UPDATED, LANGUAGES, PAGES, AUTHOR, REPO_URL };
+module.exports = { SITE_URL, UPDATED, LANGUAGES, PAGES, AUTHOR, REPO_URL };

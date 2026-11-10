@@ -8,7 +8,7 @@
          rule. The hash is the inline theme script below. -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-S7JAEiUrU4H4LCVYmy289mUQCOerSE4ipEaKk4kMhPU='; style-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'" />
     <meta name="referrer" content="no-referrer" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <title>Generátor hesel ze slov – česká slova, bez diakritiky | FortiPass</title>
     <meta name="description" content="Vytvořte zapamatovatelné heslo z náhodných českých slov. Seznam 7 776 slov, volitelně bez diakritiky, a přesný výpočet entropie. Běží jen ve vašem prohlížeči, zdarma a offline." />
@@ -128,7 +128,7 @@
 }
     </script>
 
-    <link rel="stylesheet" href="../../styles.css?v=5" />
+    <link rel="stylesheet" href="../../styles.css?v=19c6db3e6e" />
     <script>
       (function () {
         try {
@@ -350,7 +350,7 @@
               </div>
 
               <div class="meter" id="meter" data-score="5">
-              <div class="meter-track" role="meter" aria-labelledby="strengthLabel" aria-valuemin="0" aria-valuemax="5" aria-valuenow="5" id="meterTrack">
+              <div class="meter-track" role="meter" aria-label="Síla hesla" aria-valuemin="0" aria-valuemax="5" aria-valuenow="5" aria-valuetext="Výborné" id="meterTrack">
                 <span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span>
               </div>
               <div class="meter-meta">
@@ -372,7 +372,7 @@
                 <span class="switch-track" aria-hidden="true"></span>
                 <span class="switch-text">
                   <span>Vymazat schránku 30 s po zkopírování</span>
-                  <small>Prohlížeče to dovolí jen tehdy, když je FortiPass aktivní karta, takže to může počkat, až se vrátíte.</small>
+                  <small>Prohlížeče to dovolí jen tehdy, když je FortiPass aktivní karta, takže se schránka případně vymaže až po vašem návratu.</small>
                 </span>
               </label>
 
@@ -492,23 +492,25 @@
 
           <h2>Kolik slov stačí</h2>
           <p>Každé slovo vybrané náhodně ze 7 776 možností přidá log₂ 7 776 ≈ 12,9 bitu. Výpočet počítá s tím, že útočník seznam zná i ví, kolik slov jste použili.</p>
-          <div class="table-wrap" tabindex="0" role="region" aria-label="Hesla z českých slov při 100 miliardách pokusů za sekundu">
-            <table class="crack-table crack-table-narrow">
-              <caption>Hesla z českých slov při 100 miliardách pokusů za sekundu</caption>
-              <thead><tr><th scope="col">Slov</th><th scope="col">Entropie (bity)</th><th scope="col">Průměrná doba prolomení</th></tr></thead>
-              <tbody>
-                <tr><th scope="row">3</th><td>38,8</td><td data-score="2">2 sekundy</td></tr>
-                <tr><th scope="row">4</th><td>51,7</td><td data-score="3">5 hodin</td></tr>
-                <tr><th scope="row">5</th><td>64,6</td><td data-score="3">5 let</td></tr>
-                <tr><th scope="row">6</th><td>77,5</td><td data-score="4">35 tisíc let</td></tr>
-                <tr><th scope="row">7</th><td>90,5</td><td data-score="5">272 milionů let</td></tr>
-                <tr><th scope="row">8</th><td>103,4</td><td data-score="5">2,1 bilionu let</td></tr>
-                <tr><th scope="row">9</th><td>116,3</td><td data-score="5">16 biliard let</td></tr>
-                <tr><th scope="row">10</th><td>129,2</td><td data-score="5">10^20 let</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <p>Doby prolomení počítají s offline útokem se 100 miliardami pokusů za sekundu proti rychlému hashi, tedy s nejhorším případem. Web, který hesla ukládá správně (bcrypt, scrypt, Argon2), útočníka zpomalí o mnoho řádů.</p>
+          <figure class="table-wrap">
+            <figcaption class="table-caption" id="passphraseTableCaption-cs">Hesla z českých slov při 100 miliardách pokusů za sekundu</figcaption>
+            <div class="table-scroll" tabindex="0" role="region" aria-labelledby="passphraseTableCaption-cs">
+              <table class="crack-table crack-table-narrow" aria-labelledby="passphraseTableCaption-cs">
+                <thead><tr><th scope="col">Slov</th><th scope="col">Entropie (bity)</th><th scope="col">Průměrná doba prolomení</th></tr></thead>
+                <tbody>
+                  <tr><th scope="row">3</th><td>38,8</td><td data-score="2">2 sekundy</td></tr>
+                  <tr><th scope="row">4</th><td>51,7</td><td data-score="3">5 hodin</td></tr>
+                  <tr><th scope="row">5</th><td>64,6</td><td data-score="3">5 let</td></tr>
+                  <tr><th scope="row">6</th><td>77,5</td><td data-score="4">35 tisíc let</td></tr>
+                  <tr><th scope="row">7</th><td>90,5</td><td data-score="5">272 milionů let</td></tr>
+                  <tr><th scope="row">8</th><td>103,4</td><td data-score="5">2,1 bilionu let</td></tr>
+                  <tr><th scope="row">9</th><td>116,3</td><td data-score="5">16 biliard let</td></tr>
+                  <tr><th scope="row">10</th><td>129,2</td><td data-score="5">10²⁰ let</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </figure>
+          <p>Doby prolomení počítají s offline útokem se 100 miliardami pokusů za sekundu proti rychlému hashi — zhruba výkon jedné současné výkonné grafické karty proti MD5 nebo NTLM. Útočník s celou sestavou karet je desetkrát až stokrát rychlejší, proto si nechte rezervu. Web, který hesla ukládá správně (bcrypt, scrypt, Argon2), útočníka zpomalí o mnoho řádů.</p>
 
           <h2>Heslo ze slov, nebo náhodné znaky?</h2>
           <ul class="tips">
@@ -614,10 +616,10 @@
       <div class="noscript">FortiPass vytváří hesla ve vašem prohlížeči, a k tomu potřebuje zapnutý JavaScript. Na server se nic neposílá v žádném případě.</div>
     </noscript>
 
-    <script src="../../wordlist-en.js?v=5"></script>
-    <script src="../../wordlist-cs.js?v=5"></script>
-    <script src="../../locale-cs.js?v=5"></script>
-    <script src="../../core.js?v=5"></script>
-    <script src="../../script.js?v=5"></script>
+    <script src="../../wordlist-en.js?v=19c6db3e6e"></script>
+    <script src="../../wordlist-cs.js?v=19c6db3e6e"></script>
+    <script src="../../locale-cs.js?v=19c6db3e6e"></script>
+    <script src="../../core.js?v=19c6db3e6e"></script>
+    <script src="../../script.js?v=19c6db3e6e"></script>
   </body>
 </html>

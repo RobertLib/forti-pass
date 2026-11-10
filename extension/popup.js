@@ -11,23 +11,33 @@
   const czech = (api.i18n.getUILanguage() || "").toLowerCase().startsWith("cs");
   const SITE = "https://robertlib.github.io/forti-pass/";
   const KEY = "fortipass:extension:v1";
+  // How long "Copied" and the copy-it-yourself hint replace the button label.
+  const COPIED_MS = 1400;
+  const COPY_FAILED_MS = 4000;
 
   const core = globalThis.FortiPassCreateCore({
     crypto: globalThis.crypto,
     wordLists: globalThis.FortiPassWordLists,
     messages: czech ? globalThis.FortiPassLocale.core : undefined,
   });
+  const INSTANTLY = core.formatCrackTime(0);
 
   const $ = (id) => document.getElementById(id);
-  const tabs = Array.from(document.querySelectorAll("[data-mode]"));
+  const tabs = Array.from(document.querySelectorAll('[role="tab"]'));
   const panels = Array.from(document.querySelectorAll("[data-panel]"));
   const inputs = ["length", "upper", "lower", "digits", "symbols", "readable", "words", "language", "pin"];
 
   let mode = "password";
   let current = "";
+  let copyTimer = 0;
 
+  // The messages chrome.i18n picked are English or Czech; say which.
+  document.documentElement.lang = czech ? "cs" : "en";
   document.querySelectorAll("[data-i18n]").forEach((node) => {
     node.textContent = t(node.dataset.i18n);
+  });
+  document.querySelectorAll("[data-i18n-label]").forEach((node) => {
+    node.setAttribute("aria-label", t(node.dataset.i18nLabel));
   });
   $("site").href = czech ? SITE + "cs/" : SITE;
 
@@ -74,10 +84,25 @@
     }
   }
 
+  /** Shows `key` on the Copy button (and to screen readers) for a while. */
+  function copyFeedback(key, ms) {
+    clearTimeout(copyTimer);
+    $("copyBtn").textContent = t(key);
+    $("status").textContent = t(key);
+    copyTimer = setTimeout(resetCopy, ms);
+  }
+
+  function resetCopy() {
+    clearTimeout(copyTimer);
+    $("copyBtn").textContent = t("copy");
+    $("status").textContent = "";
+  }
+
   function generate() {
     $("lengthValue").value = $("length").value;
     $("wordsValue").value = $("words").value;
     $("pinValue").value = $("pin").value;
+    resetCopy();
 
     const options = {
       length: Number($("length").value),
@@ -105,47 +130,67 @@
       current = "";
       $("value").textContent = result.error;
       $("meter").dataset.score = "0";
-      $("label").textContent = "";
-      $("bits").textContent = "";
-      $("crack").textContent = "";
+      $("meta").hidden = true;
       return;
     }
 
     current = result.value;
     paint(current);
     const score = core.scoreFromBits(result.entropy);
+    const time = core.formatCrackTime(result.entropy);
     $("meter").dataset.score = String(score);
+    $("meta").hidden = false;
     $("label").textContent = core.SCORE_LABELS[score];
     $("bits").textContent = t("bits", [String(Math.round(result.entropy))]);
-    $("crack").textContent = t("toCrack", [core.formatCrackTime(result.entropy)]);
+    $("crack").textContent = time === INSTANTLY ? t("crackedInstantly") : t("toCrack", [time]);
     save();
   }
 
   function setMode(next) {
     mode = next;
-    tabs.forEach((tab) => tab.setAttribute("aria-selected", String(tab.dataset.mode === mode)));
+    tabs.forEach((tab) => {
+      const selected = tab.dataset.mode === mode;
+      tab.setAttribute("aria-selected", String(selected));
+      tab.tabIndex = selected ? 0 : -1;
+    });
     panels.forEach((panel) => (panel.hidden = panel.dataset.panel !== mode));
     generate();
   }
 
+  // Tabs pattern: one tab stop; arrows, Home and End move and select.
+  function onTabKey(event) {
+    const index = tabs.indexOf(event.target);
+    const target = {
+      ArrowRight: (index + 1) % tabs.length,
+      ArrowLeft: (index - 1 + tabs.length) % tabs.length,
+      Home: 0,
+      End: tabs.length - 1,
+    }[event.key];
+    if (index === -1 || target === undefined) return;
+    event.preventDefault();
+    setMode(tabs[target].dataset.mode);
+    tabs[target].focus();
+  }
+
   async function copy() {
     if (!current) return;
-    const button = $("copyBtn");
     try {
       await navigator.clipboard.writeText(current);
-      button.textContent = t("copied");
-      setTimeout(() => (button.textContent = t("copy")), 1400);
+      copyFeedback("copied", COPIED_MS);
     } catch (err) {
       const range = document.createRange();
       range.selectNodeContents($("value"));
       const selection = getSelection();
       selection.removeAllRanges();
       selection.addRange(range);
-      button.textContent = t("copyFailed");
+      copyFeedback("copyFailed", COPY_FAILED_MS);
     }
   }
 
-  tabs.forEach((tab) => tab.addEventListener("click", () => setMode(tab.dataset.mode)));
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => setMode(tab.dataset.mode));
+    tab.addEventListener("keydown", onTabKey);
+  });
   inputs.forEach((id) => $(id).addEventListener("input", generate));
   $("newBtn").addEventListener("click", generate);
   $("copyBtn").addEventListener("click", copy);

@@ -54,10 +54,6 @@
     copy: "Copy",
     copyAll: "Copy all",
     copied: "Copied",
-    show: "Show",
-    hide: "Hide",
-    showPassword: "Show password",
-    hidePassword: "Hide password",
     notGenerated: "Not generated",
     waiting: "Waiting for input",
     bits: (n) => n + (n === 1 ? " bit" : " bits"),
@@ -849,7 +845,10 @@
     }
 
     const problem = open ? null : core.wifiPasswordProblem(password);
-    el.wifiHint.textContent = open ? UI.wifiOpen : problem ? UI.wifiProblem[problem] : UI.wifiOk;
+    // The hint is a live region: rewriting the same text on every keystroke
+    // would make screen readers repeat it.
+    const hint = open ? UI.wifiOpen : problem ? UI.wifiProblem[problem] : UI.wifiOk;
+    if (el.wifiHint.textContent !== hint) el.wifiHint.textContent = hint;
     el.wifiHint.classList.toggle("is-problem", !!problem || open);
 
     el.wifiPrintSsid.textContent = ssid;
@@ -1283,11 +1282,13 @@
 
   function bindChecker() {
     el.checkInput.addEventListener("input", debounce(runCheck, 140));
+    // A toggle button keeps one name ("Show password") and reports its state
+    // through aria-pressed; swapping the name too would read "Hide password,
+    // pressed".
     el.checkRevealBtn.addEventListener("click", () => {
       const revealed = el.checkInput.type === "text";
       el.checkInput.type = revealed ? "password" : "text";
       el.checkRevealBtn.setAttribute("aria-pressed", String(!revealed));
-      el.checkRevealBtn.setAttribute("aria-label", revealed ? UI.showPassword : UI.hidePassword);
       el.checkRevealBtn
         .querySelector("use")
         .setAttribute("href", revealed ? "#i-eye" : "#i-eye-off");

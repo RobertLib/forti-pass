@@ -98,7 +98,7 @@
           " ze slovníku, proto se hodnotí po slovech, ne po znacích.",
         copy: "Opakuje svou dřívější část — zopakovaný blok skoro nic nepřidá.",
         repeatChar: "Obsahuje znak zopakovaný třikrát a víckrát za sebou.",
-        run: "Obsahuje řadu z klávesnice nebo abecedy, třeba „abcd“, „1234“ nebo „qwer“.",
+        run: "Obsahuje řadu z klávesnice nebo abecedy, třeba „abcd“, „1234“, „qwer“ nebo „1qaz“.",
         year: "Zřejmě obsahuje rok — narozeniny a data útočníci zkoušejí brzy.",
         fewTypes: (n) =>
           "Používá jen " +
@@ -129,10 +129,6 @@
       copy: "Kopírovat",
       copyAll: "Kopírovat vše",
       copied: "Zkopírováno",
-      show: "Zobrazit",
-      hide: "Skrýt",
-      showPassword: "Zobrazit heslo",
-      hidePassword: "Skrýt heslo",
       notGenerated: "Nevygenerováno",
       waiting: "Čekám na zadání",
       bits: (n) => count(n, "bit", "bity", "bitů"),

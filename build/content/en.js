@@ -88,7 +88,7 @@ module.exports = function content(f, href, c) {
           <h2>Where a passphrase gets its strength</h2>
           <p>Strength comes from how the words are picked, not from how clever they look. FortiPass draws each word uniformly at random from the ${words}-word EFF large list with <code>crypto.getRandomValues()</code>, so every word adds log₂ ${words} ≈ ${bpw} bits — even if an attacker knows the list and your settings. Six words give about ${f.format1(6 * f.bitsPerWord.en)} bits; a number and a symbol add a few more.</p>
           ${c.passphraseTable("en", 3, 10)}
-          <p>The crack times assume an offline attacker making 100 billion guesses per second against a fast hash — a worst case. A site that stores passwords properly (bcrypt, scrypt or Argon2) slows that attacker down by many orders of magnitude.</p>
+          <p>The crack times assume an offline attacker making 100 billion guesses per second against a fast hash — roughly one current high-end graphics card against MD5 or NTLM. An attacker with a rack of them is ten or a hundred times faster, so leave a margin. A site that stores passwords properly (bcrypt, scrypt or Argon2) slows any attacker down by many orders of magnitude.</p>
 
           <h2>Passphrase or random password?</h2>
           <ul class="tips">
@@ -202,7 +202,7 @@ module.exports = function content(f, href, c) {
         ],
         [
           "What does the crack time assume?",
-          "An attacker who has stolen a database of password hashes and makes 100 billion guesses per second — realistic for fast hashes such as MD5 or NTLM on a multi-GPU rig. It is the average time, half the search space. Sites using bcrypt, scrypt or Argon2 make attacks far slower, and a login form with rate limiting slower still.",
+          "An attacker who has stolen a database of password hashes and makes 100 billion guesses per second — about what one current high-end graphics card manages against a fast hash such as MD5 or NTLM. It is the average time, half the search space. A rig of several cards is proportionally faster; sites using bcrypt, scrypt or Argon2 make attacks far slower, and a login form with rate limiting slower still.",
         ],
         [
           "Does it check whether my password was in a data breach?",
@@ -265,9 +265,9 @@ module.exports = function content(f, href, c) {
     },
 
     crack: {
-      title: "How Long Does It Take to Crack a Password? 2026 Table | FortiPass",
+      title: `How Long Does It Take to Crack a Password? ${f.year} Table | FortiPass`,
       description:
-        "Brute-force crack times for random passwords of 4 to 20 characters in every character set, plus passphrases and PINs, at 100 billion guesses per second. Transparent maths, free to reuse.",
+        "Brute-force crack times for random passwords of 4 to 20 characters in every character set, plus passphrases, at 100 billion guesses per second. Transparent maths, free to reuse.",
       h1: "How long does it take to crack a password?",
       lede: `Average brute-force times for truly random passwords, calculated from the size of the search space. Updated ${f.updated}.`,
       body: `<section class="content">
@@ -291,7 +291,7 @@ module.exports = function content(f, href, c) {
           ${c.passphraseTable("en", 3, 10)}
 
           <h2>How the numbers are calculated</h2>
-          <p>A random password of length <var>L</var> drawn from <var>N</var> characters has <var>N</var><sup><var>L</var></sup> possibilities, or <var>L</var> × log₂ <var>N</var> bits. On average an attacker finds it after trying half of them. The table divides that by 10¹¹ — 100 billion guesses per second, a realistic rate for a multi-GPU rig attacking a fast, unsalted hash such as MD5 or NTLM after a database breach.</p>
+          <p>A random password of length <var>L</var> drawn from <var>N</var> characters has <var>N</var><sup><var>L</var></sup> possibilities, or <var>L</var> × log₂ <var>N</var> bits. On average an attacker finds it after trying half of them. The table divides that by 10¹¹ — 100 billion guesses per second, roughly what a single current high-end graphics card manages against a fast, unsalted hash such as MD5 or NTLM after a database breach. A rig of eight such cards cuts every time in the table by about ten — worth about half a character of a random password.</p>
           <ul class="tips">
             <li><strong>Slow hashes help enormously.</strong> Sites that store passwords with bcrypt, scrypt or Argon2 hold attackers to thousands or millions of guesses per second, multiplying every time in the table by a hundred thousand or more.</li>
             <li><strong>Online attacks are slower still.</strong> A login form that limits attempts allows a handful of guesses per minute — but never rely on that: databases leak.</li>
@@ -319,7 +319,7 @@ module.exports = function content(f, href, c) {
         ],
         [
           "Why do other password tables show different times?",
-          "Published tables differ mainly in the hash they assume and the hardware they count. A fast hash on many GPUs gives the short times shown here; a slow hash such as bcrypt gives far longer ones. The shape is the same in every table: each extra character multiplies the time by the size of the character set.",
+          "Published tables differ mainly in the hash they assume and the hardware they count. A fast hash on graphics cards gives short times like the ones here (shorter still on a rig of many cards); a slow hash such as bcrypt gives far longer ones. The shape is the same in every table: each extra character multiplies the time by the size of the character set.",
         ],
         [
           "Does adding a symbol make a password much stronger?",

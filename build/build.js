@@ -92,6 +92,7 @@ ${field("words", list.words)}${field("extra", list.extra)}  };
 /* ----------------------------------------------------------------- facts */
 
 const SUPERSCRIPT = "⁰¹²³⁴⁵⁶⁷⁸⁹";
+const superscript = (digits) => String(digits).replace(/\d/g, (d) => SUPERSCRIPT[d]);
 
 /** Numbers and crack times for the prose, computed by core.js itself. */
 function makeFacts(lang) {
@@ -115,21 +116,25 @@ function makeFacts(lang) {
   const wifiWordsLang = lang === "cs" ? "cs" : "en";
 
   const date = new Date(site.UPDATED + "T12:00:00Z");
+  // core.js writes huge times as "10^20 years"; pages show 10²⁰, as the app does.
+  const crackTime = (bits) =>
+    core.formatCrackTime(bits).replace(/10\^(\d+)/g, (_, exponent) => "10" + superscript(exponent));
   return {
     core,
+    crackTime,
     wordCounts,
     bitsPerWord,
     format0: fixed(0),
     format1: fixed(1),
     formatInt: (n) => n.toLocaleString(lang),
     updated: date.toLocaleDateString(lang, { month: "long", year: "numeric", timeZone: "UTC" }),
-    pw: (length, pool) => core.formatCrackTime(length * Math.log2(pool)),
-    words: (count, list) => core.formatCrackTime(count * bitsPerWord[list]),
+    year: site.UPDATED.slice(0, 4),
+    pw: (length, pool) => crackTime(length * Math.log2(pool)),
+    words: (count, list) => crackTime(count * bitsPerWord[list]),
     sci: (value) => {
       const exponent = Math.floor(Math.log10(value));
       const mantissa = fixed(1)(value / Math.pow(10, exponent));
-      const sup = String(exponent).replace(/\d/g, (d) => SUPERSCRIPT[d]);
-      return `${mantissa} × 10${sup}`;
+      return `${mantissa} × 10${superscript(exponent)}`;
     },
     wifiBits: {
       easy: core.passwordEntropy(easyPool, easySets.map((s) => s.length), 20, false, true),
@@ -199,11 +204,12 @@ const TABLE_LABELS = {
 const pageById = (id) => site.PAGES.find((page) => page.id === id);
 const depthOf = (p) => p.split("/").filter(Boolean).length;
 
-function makeContext(page, lang, facts) {
+function makeContext(page, lang, facts, assetVersion) {
   const root = "../".repeat(depthOf(page.paths[lang]));
   const ctx = {
     page,
     lang,
+    assetVersion,
     t: strings[lang],
     pages: site.PAGES,
     root,
@@ -248,8 +254,8 @@ function faq(t, items) {
         </section>`;
 }
 
-function renderPage(page, lang, facts) {
-  const ctx = makeContext(page, lang, facts);
+function renderPage(page, lang, facts, assetVersion) {
+  const ctx = makeContext(page, lang, facts, assetVersion);
   const t = ctx.t;
   const labels = TABLE_LABELS[lang];
   const helpers = {
@@ -290,7 +296,7 @@ function renderPage(page, lang, facts) {
 
 /** GitHub Pages serves 404.html at whatever URL was missed, so it uses
     absolute paths and no service worker. */
-function render404() {
+function render404(assetVersion) {
   const base = new URL(site.SITE_URL).pathname;
   const links = (lang) =>
     site.PAGES.map(
@@ -306,7 +312,7 @@ function render404() {
     <meta name="robots" content="noindex" />
     <title>Page not found · Stránka nenalezena | FortiPass</title>
     <link rel="icon" href="${base}favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="${base}styles.css?v=${site.ASSET_VERSION}" />
+    <link rel="stylesheet" href="${base}styles.css?v=${assetVersion}" />
   </head>
   <body>
     <main class="container not-found">
@@ -457,13 +463,13 @@ const STATIC_ASSETS = [
   "apple-touch-icon.png",
 ];
 
-function serviceWorker() {
+function serviceWorker(assetVersion) {
   const template = fs.readFileSync(path.join(__dirname, "sw.template.js"), "utf8");
   const pages = [];
   site.PAGES.forEach((page) => site.LANGUAGES.forEach((lang) => pages.push(page.paths[lang])));
   const list = (items) => "[\n" + items.map((item) => `  "${item}",`).join("\n") + "\n]";
   return template
-    .replace("__ASSET_VERSION__", site.ASSET_VERSION)
+    .replace("__ASSET_VERSION__", assetVersion)
     .replace("__PAGES__", list(pages))
     .replace("__VERSIONED__", list(VERSIONED_ASSETS))
     .replace("__STATIC__", list(STATIC_ASSETS));
@@ -471,23 +477,41 @@ function serviceWorker() {
 
 /* ------------------------------------------------------------------ main */
 
+/**
+ * The ?v= query and service-worker cache name: a short hash of every asset
+ * the service worker caches. Any change to a script, the stylesheet, an icon
+ * or a manifest changes it, so there is no version number to forget to bump.
+ * Generated assets are hashed as they are about to be written.
+ */
+function assetVersion(generated) {
+  const hash = nodeCrypto.createHash("sha256");
+  VERSIONED_ASSETS.concat(STATIC_ASSETS).forEach((file) => {
+    hash.update(file + "\0");
+    hash.update(generated.has(file) ? generated.get(file) : fs.readFileSync(path.join(ROOT, file)));
+    hash.update("\0");
+  });
+  return hash.digest("hex").slice(0, 10);
+}
+
 /** Every generated file: relative path → contents. */
 function renderSite() {
   const files = new Map();
-  site.LANGUAGES.forEach((lang) => {
-    const facts = makeFacts(lang);
-    site.PAGES.forEach((page) => {
-      files.set(page.paths[lang] + "index.html", renderPage(page, lang, facts));
-    });
-  });
-  files.set("404.html", render404());
   files.set("wordlist-en.js", wordlistScript("en"));
   files.set("wordlist-cs.js", wordlistScript("cs"));
   files.set("manifest.json", manifest("en"));
   files.set("cs/manifest.json", manifest("cs"));
+  const version = assetVersion(files);
+
+  site.LANGUAGES.forEach((lang) => {
+    const facts = makeFacts(lang);
+    site.PAGES.forEach((page) => {
+      files.set(page.paths[lang] + "index.html", renderPage(page, lang, facts, version));
+    });
+  });
+  files.set("404.html", render404(version));
   files.set("sitemap.xml", sitemap());
   files.set("robots.txt", robots());
-  files.set("sw.js", serviceWorker());
+  files.set("sw.js", serviceWorker(version));
   return files;
 }
 
@@ -518,4 +542,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = { renderSite, WORDLISTS, VERSIONED_ASSETS, STATIC_ASSETS, esc };
+module.exports = { renderSite, assetVersion, WORDLISTS, VERSIONED_ASSETS, STATIC_ASSETS, esc };

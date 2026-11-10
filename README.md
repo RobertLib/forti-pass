@@ -67,9 +67,11 @@ and specific findings. The estimate splits the password into the cheapest
 pieces an attacker would try — dictionary words in English and Czech (also
 glued together, as in `correcthorse`, and with accents folded, so `kocicka` is
 `kočička`), common passwords and Czech names, leet-speak variants such as
-`P@ssw0rd`, years, repeated characters, keyboard runs (QWERTY, QWERTZ and the
-Czech `ěščřžý` row) and copies of an earlier block (`Ab3$Ab3$Ab3$`) — so
-patterned passwords are not scored as if every character were random.
+`P@ssw0rd`, years, repeated characters, keyboard walks (rows and columns on
+QWERTY and QWERTZ, the Shift layer as in `!@#$%`, column walks such as
+`1qaz2wsx`, and the Czech `+ěščřžý` row) and copies of an earlier block
+(`Ab3$Ab3$Ab3$`) — so patterned passwords are not scored as if every character
+were random.
 
 ### Usability
 
@@ -199,17 +201,26 @@ Generated (do not edit by hand): every `index.html`, `404.html`,
 
 ### Shipping a change
 
-1. Bump `ASSET_VERSION` in `build/site.js` — it busts the service-worker cache
-   and the `?v=` query on every script and stylesheet together.
-2. Bump `UPDATED` in `build/site.js` if the content changed (sitemap `lastmod`,
-   "Updated" date on the crack-time table).
-3. `npm run build && npm test`.
+1. Bump `UPDATED` in `build/site.js` if the content changed (sitemap `lastmod`,
+   the "Updated" date and the year in the crack-time table's title).
+2. `npm run build && npm test`.
+
+There is no asset version to bump: the build hashes every script, the
+stylesheet, the icons and the manifests, and uses the hash as the `?v=` query
+and the service-worker cache name. Change any of them and returning visitors
+get a fresh cache on their next visit; `npm test` fails if a page or `sw.js`
+was not rebuilt after an asset changed.
 
 ### Moving to your own domain
 
 Set `SITE_URL` in `build/site.js`, run `npm run build`, add a `CNAME` file and
 set the custom domain in the repository's GitHub Pages settings. GitHub then
 redirects the old `github.io` URLs to the new domain.
+
+Crawlers only read `robots.txt` at the root of a host, so while the site lives
+under `/forti-pass/` the generated `robots.txt` (and its `Sitemap:` line) is
+ignored — submit `sitemap.xml` in Google Search Console instead. On a custom
+domain it starts working as it is.
 
 Images are rendered from the SVG sources:
 

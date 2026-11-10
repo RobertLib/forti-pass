@@ -210,6 +210,14 @@ test("checker rates well-known weak patterns as weak", () => {
     "Ab3$Ab3$Ab3$Ab3$": 2,
     "Monkey$Banana$Monkey": 2,
     correcthorsebatterystaple: 2,
+    // Keyboard walks: down the columns, along the Shift layer, punctuation.
+    "!QAZ2wsx#EDC4rfv": 2,
+    "1qaz2wsx3edc4rfv": 1,
+    qazwsxedcrfvtgb: 1,
+    "!@#$%^&*()": 1,
+    "!@#$%^&*()_+": 1,
+    "zxcvbnm,./": 1,
+    "+ěščřžýáíé": 1,
   };
   for (const [password, maxScore] of Object.entries(cases)) {
     const { score } = core.analyze(password);

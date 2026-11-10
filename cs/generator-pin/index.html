@@ -8,9 +8,9 @@
          rule. The hash is the inline theme script below. -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-S7JAEiUrU4H4LCVYmy289mUQCOerSE4ipEaKk4kMhPU='; style-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'" />
     <meta name="referrer" content="no-referrer" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
-    <title>Generátor PIN – náhodný 4, 6 nebo 8místný PIN | FortiPass</title>
+    <title>Generátor PIN – náhodný 4-, 6- nebo 8místný PIN | FortiPass</title>
     <meta name="description" content="Vygenerujte opravdu náhodný PIN o 3 až 16 číslicích pomocí kryptografické náhody prohlížeče — žádné datum narození ani 1234. Hromadné generování, zdarma, offline, nic se neodesílá." />
     <meta name="author" content="Robert Libšanský" />
     <meta name="robots" content="index, follow" />
@@ -31,14 +31,14 @@
     <meta property="og:site_name" content="FortiPass" />
     <meta property="og:locale" content="cs_CZ" />
     <meta property="og:locale:alternate" content="en_US" />
-    <meta property="og:title" content="Generátor PIN – náhodný 4, 6 nebo 8místný PIN | FortiPass" />
+    <meta property="og:title" content="Generátor PIN – náhodný 4-, 6- nebo 8místný PIN | FortiPass" />
     <meta property="og:description" content="Vygenerujte opravdu náhodný PIN o 3 až 16 číslicích pomocí kryptografické náhody prohlížeče — žádné datum narození ani 1234. Hromadné generování, zdarma, offline, nic se neodesílá." />
     <meta property="og:image" content="https://robertlib.github.io/forti-pass/og-image-cs.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="Logo FortiPass s heslem „Silná hesla, vytvořená ve vašem zařízení“ a ukázkou vygenerovaného hesla" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Generátor PIN – náhodný 4, 6 nebo 8místný PIN | FortiPass" />
+    <meta name="twitter:title" content="Generátor PIN – náhodný 4-, 6- nebo 8místný PIN | FortiPass" />
     <meta name="twitter:description" content="Vygenerujte opravdu náhodný PIN o 3 až 16 číslicích pomocí kryptografické náhody prohlížeče — žádné datum narození ani 1234. Hromadné generování, zdarma, offline, nic se neodesílá." />
     <meta name="twitter:image" content="https://robertlib.github.io/forti-pass/og-image-cs.png" />
     <meta name="twitter:image:alt" content="Logo FortiPass s heslem „Silná hesla, vytvořená ve vašem zařízení“ a ukázkou vygenerovaného hesla" />
@@ -112,7 +112,7 @@
 }
     </script>
 
-    <link rel="stylesheet" href="../../styles.css?v=5" />
+    <link rel="stylesheet" href="../../styles.css?v=19c6db3e6e" />
     <script>
       (function () {
         try {
@@ -334,7 +334,7 @@
               </div>
 
               <div class="meter" id="meter" data-score="5">
-              <div class="meter-track" role="meter" aria-labelledby="strengthLabel" aria-valuemin="0" aria-valuemax="5" aria-valuenow="5" id="meterTrack">
+              <div class="meter-track" role="meter" aria-label="Síla hesla" aria-valuemin="0" aria-valuemax="5" aria-valuenow="5" aria-valuetext="Výborné" id="meterTrack">
                 <span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span>
               </div>
               <div class="meter-meta">
@@ -356,7 +356,7 @@
                 <span class="switch-track" aria-hidden="true"></span>
                 <span class="switch-text">
                   <span>Vymazat schránku 30 s po zkopírování</span>
-                  <small>Prohlížeče to dovolí jen tehdy, když je FortiPass aktivní karta, takže to může počkat, až se vrátíte.</small>
+                  <small>Prohlížeče to dovolí jen tehdy, když je FortiPass aktivní karta, takže se schránka případně vymaže až po vašem návratu.</small>
                 </span>
               </label>
 
@@ -416,20 +416,22 @@
         <section class="content">
           <h2>Jak silný je PIN?</h2>
           <p>Každá číslice přidá log₂ 10 ≈ 3,3 bitu, takže i 8místný PIN má méně kombinací než heslo o šesti znacích. To nevadí: PIN nemá odolat offline útoku. Chrání kartu nebo zařízení, které se po pár špatných pokusech zablokuje, zamkne nebo smaže.</p>
-          <div class="table-wrap" tabindex="0" role="region" aria-label="Náhodný PIN podle počtu číslic">
-            <table class="crack-table">
-              <caption>Náhodný PIN podle počtu číslic</caption>
-              <thead><tr><th scope="col">Číslic</th><th scope="col">Kombinací</th><th scope="col">Bity</th><th scope="col">Hrubou silou bez blokování</th></tr></thead>
-              <tbody>
-                <tr><th scope="row">4</th><td>10 000</td><td>13,3</td><td data-score="1">okamžitě</td></tr>
-                <tr><th scope="row">5</th><td>100 000</td><td>16,6</td><td data-score="1">okamžitě</td></tr>
-                <tr><th scope="row">6</th><td>1 000 000</td><td>19,9</td><td data-score="1">okamžitě</td></tr>
-                <tr><th scope="row">8</th><td>100 000 000</td><td>26,6</td><td data-score="1">okamžitě</td></tr>
-                <tr><th scope="row">10</th><td>10 000 000 000</td><td>33,2</td><td data-score="2">okamžitě</td></tr>
-                <tr><th scope="row">12</th><td>1 000 000 000 000</td><td>39,9</td><td data-score="2">5 sekund</td></tr>
-              </tbody>
-            </table>
-          </div>
+          <figure class="table-wrap">
+            <figcaption class="table-caption" id="pinTableCaption">Náhodný PIN podle počtu číslic</figcaption>
+            <div class="table-scroll" tabindex="0" role="region" aria-labelledby="pinTableCaption">
+              <table class="crack-table" aria-labelledby="pinTableCaption">
+                <thead><tr><th scope="col">Číslic</th><th scope="col">Kombinací</th><th scope="col">Bity</th><th scope="col">Hrubou silou bez blokování</th></tr></thead>
+                <tbody>
+                  <tr><th scope="row">4</th><td>10 000</td><td>13,3</td><td data-score="1">okamžitě</td></tr>
+                  <tr><th scope="row">5</th><td>100 000</td><td>16,6</td><td data-score="1">okamžitě</td></tr>
+                  <tr><th scope="row">6</th><td>1 000 000</td><td>19,9</td><td data-score="1">okamžitě</td></tr>
+                  <tr><th scope="row">8</th><td>100 000 000</td><td>26,6</td><td data-score="1">okamžitě</td></tr>
+                  <tr><th scope="row">10</th><td>10 000 000 000</td><td>33,2</td><td data-score="2">okamžitě</td></tr>
+                  <tr><th scope="row">12</th><td>1 000 000 000 000</td><td>39,9</td><td data-score="2">5 sekund</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </figure>
           <p>Poslední sloupec ukazuje dobu útoku hrubou silou bez jakéhokoli blokování, pro srovnání s hesly. Když se karta po třech špatných pokusech zablokuje, má zloděj u náhodného 4místného PINu šanci 3 ku 10 000.</p>
 
           <h2>PINy, kterým se vyhnout</h2>
@@ -536,10 +538,10 @@
       <div class="noscript">FortiPass vytváří hesla ve vašem prohlížeči, a k tomu potřebuje zapnutý JavaScript. Na server se nic neposílá v žádném případě.</div>
     </noscript>
 
-    <script src="../../wordlist-en.js?v=5"></script>
-    <script src="../../wordlist-cs.js?v=5"></script>
-    <script src="../../locale-cs.js?v=5"></script>
-    <script src="../../core.js?v=5"></script>
-    <script src="../../script.js?v=5"></script>
+    <script src="../../wordlist-en.js?v=19c6db3e6e"></script>
+    <script src="../../wordlist-cs.js?v=19c6db3e6e"></script>
+    <script src="../../locale-cs.js?v=19c6db3e6e"></script>
+    <script src="../../core.js?v=19c6db3e6e"></script>
+    <script src="../../script.js?v=19c6db3e6e"></script>
   </body>
 </html>

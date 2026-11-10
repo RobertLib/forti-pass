@@ -10,10 +10,29 @@
 
 const { esc, icon } = require("./html");
 
+/**
+ * A table card: the caption sits above the horizontal scroller, so on a
+ * phone it wraps to the screen instead of scrolling away with the columns.
+ * The scroller is a focusable region, so keyboard users can scroll it too.
+ */
+function tableCard(id, caption, className, head, rows) {
+  return `<figure class="table-wrap">
+            <figcaption class="table-caption" id="${id}">${caption}</figcaption>
+            <div class="table-scroll" tabindex="0" role="region" aria-labelledby="${id}">
+              <table class="${className}" aria-labelledby="${id}">
+                <thead>${head}</thead>
+                <tbody>
+                  ${rows.join("\n                  ")}
+                </tbody>
+              </table>
+            </div>
+          </figure>`;
+}
+
 function meter(id, score, label, extra) {
   const ids = extra || {};
   return `<div class="meter" id="${id}" data-score="${score}">
-              <div class="meter-track" role="meter" aria-labelledby="${ids.label}" aria-valuemin="0" aria-valuemax="5" aria-valuenow="${score}" id="${id}Track">
+              <div class="meter-track" role="meter" aria-label="${esc(ids.name)}" aria-valuemin="0" aria-valuemax="5" aria-valuenow="${score}" aria-valuetext="${esc(label)}" id="${id}Track">
                 <span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span>
               </div>
               <div class="meter-meta">
@@ -218,6 +237,7 @@ function generator(t, ctx) {
               </div>
 
               ${meter("meter", 5, t.excellent, {
+                name: t.strengthMeter,
                 label: "strengthLabel",
                 bitsId: "entropyText",
                 crackId: "crackText",
@@ -288,7 +308,7 @@ function checker(t, ctx) {
                 </div>
               </div>
 
-              ${meter("checkMeter", 0, t.waiting, { label: "checkVerdict", bitsId: "checkEntropy", crackId: "checkCrack", bitsTitle: t.entropyTitle, crackTitle: t.crackTitle })}
+              ${meter("checkMeter", 0, t.waiting, { name: t.strengthMeter, label: "checkVerdict", bitsId: "checkEntropy", crackId: "checkCrack", bitsTitle: t.entropyTitle, crackTitle: t.crackTitle })}
 
               <p class="privacy-note" id="checkPrivacy">${icon("i-lock", "icon-sm")}<span>${t.checkPrivacy}</span></p>
             </div>
@@ -338,7 +358,7 @@ function wifi(t) {
                   <p class="hint" id="wifiPasswordHint">${t.wifiPasswordHint}</p>
                 </div>
 
-                ${meter("wifiMeter", 0, t.waiting, { label: "wifiVerdict", bitsTitle: t.entropyTitle, crackTitle: t.crackTitle })}
+                ${meter("wifiMeter", 0, t.waiting, { name: t.strengthMeter, label: "wifiVerdict", bitsTitle: t.entropyTitle, crackTitle: t.crackTitle })}
               </div>
 
               ${switchRow("wifiHidden", t.hiddenNetwork, t.hiddenNetworkNote, false)}
@@ -379,26 +399,22 @@ function crackTable(ctx, labels) {
   const head = pools
     .map((pool) => `<th scope="col">${labels.pools[pool.id]}<span class="th-sub">${ctx.facts.formatInt(pool.size)} ${labels.symbolsCount}</span></th>`)
     .join("");
-  const rows = lengths
-    .map((length) => {
-      const cells = pools
-        .map((pool) => {
-          const bits = length * Math.log2(pool.size);
-          return `<td data-score="${core.scoreFromBits(bits)}">${core.formatCrackTime(bits)}</td>`;
-        })
-        .join("");
-      return `<tr><th scope="row">${length}</th>${cells}</tr>`;
-    })
-    .join("\n                ");
-  return `<div class="table-wrap" tabindex="0" role="region" aria-label="${esc(labels.caption)}">
-            <table class="crack-table">
-              <caption>${labels.caption}</caption>
-              <thead><tr><th scope="col">${labels.length}</th>${head}</tr></thead>
-              <tbody>
-                ${rows}
-              </tbody>
-            </table>
-          </div>`;
+  const rows = lengths.map((length) => {
+    const cells = pools
+      .map((pool) => {
+        const bits = length * Math.log2(pool.size);
+        return `<td data-score="${core.scoreFromBits(bits)}">${ctx.facts.crackTime(bits)}</td>`;
+      })
+      .join("");
+    return `<tr><th scope="row">${length}</th>${cells}</tr>`;
+  });
+  return tableCard(
+    "crackTableCaption",
+    labels.caption,
+    "crack-table",
+    `<tr><th scope="col">${labels.length}</th>${head}</tr>`,
+    rows
+  );
 }
 
 /** Crack times for passphrases from one word list, by number of words. */
@@ -409,18 +425,16 @@ function passphraseTable(ctx, labels, language, from, to) {
   for (let words = from; words <= to; words++) {
     const bits = words * Math.log2(size);
     rows.push(
-      `<tr><th scope="row">${words}</th><td>${ctx.facts.format1(bits)}</td><td data-score="${core.scoreFromBits(bits)}">${core.formatCrackTime(bits)}</td></tr>`
+      `<tr><th scope="row">${words}</th><td>${ctx.facts.format1(bits)}</td><td data-score="${core.scoreFromBits(bits)}">${ctx.facts.crackTime(bits)}</td></tr>`
     );
   }
-  return `<div class="table-wrap" tabindex="0" role="region" aria-label="${esc(labels.caption)}">
-            <table class="crack-table crack-table-narrow">
-              <caption>${labels.caption}</caption>
-              <thead><tr><th scope="col">${labels.words}</th><th scope="col">${labels.bits}</th><th scope="col">${labels.time}</th></tr></thead>
-              <tbody>
-                ${rows.join("\n                ")}
-              </tbody>
-            </table>
-          </div>`;
+  return tableCard(
+    "passphraseTableCaption-" + language,
+    labels.caption,
+    "crack-table crack-table-narrow",
+    `<tr><th scope="col">${labels.words}</th><th scope="col">${labels.bits}</th><th scope="col">${labels.time}</th></tr>`,
+    rows
+  );
 }
 
 /** PIN keyspace by number of digits. */
@@ -428,17 +442,15 @@ function pinTable(ctx, labels, lengths) {
   const { core } = ctx.facts.table;
   const rows = lengths.map((digits) => {
     const bits = digits * Math.log2(10);
-    return `<tr><th scope="row">${digits}</th><td>${ctx.facts.formatInt(Math.pow(10, digits))}</td><td>${ctx.facts.format1(bits)}</td><td data-score="${core.scoreFromBits(bits)}">${core.formatCrackTime(bits)}</td></tr>`;
+    return `<tr><th scope="row">${digits}</th><td>${ctx.facts.formatInt(Math.pow(10, digits))}</td><td>${ctx.facts.format1(bits)}</td><td data-score="${core.scoreFromBits(bits)}">${ctx.facts.crackTime(bits)}</td></tr>`;
   });
-  return `<div class="table-wrap" tabindex="0" role="region" aria-label="${esc(labels.caption)}">
-            <table class="crack-table">
-              <caption>${labels.caption}</caption>
-              <thead><tr><th scope="col">${labels.digits}</th><th scope="col">${labels.combinations}</th><th scope="col">${labels.bits}</th><th scope="col">${labels.time}</th></tr></thead>
-              <tbody>
-                ${rows.join("\n                ")}
-              </tbody>
-            </table>
-          </div>`;
+  return tableCard(
+    "pinTableCaption",
+    labels.caption,
+    "crack-table",
+    `<tr><th scope="col">${labels.digits}</th><th scope="col">${labels.combinations}</th><th scope="col">${labels.bits}</th><th scope="col">${labels.time}</th></tr>`,
+    rows
+  );
 }
 
 module.exports = { generator, checker, wifi, crackTable, passphraseTable, pinTable };

@@ -11,7 +11,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const site = require("../build/site.js");
-const { renderSite, VERSIONED_ASSETS, STATIC_ASSETS } = require("../build/build.js");
+const { renderSite, assetVersion, VERSIONED_ASSETS, STATIC_ASSETS } = require("../build/build.js");
 
 const root = path.join(__dirname, "..");
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
@@ -52,7 +52,8 @@ test("every generated file matches its sources (run `npm run build`)", () => {
 
 test("pages ask for exactly the asset version the service worker caches", () => {
   const version = /const ASSET_VERSION = "([^"]+)"/.exec(sw)[1];
-  assert.equal(version, site.ASSET_VERSION);
+  // A hash of the committed assets: editing one without rebuilding fails here.
+  assert.equal(version, assetVersion(new Map()));
   for (const { file, html } of PAGES) {
     const versions = new Set(attr(html, /\?v=([^"']+)/g));
     assert.deepEqual(Array.from(versions), [version], file);
@@ -162,6 +163,21 @@ function groupsFor(page, lang) {
   }
   return groups;
 }
+
+test("pages write powers of ten as superscripts, not 10^n", () => {
+  for (const { file, html } of PAGES) {
+    assert.ok(!html.includes("10^"), file);
+  }
+});
+
+test("no page repeats an element id", () => {
+  for (const { file, html } of PAGES.concat({ file: "404.html", html: read("404.html") })) {
+    const ids = attr(html, /\sid="([^"]+)"/g);
+    const seen = new Set();
+    const repeated = ids.filter((id) => seen.size === seen.add(id).size);
+    assert.deepEqual(repeated, [], file);
+  }
+});
 
 test("every element id script.js asks for exists on the pages that need it", () => {
   const wanted = new Set(attr(script, /\$\("#([\w-]+)"\)/g));

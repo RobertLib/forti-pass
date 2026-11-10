@@ -8,7 +8,7 @@
          rule. The hash is the inline theme script below. -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-S7JAEiUrU4H4LCVYmy289mUQCOerSE4ipEaKk4kMhPU='; style-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'" />
     <meta name="referrer" content="no-referrer" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <title>Password Strength Checker – How Secure Is My Password? | FortiPass</title>
     <meta name="description" content="Test how strong a password really is: entropy, estimated crack time and the exact weaknesses — dictionary words, leet swaps, years, keyboard runs, repeats. Runs locally; nothing is sent." />
@@ -97,7 +97,7 @@
       "name": "What does the crack time assume?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "An attacker who has stolen a database of password hashes and makes 100 billion guesses per second — realistic for fast hashes such as MD5 or NTLM on a multi-GPU rig. It is the average time, half the search space. Sites using bcrypt, scrypt or Argon2 make attacks far slower, and a login form with rate limiting slower still."
+        "text": "An attacker who has stolen a database of password hashes and makes 100 billion guesses per second — about what one current high-end graphics card manages against a fast hash such as MD5 or NTLM. It is the average time, half the search space. A rig of several cards is proportionally faster; sites using bcrypt, scrypt or Argon2 make attacks far slower, and a login form with rate limiting slower still."
       }
     },
     {
@@ -120,7 +120,7 @@
 }
     </script>
 
-    <link rel="stylesheet" href="../styles.css?v=5" />
+    <link rel="stylesheet" href="../styles.css?v=19c6db3e6e" />
     <script>
       (function () {
         try {
@@ -321,7 +321,7 @@
               </div>
 
               <div class="meter" id="checkMeter" data-score="0">
-              <div class="meter-track" role="meter" aria-labelledby="checkVerdict" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" id="checkMeterTrack">
+              <div class="meter-track" role="meter" aria-label="Password strength" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="Waiting for input" id="checkMeterTrack">
                 <span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span>
               </div>
               <div class="meter-meta">
@@ -384,7 +384,7 @@
             </details>
             <details>
               <summary>What does the crack time assume?</summary>
-              <p>An attacker who has stolen a database of password hashes and makes 100 billion guesses per second — realistic for fast hashes such as MD5 or NTLM on a multi-GPU rig. It is the average time, half the search space. Sites using bcrypt, scrypt or Argon2 make attacks far slower, and a login form with rate limiting slower still.</p>
+              <p>An attacker who has stolen a database of password hashes and makes 100 billion guesses per second — about what one current high-end graphics card manages against a fast hash such as MD5 or NTLM. It is the average time, half the search space. A rig of several cards is proportionally faster; sites using bcrypt, scrypt or Argon2 make attacks far slower, and a login form with rate limiting slower still.</p>
             </details>
             <details>
               <summary>Does it check whether my password was in a data breach?</summary>
@@ -459,9 +459,9 @@
       <div class="noscript">FortiPass generates passwords in your browser, which needs JavaScript enabled. Nothing is sent to a server either way.</div>
     </noscript>
 
-    <script src="../wordlist-en.js?v=5"></script>
-    <script src="../wordlist-cs.js?v=5"></script>
-    <script src="../core.js?v=5"></script>
-    <script src="../script.js?v=5"></script>
+    <script src="../wordlist-en.js?v=19c6db3e6e"></script>
+    <script src="../wordlist-cs.js?v=19c6db3e6e"></script>
+    <script src="../core.js?v=19c6db3e6e"></script>
+    <script src="../script.js?v=19c6db3e6e"></script>
   </body>
 </html>

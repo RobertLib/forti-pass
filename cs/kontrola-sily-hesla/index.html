@@ -8,7 +8,7 @@
          rule. The hash is the inline theme script below. -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-S7JAEiUrU4H4LCVYmy289mUQCOerSE4ipEaKk4kMhPU='; style-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'" />
     <meta name="referrer" content="no-referrer" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <title>Kontrola síly hesla – jak bezpečné je moje heslo? | FortiPass</title>
     <meta name="description" content="Otestujte, jak silné je vaše heslo: entropie, odhad doby prolomení a konkrétní slabiny — česká i anglická slova, jména, záměny písmen, roky, řady z klávesnice. Běží lokálně, nic se neodesílá." />
@@ -97,7 +97,7 @@
       "name": "S čím počítá doba prolomení?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "S útočníkem, který ukradl databázi hashů hesel a zkouší 100 miliard možností za sekundu — to je reálné pro rychlé hashe jako MD5 nebo NTLM na sestavě s několika grafickými kartami. Jde o průměrnou dobu, tedy polovinu všech možností. Weby s bcrypt, scrypt nebo Argon2 útok výrazně zpomalí a přihlašovací formulář s omezením pokusů ještě víc."
+        "text": "S útočníkem, který ukradl databázi hashů hesel a zkouší 100 miliard možností za sekundu — zhruba tolik zvládne jedna současná výkonná grafická karta proti rychlým hashům jako MD5 nebo NTLM. Jde o průměrnou dobu, tedy polovinu všech možností. Sestava s více kartami je úměrně rychlejší; weby s bcrypt, scrypt nebo Argon2 útok výrazně zpomalí a přihlašovací formulář s omezením pokusů ještě víc."
       }
     },
     {
@@ -105,7 +105,7 @@
       "name": "Zjistí kontrola, jestli moje heslo neuniklo?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Ne — to by znamenalo něco odeslat po síti, a to FortiPass nikdy nedělá. Have I Been Pwned nabízí kontrolu úniků, které se posílá jen prvních pět znaků hashe SHA-1 vašeho hesla."
+        "text": "Ne — to by znamenalo něco odeslat po síti, a to FortiPass nikdy nedělá. Have I Been Pwned nabízí kontrolu úniků, při které se odesílá jen prvních pět znaků hashe SHA-1 vašeho hesla."
       }
     },
     {
@@ -120,7 +120,7 @@
 }
     </script>
 
-    <link rel="stylesheet" href="../../styles.css?v=5" />
+    <link rel="stylesheet" href="../../styles.css?v=19c6db3e6e" />
     <script>
       (function () {
         try {
@@ -321,7 +321,7 @@
               </div>
 
               <div class="meter" id="checkMeter" data-score="0">
-              <div class="meter-track" role="meter" aria-labelledby="checkVerdict" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" id="checkMeterTrack">
+              <div class="meter-track" role="meter" aria-label="Síla hesla" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="Čekám na zadání" id="checkMeterTrack">
                 <span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span>
               </div>
               <div class="meter-meta">
@@ -384,11 +384,11 @@
             </details>
             <details>
               <summary>S čím počítá doba prolomení?</summary>
-              <p>S útočníkem, který ukradl databázi hashů hesel a zkouší 100 miliard možností za sekundu — to je reálné pro rychlé hashe jako MD5 nebo NTLM na sestavě s několika grafickými kartami. Jde o průměrnou dobu, tedy polovinu všech možností. Weby s bcrypt, scrypt nebo Argon2 útok výrazně zpomalí a přihlašovací formulář s omezením pokusů ještě víc.</p>
+              <p>S útočníkem, který ukradl databázi hashů hesel a zkouší 100 miliard možností za sekundu — zhruba tolik zvládne jedna současná výkonná grafická karta proti rychlým hashům jako MD5 nebo NTLM. Jde o průměrnou dobu, tedy polovinu všech možností. Sestava s více kartami je úměrně rychlejší; weby s bcrypt, scrypt nebo Argon2 útok výrazně zpomalí a přihlašovací formulář s omezením pokusů ještě víc.</p>
             </details>
             <details>
               <summary>Zjistí kontrola, jestli moje heslo neuniklo?</summary>
-              <p>Ne — to by znamenalo něco odeslat po síti, a to FortiPass nikdy nedělá. Have I Been Pwned nabízí kontrolu úniků, které se posílá jen prvních pět znaků hashe SHA-1 vašeho hesla.</p>
+              <p>Ne — to by znamenalo něco odeslat po síti, a to FortiPass nikdy nedělá. Have I Been Pwned nabízí kontrolu úniků, při které se odesílá jen prvních pět znaků hashe SHA-1 vašeho hesla.</p>
             </details>
             <details>
               <summary>Proč různé kontroly hesel ukazují různé výsledky?</summary>
@@ -459,10 +459,10 @@
       <div class="noscript">FortiPass vytváří hesla ve vašem prohlížeči, a k tomu potřebuje zapnutý JavaScript. Na server se nic neposílá v žádném případě.</div>
     </noscript>
 
-    <script src="../../wordlist-en.js?v=5"></script>
-    <script src="../../wordlist-cs.js?v=5"></script>
-    <script src="../../locale-cs.js?v=5"></script>
-    <script src="../../core.js?v=5"></script>
-    <script src="../../script.js?v=5"></script>
+    <script src="../../wordlist-en.js?v=19c6db3e6e"></script>
+    <script src="../../wordlist-cs.js?v=19c6db3e6e"></script>
+    <script src="../../locale-cs.js?v=19c6db3e6e"></script>
+    <script src="../../core.js?v=19c6db3e6e"></script>
+    <script src="../../script.js?v=19c6db3e6e"></script>
   </body>
 </html>

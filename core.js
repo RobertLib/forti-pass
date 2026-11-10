@@ -88,18 +88,59 @@
     ).split(/\s+/)
   );
 
+  // Alphabet, digits and keyboard lines a walk can follow, in either
+  // direction. Rows cover QWERTY, QWERTZ and AZERTY; columns are what
+  // "1qaz2wsx"-style walks go down.
   const KEYBOARD_ROWS = [
     "abcdefghijklmnopqrstuvwxyz",
     "0123456789",
-    "qwertyuiop",
-    "asdfghjkl",
-    "zxcvbnm",
+    "1234567890-=",
+    "qwertyuiop[]",
+    "asdfghjkl;'",
+    "zxcvbnm,./",
     "qwertzuiop",
     "yxcvbnm",
     "azertyuiop",
     // The Czech keyboard's number row, typed without Shift.
-    "ěščřžýáíé",
+    "+ěščřžýáíé=",
+    // Columns, top to bottom (QWERTY, plus the two QWERTZ differs in).
+    "1qaz",
+    "2wsx",
+    "3edc",
+    "4rfv",
+    "5tgb",
+    "6yhn",
+    "7ujm",
+    "8ik,",
+    "9ol.",
+    "0p;/",
+    "1qay",
+    "6zhn",
   ];
+
+  // A US keyboard's Shift layer, so "!@#$" walks the number row like "1234"
+  // and "!QAZ" goes down a column like "1qaz".
+  const UNSHIFTED = {
+    "!": "1",
+    "@": "2",
+    "#": "3",
+    $: "4",
+    "%": "5",
+    "^": "6",
+    "&": "7",
+    "*": "8",
+    "(": "9",
+    ")": "0",
+    _: "-",
+    "+": "=",
+    "{": "[",
+    "}": "]",
+    ":": ";",
+    '"': "'",
+    "<": ",",
+    ">": ".",
+    "?": "/",
+  };
 
   // The usual leet swaps. "1" and "|" stand for "i" as often as for "l", so
   // both readings are tried.
@@ -161,7 +202,7 @@
         "Recognised as " + n + " dictionary words, so it is scored per word rather than per character.",
       copy: "Repeats an earlier part of itself — a repeated block adds almost nothing.",
       repeatChar: "Contains a character repeated three or more times in a row.",
-      run: "Contains a keyboard or alphabet run such as “abcd”, “1234” or “qwer”.",
+      run: "Contains a keyboard or alphabet run such as “abcd”, “1234”, “qwer” or “1qaz”.",
       year: "Looks like it contains a year — birthdays and dates are guessed early.",
       fewTypes: (n) =>
         "Only " +
@@ -522,13 +563,18 @@
      * row: "r+" or "r-" for row r, or null. A run keeps one row and one
      * direction, so "abc" and "321" count but "aba" does not.
      */
+    function keyIndex(row, c) {
+      const i = row.indexOf(c);
+      return i === -1 && UNSHIFTED[c] ? row.indexOf(UNSHIFTED[c]) : i;
+    }
+
     function stepBetween(a, b) {
       const x = a.toLowerCase();
       const y = b.toLowerCase();
       const steps = [];
       KEYBOARD_ROWS.forEach((row, r) => {
-        const i = row.indexOf(x);
-        const j = row.indexOf(y);
+        const i = keyIndex(row, x);
+        const j = keyIndex(row, y);
         if (i !== -1 && j !== -1 && Math.abs(i - j) === 1) {
           steps.push(r + (j > i ? "+" : "-"));
         }

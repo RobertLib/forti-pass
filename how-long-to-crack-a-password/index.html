@@ -8,10 +8,10 @@
          rule. The hash is the inline theme script below. -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-S7JAEiUrU4H4LCVYmy289mUQCOerSE4ipEaKk4kMhPU='; style-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'" />
     <meta name="referrer" content="no-referrer" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <title>How Long Does It Take to Crack a Password? 2026 Table | FortiPass</title>
-    <meta name="description" content="Brute-force crack times for random passwords of 4 to 20 characters in every character set, plus passphrases and PINs, at 100 billion guesses per second. Transparent maths, free to reuse." />
+    <meta name="description" content="Brute-force crack times for random passwords of 4 to 20 characters in every character set, plus passphrases, at 100 billion guesses per second. Transparent maths, free to reuse." />
     <meta name="author" content="Robert Libšanský" />
     <meta name="robots" content="index, follow" />
     <meta name="color-scheme" content="dark light" />
@@ -32,14 +32,14 @@
     <meta property="og:locale" content="en_US" />
     <meta property="og:locale:alternate" content="cs_CZ" />
     <meta property="og:title" content="How Long Does It Take to Crack a Password? 2026 Table | FortiPass" />
-    <meta property="og:description" content="Brute-force crack times for random passwords of 4 to 20 characters in every character set, plus passphrases and PINs, at 100 billion guesses per second. Transparent maths, free to reuse." />
+    <meta property="og:description" content="Brute-force crack times for random passwords of 4 to 20 characters in every character set, plus passphrases, at 100 billion guesses per second. Transparent maths, free to reuse." />
     <meta property="og:image" content="https://robertlib.github.io/forti-pass/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="FortiPass logo with the tagline “Strong passwords, made on your device” and a sample generated password" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="How Long Does It Take to Crack a Password? 2026 Table | FortiPass" />
-    <meta name="twitter:description" content="Brute-force crack times for random passwords of 4 to 20 characters in every character set, plus passphrases and PINs, at 100 billion guesses per second. Transparent maths, free to reuse." />
+    <meta name="twitter:description" content="Brute-force crack times for random passwords of 4 to 20 characters in every character set, plus passphrases, at 100 billion guesses per second. Transparent maths, free to reuse." />
     <meta name="twitter:image" content="https://robertlib.github.io/forti-pass/og-image.png" />
     <meta name="twitter:image:alt" content="FortiPass logo with the tagline “Strong passwords, made on your device” and a sample generated password" />
 
@@ -52,7 +52,7 @@
   "@context": "https://schema.org",
   "@type": "Article",
   "headline": "How long does it take to crack a password?",
-  "description": "Brute-force crack times for random passwords of 4 to 20 characters in every character set, plus passphrases and PINs, at 100 billion guesses per second. Transparent maths, free to reuse.",
+  "description": "Brute-force crack times for random passwords of 4 to 20 characters in every character set, plus passphrases, at 100 billion guesses per second. Transparent maths, free to reuse.",
   "inLanguage": "en",
   "url": "https://robertlib.github.io/forti-pass/how-long-to-crack-a-password/",
   "datePublished": "2026-11-09",
@@ -103,7 +103,7 @@
       "name": "Why do other password tables show different times?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Published tables differ mainly in the hash they assume and the hardware they count. A fast hash on many GPUs gives the short times shown here; a slow hash such as bcrypt gives far longer ones. The shape is the same in every table: each extra character multiplies the time by the size of the character set."
+        "text": "Published tables differ mainly in the hash they assume and the hardware they count. A fast hash on graphics cards gives short times like the ones here (shorter still on a rig of many cards); a slow hash such as bcrypt gives far longer ones. The shape is the same in every table: each extra character multiplies the time by the size of the character set."
       }
     },
     {
@@ -118,7 +118,7 @@
 }
     </script>
 
-    <link rel="stylesheet" href="../styles.css?v=5" />
+    <link rel="stylesheet" href="../styles.css?v=19c6db3e6e" />
     <script>
       (function () {
         try {
@@ -302,52 +302,56 @@
         <div class="reading reading-article">
         <section class="content">
           <h2>Random passwords</h2>
-          <div class="table-wrap" tabindex="0" role="region" aria-label="Average brute-force time at 100 billion guesses per second">
-            <table class="crack-table">
-              <caption>Average brute-force time at 100 billion guesses per second</caption>
-              <thead><tr><th scope="col">Length</th><th scope="col">Digits only<span class="th-sub">10 characters</span></th><th scope="col">Lowercase<span class="th-sub">26 characters</span></th><th scope="col">Upper &amp; lower case<span class="th-sub">52 characters</span></th><th scope="col">Letters &amp; digits<span class="th-sub">62 characters</span></th><th scope="col">Letters, digits &amp; symbols<span class="th-sub">90 characters</span></th></tr></thead>
-              <tbody>
-                <tr><th scope="row">4</th><td data-score="1">instantly</td><td data-score="1">instantly</td><td data-score="1">instantly</td><td data-score="1">instantly</td><td data-score="1">instantly</td></tr>
-                <tr><th scope="row">5</th><td data-score="1">instantly</td><td data-score="1">instantly</td><td data-score="1">instantly</td><td data-score="1">instantly</td><td data-score="2">instantly</td></tr>
-                <tr><th scope="row">6</th><td data-score="1">instantly</td><td data-score="1">instantly</td><td data-score="2">instantly</td><td data-score="2">instantly</td><td data-score="2">3 seconds</td></tr>
-                <tr><th scope="row">7</th><td data-score="1">instantly</td><td data-score="2">instantly</td><td data-score="2">5 seconds</td><td data-score="2">18 seconds</td><td data-score="2">4 minutes</td></tr>
-                <tr><th scope="row">8</th><td data-score="1">instantly</td><td data-score="2">1 second</td><td data-score="2">4 minutes</td><td data-score="2">18 minutes</td><td data-score="3">6 hours</td></tr>
-                <tr><th scope="row">9</th><td data-score="1">instantly</td><td data-score="2">27 seconds</td><td data-score="3">4 hours</td><td data-score="3">19 hours</td><td data-score="3">22 days</td></tr>
-                <tr><th scope="row">10</th><td data-score="2">instantly</td><td data-score="2">12 minutes</td><td data-score="3">8 days</td><td data-score="3">49 days</td><td data-score="3">6 years</td></tr>
-                <tr><th scope="row">11</th><td data-score="2">instantly</td><td data-score="3">5 hours</td><td data-score="3">1 year</td><td data-score="3">8 years</td><td data-score="4">497 years</td></tr>
-                <tr><th scope="row">12</th><td data-score="2">5 seconds</td><td data-score="3">6 days</td><td data-score="3">62 years</td><td data-score="4">511 years</td><td data-score="4">45 thousand years</td></tr>
-                <tr><th scope="row">13</th><td data-score="2">50 seconds</td><td data-score="3">144 days</td><td data-score="4">3.2 thousand years</td><td data-score="4">32 thousand years</td><td data-score="4">4 million years</td></tr>
-                <tr><th scope="row">14</th><td data-score="2">8 minutes</td><td data-score="3">10 years</td><td data-score="4">167 thousand years</td><td data-score="4">2 million years</td><td data-score="5">362 million years</td></tr>
-                <tr><th scope="row">15</th><td data-score="2">1 hour</td><td data-score="4">266 years</td><td data-score="4">8.7 million years</td><td data-score="4">122 million years</td><td data-score="5">33 billion years</td></tr>
-                <tr><th scope="row">16</th><td data-score="3">14 hours</td><td data-score="4">6.9 thousand years</td><td data-score="5">453 million years</td><td data-score="5">7.6 billion years</td><td data-score="5">2.9 trillion years</td></tr>
-                <tr><th scope="row">18</th><td data-score="3">58 days</td><td data-score="4">4.7 million years</td><td data-score="5">1.2 trillion years</td><td data-score="5">29 trillion years</td><td data-score="5">24 quadrillion years</td></tr>
-                <tr><th scope="row">20</th><td data-score="3">16 years</td><td data-score="5">3.2 billion years</td><td data-score="5">3.3 quadrillion years</td><td data-score="5">112 quadrillion years</td><td data-score="5">10^20 years</td></tr>
-              </tbody>
-            </table>
-          </div>
+          <figure class="table-wrap">
+            <figcaption class="table-caption" id="crackTableCaption">Average brute-force time at 100 billion guesses per second</figcaption>
+            <div class="table-scroll" tabindex="0" role="region" aria-labelledby="crackTableCaption">
+              <table class="crack-table" aria-labelledby="crackTableCaption">
+                <thead><tr><th scope="col">Length</th><th scope="col">Digits only<span class="th-sub">10 characters</span></th><th scope="col">Lowercase<span class="th-sub">26 characters</span></th><th scope="col">Upper &amp; lower case<span class="th-sub">52 characters</span></th><th scope="col">Letters &amp; digits<span class="th-sub">62 characters</span></th><th scope="col">Letters, digits &amp; symbols<span class="th-sub">90 characters</span></th></tr></thead>
+                <tbody>
+                  <tr><th scope="row">4</th><td data-score="1">instantly</td><td data-score="1">instantly</td><td data-score="1">instantly</td><td data-score="1">instantly</td><td data-score="1">instantly</td></tr>
+                  <tr><th scope="row">5</th><td data-score="1">instantly</td><td data-score="1">instantly</td><td data-score="1">instantly</td><td data-score="1">instantly</td><td data-score="2">instantly</td></tr>
+                  <tr><th scope="row">6</th><td data-score="1">instantly</td><td data-score="1">instantly</td><td data-score="2">instantly</td><td data-score="2">instantly</td><td data-score="2">3 seconds</td></tr>
+                  <tr><th scope="row">7</th><td data-score="1">instantly</td><td data-score="2">instantly</td><td data-score="2">5 seconds</td><td data-score="2">18 seconds</td><td data-score="2">4 minutes</td></tr>
+                  <tr><th scope="row">8</th><td data-score="1">instantly</td><td data-score="2">1 second</td><td data-score="2">4 minutes</td><td data-score="2">18 minutes</td><td data-score="3">6 hours</td></tr>
+                  <tr><th scope="row">9</th><td data-score="1">instantly</td><td data-score="2">27 seconds</td><td data-score="3">4 hours</td><td data-score="3">19 hours</td><td data-score="3">22 days</td></tr>
+                  <tr><th scope="row">10</th><td data-score="2">instantly</td><td data-score="2">12 minutes</td><td data-score="3">8 days</td><td data-score="3">49 days</td><td data-score="3">6 years</td></tr>
+                  <tr><th scope="row">11</th><td data-score="2">instantly</td><td data-score="3">5 hours</td><td data-score="3">1 year</td><td data-score="3">8 years</td><td data-score="4">497 years</td></tr>
+                  <tr><th scope="row">12</th><td data-score="2">5 seconds</td><td data-score="3">6 days</td><td data-score="3">62 years</td><td data-score="4">511 years</td><td data-score="4">45 thousand years</td></tr>
+                  <tr><th scope="row">13</th><td data-score="2">50 seconds</td><td data-score="3">144 days</td><td data-score="4">3.2 thousand years</td><td data-score="4">32 thousand years</td><td data-score="4">4 million years</td></tr>
+                  <tr><th scope="row">14</th><td data-score="2">8 minutes</td><td data-score="3">10 years</td><td data-score="4">167 thousand years</td><td data-score="4">2 million years</td><td data-score="5">362 million years</td></tr>
+                  <tr><th scope="row">15</th><td data-score="2">1 hour</td><td data-score="4">266 years</td><td data-score="4">8.7 million years</td><td data-score="4">122 million years</td><td data-score="5">33 billion years</td></tr>
+                  <tr><th scope="row">16</th><td data-score="3">14 hours</td><td data-score="4">6.9 thousand years</td><td data-score="5">453 million years</td><td data-score="5">7.6 billion years</td><td data-score="5">2.9 trillion years</td></tr>
+                  <tr><th scope="row">18</th><td data-score="3">58 days</td><td data-score="4">4.7 million years</td><td data-score="5">1.2 trillion years</td><td data-score="5">29 trillion years</td><td data-score="5">24 quadrillion years</td></tr>
+                  <tr><th scope="row">20</th><td data-score="3">16 years</td><td data-score="5">3.2 billion years</td><td data-score="5">3.3 quadrillion years</td><td data-score="5">112 quadrillion years</td><td data-score="5">10²⁰ years</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </figure>
           <p class="table-note">Colours follow the generator's verdicts: red is very weak, green is excellent. “Letters, digits &amp; symbols” uses the 28 symbols FortiPass generates.</p>
 
           <h2>Passphrases</h2>
           <p>Words picked at random from the 7,776-word EFF list add 12.9 bits each — about as much as two random characters, and far easier to remember. Create one with the <a href="../passphrase-generator/">passphrase generator</a>.</p>
-          <div class="table-wrap" tabindex="0" role="region" aria-label="Passphrases from the EFF list, at 100 billion guesses per second">
-            <table class="crack-table crack-table-narrow">
-              <caption>Passphrases from the EFF list, at 100 billion guesses per second</caption>
-              <thead><tr><th scope="col">Words</th><th scope="col">Entropy (bits)</th><th scope="col">Average crack time</th></tr></thead>
-              <tbody>
-                <tr><th scope="row">3</th><td>38.8</td><td data-score="2">2 seconds</td></tr>
-                <tr><th scope="row">4</th><td>51.7</td><td data-score="3">5 hours</td></tr>
-                <tr><th scope="row">5</th><td>64.6</td><td data-score="3">5 years</td></tr>
-                <tr><th scope="row">6</th><td>77.5</td><td data-score="4">35 thousand years</td></tr>
-                <tr><th scope="row">7</th><td>90.5</td><td data-score="5">272 million years</td></tr>
-                <tr><th scope="row">8</th><td>103.4</td><td data-score="5">2.1 trillion years</td></tr>
-                <tr><th scope="row">9</th><td>116.3</td><td data-score="5">16 quadrillion years</td></tr>
-                <tr><th scope="row">10</th><td>129.2</td><td data-score="5">10^20 years</td></tr>
-              </tbody>
-            </table>
-          </div>
+          <figure class="table-wrap">
+            <figcaption class="table-caption" id="passphraseTableCaption-en">Passphrases from the EFF list, at 100 billion guesses per second</figcaption>
+            <div class="table-scroll" tabindex="0" role="region" aria-labelledby="passphraseTableCaption-en">
+              <table class="crack-table crack-table-narrow" aria-labelledby="passphraseTableCaption-en">
+                <thead><tr><th scope="col">Words</th><th scope="col">Entropy (bits)</th><th scope="col">Average crack time</th></tr></thead>
+                <tbody>
+                  <tr><th scope="row">3</th><td>38.8</td><td data-score="2">2 seconds</td></tr>
+                  <tr><th scope="row">4</th><td>51.7</td><td data-score="3">5 hours</td></tr>
+                  <tr><th scope="row">5</th><td>64.6</td><td data-score="3">5 years</td></tr>
+                  <tr><th scope="row">6</th><td>77.5</td><td data-score="4">35 thousand years</td></tr>
+                  <tr><th scope="row">7</th><td>90.5</td><td data-score="5">272 million years</td></tr>
+                  <tr><th scope="row">8</th><td>103.4</td><td data-score="5">2.1 trillion years</td></tr>
+                  <tr><th scope="row">9</th><td>116.3</td><td data-score="5">16 quadrillion years</td></tr>
+                  <tr><th scope="row">10</th><td>129.2</td><td data-score="5">10²⁰ years</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </figure>
 
           <h2>How the numbers are calculated</h2>
-          <p>A random password of length <var>L</var> drawn from <var>N</var> characters has <var>N</var><sup><var>L</var></sup> possibilities, or <var>L</var> × log₂ <var>N</var> bits. On average an attacker finds it after trying half of them. The table divides that by 10¹¹ — 100 billion guesses per second, a realistic rate for a multi-GPU rig attacking a fast, unsalted hash such as MD5 or NTLM after a database breach.</p>
+          <p>A random password of length <var>L</var> drawn from <var>N</var> characters has <var>N</var><sup><var>L</var></sup> possibilities, or <var>L</var> × log₂ <var>N</var> bits. On average an attacker finds it after trying half of them. The table divides that by 10¹¹ — 100 billion guesses per second, roughly what a single current high-end graphics card manages against a fast, unsalted hash such as MD5 or NTLM after a database breach. A rig of eight such cards cuts every time in the table by about ten — worth about half a character of a random password.</p>
           <ul class="tips">
             <li><strong>Slow hashes help enormously.</strong> Sites that store passwords with bcrypt, scrypt or Argon2 hold attackers to thousands or millions of guesses per second, multiplying every time in the table by a hundred thousand or more.</li>
             <li><strong>Online attacks are slower still.</strong> A login form that limits attempts allows a handful of guesses per minute — but never rely on that: databases leak.</li>
@@ -378,7 +382,7 @@
             </details>
             <details>
               <summary>Why do other password tables show different times?</summary>
-              <p>Published tables differ mainly in the hash they assume and the hardware they count. A fast hash on many GPUs gives the short times shown here; a slow hash such as bcrypt gives far longer ones. The shape is the same in every table: each extra character multiplies the time by the size of the character set.</p>
+              <p>Published tables differ mainly in the hash they assume and the hardware they count. A fast hash on graphics cards gives short times like the ones here (shorter still on a rig of many cards); a slow hash such as bcrypt gives far longer ones. The shape is the same in every table: each extra character multiplies the time by the size of the character set.</p>
             </details>
             <details>
               <summary>Does adding a symbol make a password much stronger?</summary>
@@ -449,6 +453,6 @@
       <div class="noscript">FortiPass generates passwords in your browser, which needs JavaScript enabled. Nothing is sent to a server either way.</div>
     </noscript>
 
-    <script src="../script.js?v=5"></script>
+    <script src="../script.js?v=19c6db3e6e"></script>
   </body>
 </html>
