@@ -28,7 +28,11 @@ function popupSuite(lang, body) {
         try {
           page = await ctx.browser.open(ctx.browser.extensionUrl("popup.html"));
         } catch (err) {
-          return null; // the browser refused the extension (branded Chrome 137+)
+          // Branded Chrome 137+ may refuse any unpacked extension. Anywhere
+          // else a refusal means the build is broken (a manifest field or a
+          // CSP Chromium rejects), which must fail, not skip.
+          if (chrome.isBrandedChrome(ctx.browser.executable)) return null;
+          throw err;
         }
         // Start every test from the defaults.
         await page.evaluate(() => localStorage.clear());

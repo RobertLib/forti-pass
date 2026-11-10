@@ -9,7 +9,7 @@ const SITE_URL = "https://robertlib.github.io/forti-pass/";
 
 // Shown as "last updated" and written to the sitemap. Bump it when content
 // changes; it is fixed (not today's date) so the build is reproducible.
-const UPDATED = "2026-11-09";
+const UPDATED = "2026-11-10";
 
 const LANGUAGES = ["en", "cs"];
 

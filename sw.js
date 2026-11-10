@@ -6,8 +6,12 @@
    installs a fresh cache, so a page never mixes new HTML with stale
    JavaScript or CSS from an older one. */
 
-const ASSET_VERSION = "a9394ea508";
-const CACHE_VERSION = "fortipass-v" + ASSET_VERSION;
+const ASSET_VERSION = "1375b3f035";
+// Cache Storage belongs to the whole origin, which on github.io is shared
+// with every other repository the account publishes — so only caches with
+// this prefix are ours to replace.
+const CACHE_PREFIX = "fortipass-";
+const CACHE_VERSION = CACHE_PREFIX + "v" + ASSET_VERSION;
 
 // Every page, relative to the scope (the folder this file lives in).
 const PAGES = [
@@ -70,7 +74,7 @@ self.addEventListener("activate", (event) => {
       .then((keys) =>
         Promise.all(
           keys
-            .filter((key) => key !== CACHE_VERSION)
+            .filter((key) => key.startsWith(CACHE_PREFIX) && key !== CACHE_VERSION)
             .map((key) => caches.delete(key))
         )
       )
@@ -116,7 +120,10 @@ self.addEventListener("fetch", (event) => {
     // the cached page — or that language's home page if this one was never
     // cached. On a connection that hangs, the cached page after a few
     // seconds, while the network copy still lands in the cache for next time.
-    const network = fetch(request).then((response) => {
+    // Revalidated rather than taken from the HTTP cache: GitHub Pages lets a
+    // page be cached for ten minutes, and a stale copy stored here would
+    // overwrite the fresh one the new worker just installed.
+    const network = fetch(new Request(request, { cache: "no-cache" })).then((response) => {
       const type = response.headers.get("content-type") || "";
       if (response.ok && type.indexOf("text/html") !== -1) {
         const copy = response.clone();
@@ -148,10 +155,16 @@ self.addEventListener("fetch", (event) => {
           },
           () => {
             clearTimeout(timer);
+            const home = cacheUrl(page.startsWith("cs/") ? "cs/" : "");
             caches
               .match(cacheUrl(page))
-              .then((cached) => cached || caches.match(cacheUrl(page.startsWith("cs/") ? "cs/" : "")))
-              .then((cached) => answer(cached || Response.error()));
+              // The home page's HTML at this deeper address would resolve
+              // its relative links and assets wrongly, so go there instead.
+              .then((cached) =>
+                cached ||
+                caches.match(home).then((fallback) => (fallback ? Response.redirect(home, 302) : null))
+              )
+              .then((response) => answer(response || Response.error()));
           }
         );
       })

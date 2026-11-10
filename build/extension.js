@@ -134,8 +134,14 @@ function build(dist = DIST) {
   try {
     fs.writeFileSync(temp, zipDirectory(out));
     fs.renameSync(temp, zip);
-  } finally {
-    fs.rmSync(temp, { force: true });
+  } catch (err) {
+    // Tidy up, but report why packaging failed, not why tidying did.
+    try {
+      fs.rmSync(temp, { force: true });
+    } catch (cleanup) {
+      /* the original error says more */
+    }
+    throw err;
   }
   return { dir: out, zip };
 }

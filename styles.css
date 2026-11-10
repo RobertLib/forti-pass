@@ -842,6 +842,10 @@ ol {
   font-family: var(--font-sans);
   font-size: 0.98rem;
   font-weight: 500;
+  /* A sentence, not a password: break between words. */
+  letter-spacing: normal;
+  word-break: normal;
+  overflow-wrap: break-word;
   color: var(--bad);
   cursor: default;
 }
@@ -879,6 +883,14 @@ ol {
   min-width: max-content;
 }
 
+/* "Copied" can be longer than "Copy" (Czech "Zkopírováno" against
+   "Kopírovat"). While it shows, the button keeps the width it had instead
+   of pushing Hide onto a new line for a moment, and in a narrow pane it
+   lets the check mark go so the word still fits. */
+.result-actions .btn-primary.is-done {
+  min-width: 0;
+}
+
 .btn-label {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -898,6 +910,12 @@ ol {
   }
 }
 
+@container result-pane (max-width: 309px) {
+  .result-actions .btn-primary.is-done .icon {
+    display: none;
+  }
+}
+
 @container result-pane (max-width: 279px) {
   .result-actions:not(:has(> #downloadBtn:not([hidden]))) #refreshBtn {
     width: 44px;
@@ -913,6 +931,8 @@ ol {
 .password-list {
   display: grid;
   gap: 6px;
+  /* The rows size their text to the list's width, like the single value. */
+  container-type: inline-size;
 }
 
 .bulk-list {
@@ -924,6 +944,9 @@ ol {
 }
 
 .password-row {
+  /* What a row takes besides its text: padding, border, the number, the
+     gaps and two buttons. */
+  --row-chrome: 130px;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
@@ -960,6 +983,10 @@ ol {
   min-width: 3em;
 }
 
+#historyList .password-row {
+  --row-chrome: 148px;
+}
+
 .row-text {
   min-width: 0;
   padding: 4px 0;
@@ -967,6 +994,10 @@ ol {
   background: none;
   font-family: var(--font-mono);
   font-size: 0.95rem;
+  /* Small enough that the default 16 characters (about 9.6em of mono)
+     stay on one line where the row allows it, as on a 360px phone; below
+     12px it wraps instead of shrinking further. */
+  font-size: clamp(0.75rem, calc((100cqi - var(--row-chrome)) / 9.8), 0.95rem);
   font-weight: 500;
   text-align: left;
   word-break: break-all;
@@ -2688,7 +2719,12 @@ input[type="range"]:focus-visible::-moz-range-thumb {
   }
 
   .password-row {
+    --row-chrome: 150px;
     padding: 4px 4px 4px 12px;
+  }
+
+  #historyList .password-row {
+    --row-chrome: 168px;
   }
 
   .segment {
@@ -3099,6 +3135,16 @@ input[type="range"]:focus-visible::-moz-range-thumb {
     box-shadow: none;
   }
 
+  /* A printed list shows every row, not a scrolling window of them. */
+  .bulk-list {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .row-actions {
+    display: none;
+  }
+
   .tool-body {
     display: block;
   }
@@ -3127,6 +3173,13 @@ input[type="range"]:focus-visible::-moz-range-thumb {
     padding: 0.8cm;
     border: 2px dashed var(--control-border);
     box-shadow: none;
+  }
+
+  /* Without a code (no name yet, or a password the router would refuse) the
+     card is no use to a guest — and Ctrl+P skips the disabled print button —
+     so nothing goes on paper, as on the checker. */
+  [data-page="wifi"] #wifi:has(#wifiQr[hidden]) {
+    display: none !important;
   }
 
   /* A typed password never goes on paper: the checker prints its verdict

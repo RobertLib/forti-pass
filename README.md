@@ -168,8 +168,10 @@ line and run `npm publish` to make `npx fortipass` work.
 
 ## Browser extension
 
-`extension/` is a Manifest V3 popup for Chrome, Edge and Firefox (140+) with
-the same generators and limits as the website, in English and Czech. It
+`extension/` is a Manifest V3 popup for Chrome, Edge and Firefox (140+, 142+
+on Android) with the same generators and limits as the website — except that
+passwords stop at 64 characters, the end of the slider (the website's number
+field goes on to 128) — in English and Czech. It
 requests **no permissions**, declares to Firefox that it collects no data, and
 its CSP forbids network access. Its version is the project's (`package.json`),
 and `npm test` fails if the two drift apart.
@@ -306,10 +308,12 @@ substitutions, repeats, keyboard runs and years. It cannot know your pet's
 name, your city, or whether a password has already leaked — treat a good score
 as "no obvious weakness found", not a guarantee.
 
-For generated passphrases with a separator the checker never scores lower
-than the generator; it credits a few bits more, because it does not know
-which separator you chose, while the generator assumes the attacker knows your
-exact settings. Words run together with no separator can occasionally be split
+For generated passphrases with a separator the checker does not give a lower
+rating than the generator; it usually credits a few bits more, because it does
+not know which separator you chose, while the generator assumes the attacker
+knows your exact settings. (When one word repeats most of an earlier one, as
+`vzor` after `vzorec`, it can come out a bit or so lower — not enough to change
+the rating in 36,000 simulated passphrases.) Words run together with no separator can occasionally be split
 into other, cheaper words. For random passwords the checker sometimes spots a
 pattern that appeared by chance (a short keyboard run, a repeated pair), so a
 password near a boundary may land one level lower there than in the

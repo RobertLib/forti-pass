@@ -1,6 +1,6 @@
 {
   "extName": { "message": "FortiPass – generátor hesel" },
-  "extDescription": { "message": "Silná hesla, hesla z českých slov a PINy vytvořené ve vašem zařízení. Bez oprávnění, bez sítě, bez sledování." },
+  "extDescription": { "message": "Silná hesla, hesla z\u00a0českých slov a\u00a0PINy vytvořené ve vašem zařízení. Bez oprávnění, bez sítě, bez sledování." },
   "modes": { "message": "Typ generátoru" },
   "password": { "message": "Heslo" },
   "passphrase": { "message": "Ze slov" },
@@ -22,7 +22,7 @@
   "bits": { "message": "$N$ b", "placeholders": { "n": { "content": "$1" } } },
   "toCrack": { "message": "$T$ na prolomení", "placeholders": { "t": { "content": "$1" } } },
   "crackedInstantly": { "message": "prolomení okamžitě" },
-  "moreTools": { "message": "QR kód k Wi-Fi, kontrola síly hesla a další" },
-  "privacy": { "message": "Vzniká v tomto zařízení. Nic se neodesílá, ukládá se jen nastavení." },
-  "copyFailed": { "message": "Označte text a zkopírujte ho ručně." }
+  "moreTools": { "message": "QR kód k\u00a0Wi-Fi, kontrola síly hesla a\u00a0další" },
+  "privacy": { "message": "Vzniká v\u00a0tomto zařízení. Nic se neodesílá, ukládá se jen nastavení." },
+  "copyFailed": { "message": "Označte text a\u00a0zkopírujte ho ručně." }
 }

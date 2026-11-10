@@ -380,6 +380,19 @@ test("the Wi-Fi card draws a QR code once it has a name and a valid password", {
   });
   assert.equal((await qr()).shown, false, "a router would refuse a 5-character key");
   assert.equal(await page.evaluate(() => document.getElementById("wifiQrPath").getAttribute("d")), "", "no stale code left behind");
+  // Printing then (Ctrl+P, past the disabled button) puts nothing on paper.
+  await page.send("Emulation.setEmulatedMedia", { media: "print" });
+  assert.equal(await page.evaluate(() => getComputedStyle(document.getElementById("wifi")).display), "none");
+  await page.send("Emulation.setEmulatedMedia", { media: "" });
+
+  // A password Android would misread still gets its code, with a warning.
+  await page.evaluate(() => {
+    const password = document.getElementById("wifiPassword");
+    password.value = "ends-with-a\\";
+    password.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+  assert.equal((await qr()).shown, true, "the router accepts it");
+  assert.match(await page.evaluate(() => document.getElementById("wifiHint").textContent), /Android/);
 
   await page.evaluate(() => {
     const security = document.getElementById("wifiSecurity");
@@ -423,6 +436,28 @@ test("the Czech Wi-Fi page explains a network name that is too long", { skip }, 
   });
   assert.match(texts.hint, /32 bajtů/);
   assert.equal(texts.empty, texts.hint);
+});
+
+test("a typed Wi-Fi password is rated like the checker rates it, English words included", { skip }, async (t) => {
+  // The Czech page once knew only Czech words, so English ones scored as
+  // random letters: "Silné" here, "Slabé" on the checker.
+  const verdicts = {};
+  for (const pagePath of ["cs/generator-hesla-wifi/", "cs/kontrola-sily-hesla/"]) {
+    const page = await open(t, pagePath);
+    const id = pagePath.includes("wifi") ? "wifiPassword" : "checkInput";
+    await page.evaluate((field) => {
+      const input = document.getElementById(field);
+      input.value = "elephantkeyboard";
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    }, id);
+    await sleep(300);
+    verdicts[id] = await page.evaluate(
+      (label) => document.getElementById(label).textContent,
+      id === "wifiPassword" ? "wifiVerdict" : "checkVerdict"
+    );
+  }
+  assert.equal(verdicts.wifiPassword, verdicts.checkInput);
+  assert.equal(verdicts.wifiPassword, "Slabé");
 });
 
 test("a selected type with every character excluded is an error, marked on the field", { skip }, async (t) => {

@@ -231,7 +231,7 @@ function generator(t, ctx) {
                 <button type="button" class="icon-btn" id="downloadBtn" aria-label="${esc(t.download)}" title="${esc(t.download)}" hidden>
                   ${icon("i-download")}
                 </button>
-                <button type="button" class="icon-btn" id="maskBtn" aria-pressed="false" aria-label="${esc(t.hide)}" title="${esc(t.hideTitle)}">
+                <button type="button" class="icon-btn" id="maskBtn" aria-pressed="false" aria-label="${esc(t.hide)}" title="${esc(t.hideTitle)}" data-title-pressed="${esc(t.showTitle)}">
                   ${icon("i-eye-off")}
                 </button>
               </div>

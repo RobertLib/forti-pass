@@ -632,10 +632,11 @@ function serviceWorker(assetVersion) {
   site.PAGES.forEach((page) => site.LANGUAGES.forEach((lang) => pages.push(page.paths[lang])));
   const list = (items) => "[\n" + items.map((item) => `  "${item}",`).join("\n") + "\n]";
   return template
-    .replace("__ASSET_VERSION__", assetVersion)
-    .replace("__PAGES__", list(pages))
-    .replace("__VERSIONED__", list(VERSIONED_ASSETS))
-    .replace("__STATIC__", list(STATIC_ASSETS));
+    // Functions, so a "$" in the data can never act as a replacement pattern.
+    .replace("__ASSET_VERSION__", () => assetVersion)
+    .replace("__PAGES__", () => list(pages))
+    .replace("__VERSIONED__", () => list(VERSIONED_ASSETS))
+    .replace("__STATIC__", () => list(STATIC_ASSETS));
 }
 
 /* ------------------------------------------------------------------ main */

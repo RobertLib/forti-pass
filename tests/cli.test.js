@@ -154,6 +154,17 @@ test("a reader that stops early (| head) ends the CLI quietly", async () => {
   assert.doesNotMatch(result.stderr, /EPIPE|Error/);
 });
 
+test("--check keeps its failing status when the reader stops early", async () => {
+  // `fortipass --check | grep -q …` in a script: the closed pipe must not
+  // turn a weak password into a pass.
+  const { child, done } = start(["--check"]);
+  child.stdout.destroy();
+  child.stdin.end("Summer2024!\n");
+  const result = await done;
+  assert.equal(result.status, 1);
+  assert.doesNotMatch(result.stderr, /EPIPE|Error/);
+});
+
 test("rejects bad options with exit code 2", () => {
   assert.equal(run(["--length", "2"]).status, 2);
   assert.equal(run(["--nope"]).status, 2);
@@ -178,6 +189,7 @@ test("an option for another kind of value is an error, not ignored", () => {
     [["-w", "4", "--readable"], /--readable does not apply to passphrases/],
     [["-s", "_"], /-s does not apply to passwords/],
     [["--check", "-n", "3"], /-n does not apply to --check/],
+    [["-w", "4", "--accents"], /--accents applies only to --lang cs/],
   ];
   for (const [args, message] of cases) {
     const result = run(args, "");

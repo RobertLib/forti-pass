@@ -463,6 +463,14 @@ test("the Czech locale has a message for every error and Wi-Fi problem", () => {
   for (const problem of problems) {
     assert.ok(LOCALE_CS.ui.wifiProblem[problem], "Czech Wi-Fi message for " + problem);
   }
+  const cautions = [
+    core.wifiScanCaution({ ssid: "Cafe\\", password: "secret123", security: "WPA" }),
+    core.wifiScanCaution({ ssid: "Home ", password: "secret123", security: "WPA" }),
+  ];
+  assert.deepEqual(cautions, ["android", "ssidSpaces"]);
+  for (const caution of cautions) {
+    assert.ok(LOCALE_CS.ui.wifiCaution[caution], "Czech Wi-Fi caution for " + caution);
+  }
 });
 
 /* ------------------------------------------------------------------- Wi-Fi */
@@ -497,6 +505,25 @@ test("a network name may take 32 bytes, and accents take two", () => {
   assert.equal(core.wifiSsidProblem("č".repeat(16)), null);
   assert.equal(core.wifiSsidProblem("č".repeat(17)), "ssidLong");
   assert.equal(core.wifiSsidProblem("Kavárna U Zlatého Kohouta 5GHz"), null);
+});
+
+test("Wi-Fi values a phone may misread are flagged, valid ones are not", () => {
+  const caution = (ssid, password, security = "WPA") => core.wifiScanCaution({ ssid, password, security });
+  // Android splits fields before unescaping, so "\\;" never ends a field.
+  assert.equal(caution("Cafe\\", "secret123"), "android");
+  assert.equal(caution("Cafe", "secret12\\"), "android");
+  // …and it drops the quotes around a value it takes as already quoted.
+  assert.equal(caution("Cafe", '"secret12"'), "android");
+  assert.equal(caution('"Cafe"', "secret123"), "android");
+  // An open network's leftover password field is not in the code.
+  assert.equal(caution("Cafe", "secret12\\", "nopass"), null);
+  assert.equal(caution(" Cafe", "secret123"), "ssidSpaces");
+  assert.equal(caution("Cafe U Lípy", 'a\\b"c;d'), null);
+  // Generated passwords never trip it.
+  for (let i = 0; i < 200; i++) {
+    const value = core.makePassword(opts({ length: 63 })).value;
+    assert.equal(caution("Home", value), null, value);
+  }
 });
 
 test("fold strips accents but keeps length", () => {

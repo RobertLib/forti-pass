@@ -89,10 +89,17 @@
       ascii:
         "Use only plain ASCII characters (no accents) in a Wi-Fi password, or some devices will not connect.",
     },
+    // The code still works on most phones, so these warn without hiding it.
+    wifiCaution: {
+      android:
+        "Some Android phones misread a network name or password that ends in a backslash (\\) or sits in double quotes, and will not connect from this code. Typing it in by hand still works.",
+      ssidSpaces:
+        "The network name starts or ends with a space. That is allowed, but check that the router's name has it too — otherwise phones will not find the network.",
+    },
     wifiOk:
       "Your router will accept this password. The QR code holds the network name and password — share it only with people you trust.",
     wifiOpen: "An open network has no password — anyone in range can see what is sent over it.",
-    wifiSaved: "QR code saved as an SVG image",
+    wifiSaved: "QR code saved as an SVG image — it holds the password, so share it with care",
   };
   const UI = Object.assign({}, UI_EN, locale.ui || {});
   // Groups of messages fall back key by key, so a locale that lacks one
@@ -325,15 +332,18 @@
   }
 
   /**
-   * @param {{remember?: boolean, live?: boolean}} [config] remember=true adds
-   * the result to the session list. Slider-driven regenerations deliberately
-   * do not, or the list would fill with values the user never looked at; they
-   * pass live=true, so the announcement waits until the slider settles.
+   * @param {{remember?: boolean, live?: boolean, quiet?: boolean}} [config]
+   * remember=true adds the result to the session list. Slider-driven
+   * regenerations deliberately do not, or the list would fill with values
+   * the user never looked at; they pass live=true, so the announcement waits
+   * until the slider settles. quiet=true announces nothing: the value a page
+   * opens with is part of the page, not news.
    */
   function generate(config) {
     if (!el.generator) return;
     const remember = !!(config && config.remember);
     const live = !!(config && config.live);
+    const quiet = !!(config && config.quiet);
 
     if (!core || !core.hasCrypto) {
       showError(UI.noCrypto);
@@ -373,7 +383,7 @@
       opts.mode === "pin"
         ? UI.combinations(Math.pow(10, opts.pinLength))
         : UI.strength(core.SCORE_LABELS[core.scoreFromBits(first.entropy)]);
-    announce(UI.generated(opts.count, opts.mode, summary, Math.round(first.entropy)), live);
+    if (!quiet) announce(UI.generated(opts.count, opts.mode, summary, Math.round(first.entropy)), live);
   }
 
   /** Regenerate one row of a list without touching the others. */
@@ -994,11 +1004,21 @@
 
     // A name over 32 bytes is as fatal as a bad password, so it comes first.
     const problem = core.wifiSsidProblem(ssid) || (open ? null : core.wifiPasswordProblem(password));
+    // Only worth a word once the code itself is fine.
+    const caution = problem
+      ? null
+      : core.wifiScanCaution({ ssid: ssid, password: password, security: el.wifiSecurity.value });
     // The hint is a live region: rewriting the same text on every keystroke
     // would make screen readers repeat it.
-    const hint = problem ? UI.wifiProblem[problem] : open ? UI.wifiOpen : UI.wifiOk;
+    const hint = problem
+      ? UI.wifiProblem[problem]
+      : caution
+        ? UI.wifiCaution[caution]
+        : open
+          ? UI.wifiOpen
+          : UI.wifiOk;
     if (el.wifiHint.textContent !== hint) el.wifiHint.textContent = hint;
-    el.wifiHint.classList.toggle("is-problem", !!problem || open);
+    el.wifiHint.classList.toggle("is-problem", !!problem || !!caution || open);
 
     el.wifiPrintSsid.textContent = ssid;
     el.wifiPrintPassword.textContent = password;
@@ -1048,7 +1068,11 @@
       '" fill="#fff"/><path fill="#000" d="' +
       el.wifiQrPath.getAttribute("d") +
       '"/></svg>\n';
-    const name = el.wifiSsid.value.replace(/[^A-Za-z0-9_-]+/g, "-").replace(/^-+|-+$/g, "");
+    // "Kavárna" becomes "Kavarna", not "Kav-rna".
+    const name = core
+      .fold(el.wifiSsid.value)
+      .replace(/[^A-Za-z0-9_-]+/g, "-")
+      .replace(/^-+|-+$/g, "");
     saveFile(svg, "image/svg+xml", "wifi-" + (name || "qr").slice(0, 40) + ".svg");
     toast(UI.wifiSaved, "info");
   }
@@ -1313,6 +1337,10 @@
     }
     el.maskBtn.setAttribute("aria-pressed", String(state.masked));
     el.maskBtn.querySelector("use").setAttribute("href", state.masked ? "#i-eye" : "#i-eye-off");
+    // The name stays "Hide" (the pressed state says the rest); the tooltip
+    // says what a click will do, like the icon.
+    if (!el.maskBtn.dataset.title) el.maskBtn.dataset.title = el.maskBtn.title;
+    el.maskBtn.title = state.masked ? el.maskBtn.dataset.titlePressed || el.maskBtn.title : el.maskBtn.dataset.title;
     if (state.results.length) renderResults();
     renderHistory();
   }
@@ -1639,7 +1667,7 @@
     });
     window.addEventListener("pageshow", (event) => {
       if (!event.persisted) return;
-      generate();
+      generate({ quiet: true });
       if (el.wifi) newWifiPassword();
     });
   }
@@ -1677,7 +1705,7 @@
         masked = false;
       }
       if (masked) toggleMask(true);
-      generate();
+      generate({ quiet: true });
       restoreModeSwitch();
     }
 

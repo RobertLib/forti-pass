@@ -23,6 +23,7 @@ const TYPES = {
   ".json": "application/json",
   ".svg": "image/svg+xml",
   ".png": "image/png",
+  ".txt": "text/plain; charset=utf-8",
 };
 
 const skip = chrome.unavailable() || false;
@@ -54,13 +55,18 @@ test("after one visit every page opens and works offline", { skip }, async (t) =
     server.close();
   });
 
-  const page = await browser.open(base);
+  // Another app published on the same origin (github.io is shared by every
+  // repository of the account) keeps its cache when this worker activates.
+  const page = await browser.open(base + "robots.txt");
+  await page.evaluate(() => caches.open("another-app-v1").then(() => true));
+  await page.navigate(base);
   // The worker registers on load; wait until it is active and controls the page.
   await page.evaluate(() => navigator.serviceWorker.ready.then(() => true));
   for (let i = 0; i < 50 && !(await page.evaluate(() => !!navigator.serviceWorker.controller)); i++) {
     await sleep(100);
   }
   assert.ok(await page.evaluate(() => !!navigator.serviceWorker.controller), "the worker controls the page");
+  assert.ok(await page.evaluate(() => caches.has("another-app-v1")), "another app's cache survives");
 
   // No network from here on: the server refuses every new connection.
   server.close();

@@ -3,84 +3,84 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://robertlib.github.io/forti-pass/</loc>
-    <lastmod>2026-11-09</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <xhtml:link rel="alternate" hreflang="en" href="https://robertlib.github.io/forti-pass/" />
     <xhtml:link rel="alternate" hreflang="cs" href="https://robertlib.github.io/forti-pass/cs/" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://robertlib.github.io/forti-pass/" />
   </url>
   <url>
     <loc>https://robertlib.github.io/forti-pass/cs/</loc>
-    <lastmod>2026-11-09</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <xhtml:link rel="alternate" hreflang="en" href="https://robertlib.github.io/forti-pass/" />
     <xhtml:link rel="alternate" hreflang="cs" href="https://robertlib.github.io/forti-pass/cs/" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://robertlib.github.io/forti-pass/" />
   </url>
   <url>
     <loc>https://robertlib.github.io/forti-pass/passphrase-generator/</loc>
-    <lastmod>2026-11-09</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <xhtml:link rel="alternate" hreflang="en" href="https://robertlib.github.io/forti-pass/passphrase-generator/" />
     <xhtml:link rel="alternate" hreflang="cs" href="https://robertlib.github.io/forti-pass/cs/generator-hesel-ze-slov/" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://robertlib.github.io/forti-pass/passphrase-generator/" />
   </url>
   <url>
     <loc>https://robertlib.github.io/forti-pass/cs/generator-hesel-ze-slov/</loc>
-    <lastmod>2026-11-09</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <xhtml:link rel="alternate" hreflang="en" href="https://robertlib.github.io/forti-pass/passphrase-generator/" />
     <xhtml:link rel="alternate" hreflang="cs" href="https://robertlib.github.io/forti-pass/cs/generator-hesel-ze-slov/" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://robertlib.github.io/forti-pass/passphrase-generator/" />
   </url>
   <url>
     <loc>https://robertlib.github.io/forti-pass/pin-generator/</loc>
-    <lastmod>2026-11-09</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <xhtml:link rel="alternate" hreflang="en" href="https://robertlib.github.io/forti-pass/pin-generator/" />
     <xhtml:link rel="alternate" hreflang="cs" href="https://robertlib.github.io/forti-pass/cs/generator-pin/" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://robertlib.github.io/forti-pass/pin-generator/" />
   </url>
   <url>
     <loc>https://robertlib.github.io/forti-pass/cs/generator-pin/</loc>
-    <lastmod>2026-11-09</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <xhtml:link rel="alternate" hreflang="en" href="https://robertlib.github.io/forti-pass/pin-generator/" />
     <xhtml:link rel="alternate" hreflang="cs" href="https://robertlib.github.io/forti-pass/cs/generator-pin/" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://robertlib.github.io/forti-pass/pin-generator/" />
   </url>
   <url>
     <loc>https://robertlib.github.io/forti-pass/password-strength-checker/</loc>
-    <lastmod>2026-11-09</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <xhtml:link rel="alternate" hreflang="en" href="https://robertlib.github.io/forti-pass/password-strength-checker/" />
     <xhtml:link rel="alternate" hreflang="cs" href="https://robertlib.github.io/forti-pass/cs/kontrola-sily-hesla/" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://robertlib.github.io/forti-pass/password-strength-checker/" />
   </url>
   <url>
     <loc>https://robertlib.github.io/forti-pass/cs/kontrola-sily-hesla/</loc>
-    <lastmod>2026-11-09</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <xhtml:link rel="alternate" hreflang="en" href="https://robertlib.github.io/forti-pass/password-strength-checker/" />
     <xhtml:link rel="alternate" hreflang="cs" href="https://robertlib.github.io/forti-pass/cs/kontrola-sily-hesla/" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://robertlib.github.io/forti-pass/password-strength-checker/" />
   </url>
   <url>
     <loc>https://robertlib.github.io/forti-pass/wifi-password-generator/</loc>
-    <lastmod>2026-11-09</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <xhtml:link rel="alternate" hreflang="en" href="https://robertlib.github.io/forti-pass/wifi-password-generator/" />
     <xhtml:link rel="alternate" hreflang="cs" href="https://robertlib.github.io/forti-pass/cs/generator-hesla-wifi/" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://robertlib.github.io/forti-pass/wifi-password-generator/" />
   </url>
   <url>
     <loc>https://robertlib.github.io/forti-pass/cs/generator-hesla-wifi/</loc>
-    <lastmod>2026-11-09</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <xhtml:link rel="alternate" hreflang="en" href="https://robertlib.github.io/forti-pass/wifi-password-generator/" />
     <xhtml:link rel="alternate" hreflang="cs" href="https://robertlib.github.io/forti-pass/cs/generator-hesla-wifi/" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://robertlib.github.io/forti-pass/wifi-password-generator/" />
   </url>
   <url>
     <loc>https://robertlib.github.io/forti-pass/how-long-to-crack-a-password/</loc>
-    <lastmod>2026-11-09</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <xhtml:link rel="alternate" hreflang="en" href="https://robertlib.github.io/forti-pass/how-long-to-crack-a-password/" />
     <xhtml:link rel="alternate" hreflang="cs" href="https://robertlib.github.io/forti-pass/cs/jak-dlouho-trva-prolomit-heslo/" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://robertlib.github.io/forti-pass/how-long-to-crack-a-password/" />
   </url>
   <url>
     <loc>https://robertlib.github.io/forti-pass/cs/jak-dlouho-trva-prolomit-heslo/</loc>
-    <lastmod>2026-11-09</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <xhtml:link rel="alternate" hreflang="en" href="https://robertlib.github.io/forti-pass/how-long-to-crack-a-password/" />
     <xhtml:link rel="alternate" hreflang="cs" href="https://robertlib.github.io/forti-pass/cs/jak-dlouho-trva-prolomit-heslo/" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://robertlib.github.io/forti-pass/how-long-to-crack-a-password/" />

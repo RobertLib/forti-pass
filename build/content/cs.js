@@ -12,7 +12,7 @@ module.exports = function content(f, href, c) {
 
 
   const privacyAnswer =
-    "Ne. Všechno vzniká v kartě vašeho prohlížeče pomocí Web Crypto API a bezpečnostní politika stránky (Content Security Policy) jejím skriptům zakazuje jakýkoli síťový požadavek. V panelu Síť v prohlížeči uvidíte jen to, jak FortiPass načítá své vlastní soubory – nic z toho, co vygenerujete, ven neodejde. Na zařízení se ukládá jen vaše nastavení, vygenerované hodnoty nikdy.";
+    "Ne. Všechno vzniká v kartě vašeho prohlížeče pomocí Web Crypto API a bezpečnostní politika stránky (Content Security Policy) jejím skriptům zakazuje spojit se s jakýmkoli serverem a stránka smí načítat jen své vlastní soubory. V panelu Síť v prohlížeči uvidíte jen to, jak FortiPass načítá své vlastní soubory – nic z toho, co vygenerujete, ven neodejde. Na zařízení se ukládá jen vaše nastavení, vygenerované hodnoty nikdy.";
 
   return {
     home: {
@@ -21,7 +21,7 @@ module.exports = function content(f, href, c) {
       description:
         "Generátor silných hesel, hesel z českých slov a PINů přímo ve vašem prohlížeči. Poctivá entropie i doba prolomení. Zdarma, bez registrace, offline.",
       h1: "Generátor silných hesel",
-      lede: "Náhodná hesla z kryptografické náhody vašeho prohlížeče, s poctivým odhadem síly. Nic, co vygenerujete, neopustí toto zařízení.",
+      lede: "Náhodná hesla z kryptografického generátoru vašeho prohlížeče, s poctivým odhadem síly. Nic, co vygenerujete, neopustí toto zařízení.",
       body: `<section class="content" aria-labelledby="whyHeading">
           <h2 id="whyHeading">Proč FortiPass</h2>
           <div class="feature-grid">
@@ -48,7 +48,7 @@ module.exports = function content(f, href, c) {
             <li><strong>Délka je víc než složitost.</strong> Heslo o 16 znacích z tohoto generátoru by útočník lámal ${f.gen(16)}, heslo o 8 znacích ${f.gen(8)}. Podívejte se na <a href="${href("crack")}">celou tabulku doby prolomení</a>.</li>
             <li><strong>Nikdy nepoužívejte stejné heslo dvakrát.</strong> Únik dat z jednoho e-shopu nesmí odemknout váš e-mail. Právě na jedinečná hesla je tu správce hesel.</li>
             <li><strong>Co píšete ručně, ať je ze slov.</strong> Přihlášení do počítače nebo hlavní heslo správce hesel se lépe píše jako šest a víc <a href="${href("passphrase")}">náhodných slov</a>.</li>
-            <li><strong>Zapněte dvoufázové ověření, nebo použijte přístupový klíč.</strong> Ani dokonalé heslo nepomůže, když ho vyláká phishing. Přístupové klíče (passkeys) a hardwarové bezpečnostní klíče phishingu odolají; kód z aplikace nebo ze SMS útočník vyláká spolu s heslem.</li>
+            <li><strong>Zapněte dvoufázové ověření, nebo použijte přístupový klíč.</strong> Ani dokonalé heslo nepomůže, když ho vyláká phishing. Přístupové klíče (passkeys) a hardwarové bezpečnostní klíče phishingu odolají; kód z aplikace nebo ze SMS dokáže útočník vylákat spolu s heslem.</li>
             <li><strong>Heslo měňte, když je důvod.</strong> Únik nebo sdílení – ne kalendář, který nařizuje změnu každých 90 dní.</li>
           </ul>
 
@@ -105,7 +105,7 @@ module.exports = function content(f, href, c) {
           <h2>Kolik slov stačí</h2>
           <p>Každé slovo vybrané náhodně ze ${csWords} možností přidá log₂ ${csWords} ≈ ${bpw} bitu. Výpočet počítá s tím, že útočník seznam zná i ví, kolik slov jste použili.</p>
           ${c.passphraseTable("cs", 3, 10)}
-          <p>Doby prolomení počítají s offline útokem se 100 miliardami pokusů za sekundu proti rychlému hashi – zhruba výkon jedné současné výkonné grafické karty proti MD5 nebo NTLM. Útočník s celou sestavou karet je desetkrát až stokrát rychlejší, proto si nechte rezervu. Web, který hesla ukládá správně (bcrypt, scrypt, Argon2), útočníka zpomalí o mnoho řádů.</p>
+          <p>Doby prolomení počítají s offline útokem se 100 miliardami pokusů za sekundu proti rychlému hashi – zhruba výkon jedné současné špičkové grafické karty proti MD5 nebo NTLM. Útočník s celou sestavou karet je desetkrát až stokrát rychlejší, proto si nechte rezervu. Web, který hesla ukládá správně (bcrypt, scrypt, Argon2), útočníka zpomalí o mnoho řádů.</p>
 
           <h2>Heslo ze slov, nebo náhodné znaky?</h2>
           <ul class="tips">
@@ -200,7 +200,7 @@ module.exports = function content(f, href, c) {
           <p>Každý kousek stojí tolik bitů, kolik by stálo ho uhodnout, a vyhrává nejlevnější rozklad. Výsledek uvidíte jako entropii v bitech a jako průměrnou dobu offline útoku při 100 miliardách pokusů za sekundu – se stejným předpokladem jako <a href="${href("crack")}">tabulka doby prolomení</a>.</p>
 
           <h2>Co kontrola vědět nemůže</h2>
-          <p>Žádná kontrola nezná jméno vašeho psa, vaši ulici ani heslo, které jste používali v roce 2014. A hlavně nepozná, jestli heslo už neuniklo: uniklé heslo padne za nula sekund, ať je jakkoli dlouhé. To by vyžadovalo databázi úniků, kterou tahle stránka záměrně nikdy nekontaktuje. Na to použijte <a href="https://haveibeenpwned.com/Passwords" rel="noopener">Have I Been Pwned</a> a dobrý výsledek tady berte jako „žádná zjevná slabina“, ne jako záruku.</p>
+          <p>Žádná kontrola nezná jméno vašeho psa, vaši ulici ani heslo, které jste používali v roce 2014. A hlavně nepozná, jestli heslo už neuniklo: uniklé heslo padne za nula sekund, ať je jakkoli dlouhé. To by vyžadovalo dotaz do databáze úniků, a ten tahle stránka záměrně nikdy neposílá. Na to použijte <a href="https://haveibeenpwned.com/Passwords" rel="noopener">Have I Been Pwned</a> a dobrý výsledek tady berte jako „žádná zjevná slabina“, ne jako záruku.</p>
 
           <h2>Jak ze slabého hesla udělat silné</h2>
           <ul class="tips">
@@ -212,7 +212,7 @@ module.exports = function content(f, href, c) {
       faq: [
         [
           "Je bezpečné sem psát svoje skutečné heslo?",
-          "Kontrola běží celá ve vašem prohlížeči a bezpečnostní politika stránky jejím skriptům zakazuje jakýkoli síťový požadavek, takže to, co napíšete, odeslat nejde. Přesto je rozumné být opatrný u každého webu – když si nejste jistí, odpojte se nejdřív od internetu, nebo otestujte heslo se stejnou stavbou.",
+          "Kontrola běží celá ve vašem prohlížeči a bezpečnostní politika stránky jejím skriptům zakazuje spojit se s jakýmkoli serverem, takže se to, co napíšete, nikam neodešle. Přesto je rozumné být opatrný u každého webu – když si nejste jistí, odpojte se nejdřív od internetu, nebo otestujte heslo se stejnou stavbou.",
         ],
         [
           "Proč moje heslo se symboly a číslicemi vychází slabě?",
@@ -220,7 +220,7 @@ module.exports = function content(f, href, c) {
         ],
         [
           "S čím počítá doba prolomení?",
-          "S útočníkem, který ukradl databázi hashů hesel a zkouší 100 miliard možností za sekundu – zhruba tolik zvládne jedna současná výkonná grafická karta proti rychlým hashům jako MD5 nebo NTLM. Jde o průměrnou dobu, tedy dobu, za kterou útočník vyzkouší polovinu všech možností. Sestava s více kartami je úměrně rychlejší; weby s bcrypt, scrypt nebo Argon2 útok výrazně zpomalí a přihlašovací formulář s omezením pokusů ještě víc.",
+          "S útočníkem, který ukradl databázi hashů hesel a zkouší 100 miliard možností za sekundu – zhruba tolik zvládne jedna současná výkonná grafická karta proti rychlým hashům jako MD5 nebo NTLM. Jde o průměrnou dobu, tedy dobu, za kterou útočník vyzkouší polovinu všech možností. Sestava s více kartami je úměrně rychlejší; weby s bcryptem, scryptem nebo Argon2 útok výrazně zpomalí a přihlašovací formulář s omezením pokusů ještě víc.",
         ],
         [
           "Zjistí kontrola, jestli moje heslo neuniklo?",
@@ -244,7 +244,7 @@ module.exports = function content(f, href, c) {
           <ol class="steps">
             <li>Otevřete administraci routeru – obvykle na adrese <code>192.168.0.1</code> nebo <code>192.168.1.1</code>, případně na adrese ze štítku na spodku routeru – a přihlaste se. Stejně dobře poslouží aplikace vašeho poskytovatele.</li>
             <li>Najděte nastavení bezdrátové sítě (WLAN) a zvolte <strong>WPA2-Personal</strong> nebo <strong>WPA3-Personal</strong>, případně smíšený režim WPA2/WPA3, pokud máte starší zařízení.</li>
-            <li>Vložte heslo vygenerované výše a uložte. Všechna zařízení se odpojí; připojte je znovu novým heslem nebo naskenováním QR kódu.</li>
+            <li>Vložte heslo vygenerované výše a uložte. Všechna zařízení se odpojí; připojte je znovu s novým heslem nebo naskenováním QR kódu.</li>
             <li>Když už jste tam, změňte i heslo do administrace routeru, pokud je pořád výchozí.</li>
           </ol>
 
@@ -274,7 +274,7 @@ module.exports = function content(f, href, c) {
         ],
         [
           "Posílá se název sítě nebo heslo někam?",
-          "Ne. Heslo i QR kód vznikají ve vašem prohlížeči a stránka nesmí odesílat žádné síťové požadavky. O vaší síti se nic neukládá – jen zvolený typ hesla a zabezpečení.",
+          "Ne. Heslo i QR kód vznikají ve vašem prohlížeči a skripty stránky se nesmějí spojit s žádným serverem. O vaší síti se nic neukládá – jen zvolený typ hesla a zabezpečení.",
         ],
         [
           "Proč heslo k Wi-Fi nemůže mít diakritiku?",
@@ -316,8 +316,8 @@ module.exports = function content(f, href, c) {
           <h2>Jak se čísla počítají</h2>
           <p>Náhodné heslo délky <var>L</var> ze sady <var>N</var> znaků má <var>N</var><sup><var>L</var></sup> možností, tedy <var>L</var> × log₂ <var>N</var> bitů. Útočník ho v průměru najde po vyzkoušení poloviny z nich. Tabulka to dělí číslem 10¹¹ – 100 miliard pokusů za sekundu, což zhruba zvládne jedna současná výkonná grafická karta proti rychlému nesolenému hashi jako MD5 nebo NTLM po úniku databáze. Sestava osmi takových karet zkrátí každý čas v tabulce zhruba desetkrát – to odpovídá asi půl znaku náhodného hesla.</p>
           <ul class="tips">
-            <li><strong>Pomalé hashe pomáhají ohromně.</strong> Weby, které hesla ukládají pomocí bcrypt, scrypt nebo Argon2, srazí útočníka na tisíce až miliony pokusů za sekundu, takže se každý čas v tabulce znásobí stotisíckrát i víc.</li>
-            <li><strong>Útok přes přihlašovací formulář je ještě pomalejší.</strong> Omezení pokusů dovolí jen pár pokusů za minutu – ale nespoléhejte na to: databáze unikají.</li>
+            <li><strong>Pomalé hashe pomáhají ohromně.</strong> Weby, které hesla ukládají pomocí bcryptu, scryptu nebo Argon2, srazí útočníka na tisíce až miliony pokusů za sekundu, takže se každý čas v tabulce znásobí stotisíckrát i víc.</li>
+            <li><strong>Útok přes přihlašovací formulář je ještě pomalejší.</strong> Formulář s omezením dovolí jen pár pokusů za minutu – ale nespoléhejte na to: databáze unikají.</li>
             <li><strong>Hardware je čím dál rychlejší.</strong> Nechte si rezervu. Náhodné heslo o 16 znacích jí má dost.</li>
           </ul>
 

@@ -251,11 +251,13 @@ test("the main navigation lights the page's section", () => {
 
 test("pages load the word lists they use, and Czech pages the Czech strings", () => {
   for (const { page, file, html, lang } of PAGES) {
-    // The checker knows English and Czech words whatever the page language;
-    // the passphrase page offers English and its own language's words; the
-    // Wi-Fi page makes words in its own language. Nothing else needs words.
-    const en = page.type === "checker" || page.mode === "passphrase" || (page.type === "wifi" && lang === "en");
-    const cs = page.type === "checker" || (lang === "cs" && (page.mode === "passphrase" || page.type === "wifi"));
+    // The checker knows English and Czech words whatever the page language,
+    // and so does the Wi-Fi page, which rates a typed password with it; the
+    // passphrase page offers English and its own language's words. Nothing
+    // else needs words.
+    const rates = page.type === "checker" || page.type === "wifi";
+    const en = rates || page.mode === "passphrase";
+    const cs = rates || (lang === "cs" && page.mode === "passphrase");
     assert.equal(html.includes("wordlist-en.js"), en, file + ": English words");
     assert.equal(html.includes("wordlist-cs.js"), cs, file + ": Czech words");
     assert.equal(html.includes("locale-cs.js"), lang === "cs", file);
@@ -283,6 +285,20 @@ test("Czech text never ends a line with a one-letter word or starts one with a d
       const bare = block.replace(/<span class="nowrap">Wi-Fi<\/span>/g, "");
       assert.doesNotMatch(bare.replace(/<[^>]+>/g, " "), /Wi-Fi/, `${file}: ${block.slice(0, 80)}`);
     });
+  }
+});
+
+test("Czech strings shown at run time tie one-letter words too", () => {
+  // The build ties the pages' text; toasts, findings and the extension's
+  // popup are written by hand, in locale-cs.js and the extension's messages.
+  const literals = (read("locale-cs.js").match(/"(?:[^"\\\n]|\\.)*"/g) || [])
+    .map((literal) => JSON.parse(literal))
+    .filter((text) => !text.startsWith("\n#")); // the downloaded file's header
+  const messages = JSON.parse(read("extension/_locales/cs/messages.json"));
+  Object.values(messages).forEach((entry) => literals.push(entry.message));
+  for (const text of literals) {
+    const orphan = /(?:^|[\s(„])[KkSsVvZzOoUuAaIi] \S/.exec(text);
+    assert.equal(orphan, null, `“${text}”`);
   }
 });
 

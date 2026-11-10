@@ -88,6 +88,17 @@ function findBrowser() {
   return fromPlaywright() || fromSystem();
 }
 
+/**
+ * Branded Google Chrome — not Chromium or Chrome for Testing — which since
+ * version 137 may ignore --load-extension. Only there is a missing
+ * extension the browser's choice rather than a broken build.
+ */
+function isBrandedChrome(executable) {
+  const file = String(executable).replace(/\\/g, "/");
+  if (/for Testing|chromium|ms-playwright/i.test(file)) return false;
+  return /Google Chrome\.app\/|\/Google\/Chrome\/Application\/|google-chrome/i.test(file);
+}
+
 /** Why browser tests cannot run here, or null when they can. */
 function unavailable() {
   if (typeof WebSocket !== "function") return "needs Node 22+ for the built-in WebSocket";
@@ -316,13 +327,20 @@ async function launch(options = {}) {
   }
 
   const socket = new WebSocket(endpoint);
-  await withTimeout(
-    new Promise((resolve, reject) => {
-      socket.addEventListener("open", resolve, { once: true });
-      socket.addEventListener("error", () => reject(new Error("DevTools connection failed")), { once: true });
-    }),
-    "DevTools connection"
-  );
+  try {
+    await withTimeout(
+      new Promise((resolve, reject) => {
+        socket.addEventListener("open", resolve, { once: true });
+        socket.addEventListener("error", () => reject(new Error("DevTools connection failed")), { once: true });
+      }),
+      "DevTools connection"
+    );
+  } catch (err) {
+    // Never leave a browser and its profile behind.
+    socket.close();
+    await cleanup();
+    throw err;
+  }
   const connection = new Connection(socket);
   const id = options.extension ? extensionId(options.extension) : null;
 
@@ -361,4 +379,4 @@ async function launch(options = {}) {
   };
 }
 
-module.exports = { findBrowser, unavailable, launch, extensionId };
+module.exports = { findBrowser, isBrandedChrome, unavailable, launch, extensionId };

@@ -10,7 +10,7 @@ module.exports = function content(f, href, c) {
 
 
   const privacyAnswer =
-    "No. Everything is generated in your browser tab with the Web Crypto API, and the page's Content Security Policy forbids its scripts to make any network request. Your browser's network panel shows FortiPass loading its own files and nothing else — nothing you generate ever goes out. Only your settings are remembered on your device; generated values never are.";
+    "No. Everything is generated in your browser tab with the Web Crypto API, and the page's Content Security Policy stops its scripts from connecting to any server and lets the page load only its own files. Your browser's network panel shows FortiPass loading its own files and nothing else — nothing you generate ever goes out. Only your settings are remembered on your device; generated values never are.";
 
   return {
     home: {
@@ -81,7 +81,7 @@ module.exports = function content(f, href, c) {
 
     passphrase: {
       title: "Passphrase Generator – Random, Memorable Word Passwords | FortiPass",
-      description: `Random passphrases from the ${words}-word EFF list, made in your browser. Pick the words, separator and capitals and see the exact entropy. Free and offline.`,
+      description: `Random passphrases from the ${words}-word EFF list, made in your browser. Set the word count, separator and capitals and see the exact entropy. Free and offline.`,
       h1: "Passphrase generator",
       lede: "A few random words are easier to type and remember than line noise — and, chosen by a computer, just as hard to guess.",
       body: `<section class="content">
@@ -194,7 +194,7 @@ module.exports = function content(f, href, c) {
       faq: [
         [
           "Is it safe to type my real password here?",
-          "The check runs entirely in your browser, and the page's Content Security Policy forbids its scripts to make any network request, so what you type cannot be sent. Still, be wary of typing real passwords into any website — if in doubt, disconnect from the internet first, or test a password with the same structure instead.",
+          "The check runs entirely in your browser, and the page's Content Security Policy stops its scripts from connecting to any server, so what you type is not sent anywhere. Still, be wary of typing real passwords into any website — if in doubt, disconnect from the internet first, or test a password with the same structure instead.",
         ],
         [
           "Why does my password with symbols and numbers score low?",
@@ -256,7 +256,7 @@ module.exports = function content(f, href, c) {
         ],
         [
           "Is my network name or password sent anywhere?",
-          "No. The password and the QR code are generated in your browser, and the page cannot make network requests. Nothing about your network is stored — only the password style and security type you picked.",
+          "No. The password and the QR code are generated in your browser, and the page's scripts cannot connect to any server. Nothing about your network is stored — only the password style and security type you picked.",
         ],
         [
           "WPA2 or WPA3?",

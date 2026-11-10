@@ -63,6 +63,9 @@ test("Firefox: an add-on ID and the data-collection declaration AMO requires", (
   assert.deepEqual(gecko.data_collection_permissions, { required: ["none"] });
   // data_collection_permissions is understood from Firefox 140.
   assert.ok(parseFloat(gecko.strict_min_version) >= 140, gecko.strict_min_version);
+  // … and on Android from 142; without this the add-on linter warns.
+  const android = manifest.browser_specific_settings.gecko_android;
+  assert.ok(android && parseFloat(android.strict_min_version) >= 142, "gecko_android 142+");
 });
 
 test("the extension carries the project's version", () => {

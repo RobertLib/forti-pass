@@ -72,8 +72,10 @@ function fail(message) {
 }
 
 // `fortipass -n 1000 | head -1` closes the pipe early; that is not an error.
+// The exit code already set stays: a weak password piped into
+// `grep -q` must still fail `--check`.
 process.stdout.on("error", (err) => {
-  if (err.code === "EPIPE") process.exit(0);
+  if (err.code === "EPIPE") process.exit();
   throw err;
 });
 process.stderr.on("error", () => {});
@@ -164,6 +166,8 @@ function parse(argv) {
     const kind = o.check ? "--check" : o.words ? "passphrases" : o.pin ? "PINs" : "passwords";
     fail(`${conflict} does not apply to ${kind}`);
   }
+  // Only the Czech list has accents to keep.
+  if (o.accents && o.lang !== "cs") fail("--accents applies only to --lang cs");
   return o;
 }
 
@@ -231,6 +235,11 @@ function readHidden(stdin, prompt) {
         }
         if (ch === "\u001b") state = "esc";
         else if (ch === "\u007f" || ch === "\b") value = Array.from(value).slice(0, -1).join("");
+        // Raw mode turns off the terminal's own line editing, so the usual
+        // Ctrl-U (erase the line) and Ctrl-W (erase a word) are done here —
+        // without echo, a silently kept old attempt would be rated instead.
+        else if (ch === "\u0015") value = "";
+        else if (ch === "\u0017") value = value.replace(/\S*\s*$/u, "");
         else if (code >= 0x20 && value.length < MAX_INPUT) value += ch;
       }
     };

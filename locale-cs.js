@@ -59,7 +59,7 @@
         allExcluded:
           "Všechny znaky vybraných typů jsou vyloučené\u00a0– některá vyloučení odeberte.",
         notEnoughUnique: (n) =>
-          "K dispozici je jen " +
+          "K\u00a0dispozici je jen " +
           count(n, "různý znak", "různé znaky", "různých znaků") +
           "\u00a0– zkraťte heslo nebo povolte opakování.",
         unsatisfiable: "Tyto volby nejde splnit\u00a0– prodlužte heslo nebo je uvolněte.",
@@ -88,7 +88,7 @@
           "Známé heslo převlečené předvídatelnými úpravami (@ místo a, 0 místo o, oddělovače, číslo na konci). Programy na lámání hesel zkoušejí právě tohle jako první.",
         tooShort: (n) =>
           "Jen " + count(n, "znak", "znaky", "znaků") + ". Cokoli pod 8 znaků padne nanejvýš během minut.",
-        short: (n) => count(n, "znak", "znaky", "znaků") + " je málo. Mířte na 16 a víc.",
+        short: (n) => count(n, "znak", "znaky", "znaků") + " je málo. Mířte na 16 a\u00a0víc.",
         goodLength: (n) => count(n, "znak", "znaky", "znaků") + " je dobrá délka.",
         commonName:
           "Obsahuje velmi časté heslo nebo jméno\u00a0– útočníci ho mají ve slovnících a\u00a0zkoušejí ho první.",
@@ -149,7 +149,7 @@
         date +
         "\n# Uložte je do správce hesel a tento soubor smažte.\n\n",
       downloadToast: "Uloženo jako textový soubor\u00a0– po bezpečném uložení ho smažte",
-      historyCleared: "Seznam z této relace vymazán",
+      historyCleared: "Seznam z\u00a0této relace vymazán",
       wifiNeedName: "Zadejte název sítě a\u00a0QR kód se objeví tady.",
       wifiProblem: {
         ssidLong:
@@ -159,9 +159,15 @@
         ascii:
           "Heslo k\u00a0Wi-Fi smí obsahovat jen znaky bez diakritiky (ASCII), jinak se k\u00a0síti nepřipojí všechna zařízení.",
       },
-      wifiOk: "Router heslo přijme. QR kód obsahuje název sítě i heslo\u00a0– sdílejte ho jen s\u00a0lidmi, kterým věříte.",
+      wifiCaution: {
+        android:
+          "Některé telefony s\u00a0Androidem špatně přečtou název sítě nebo heslo, které končí zpětným lomítkem (\\) nebo je celé v\u00a0uvozovkách, a\u00a0z\u00a0tohoto kódu se nepřipojí. Ruční zadání funguje.",
+        ssidSpaces:
+          "Název sítě začíná nebo končí mezerou. To je povolené, ale ověřte, že ji má i\u00a0název v\u00a0routeru\u00a0– jinak telefony síť nenajdou.",
+      },
+      wifiOk: "Router heslo přijme. QR kód obsahuje název sítě i\u00a0heslo\u00a0– sdílejte ho jen s\u00a0lidmi, kterým věříte.",
       wifiOpen: "Otevřená síť bez hesla\u00a0– kdokoli v\u00a0dosahu vidí, co se po ní posílá.",
-      wifiSaved: "QR kód uložen jako obrázek SVG",
+      wifiSaved: "QR kód uložen jako obrázek SVG\u00a0– obsahuje heslo, sdílejte ho opatrně",
     },
   };
 

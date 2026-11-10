@@ -988,6 +988,23 @@
       return utf8Length(ssid) > 32 ? "ssidLong" : null;
     }
 
+    /**
+     * Something the router accepts but a phone scanning the code may get
+     * wrong, or null. Android splits the fields before it undoes the
+     * escaping, so a value ending in "\" swallows the next field, and it
+     * takes a value in double quotes as already quoted and drops them. A
+     * name with a space at either end is valid, but usually a paste error.
+     * Generated passwords never contain "\" or '"'.
+     */
+    function wifiScanCaution(opts) {
+      const values = [String(opts.ssid)];
+      if (opts.security !== "nopass") values.push(String(opts.password));
+      if (values.some((v) => v.endsWith("\\") || (v.length >= 2 && v[0] === '"' && v[v.length - 1] === '"'))) {
+        return "android";
+      }
+      return /^\s|\s$/.test(values[0]) ? "ssidSpaces" : null;
+    }
+
     return {
       CHARS: CHARS,
       SCORE_LABELS: M.scoreLabels,
@@ -1010,6 +1027,7 @@
       wifiPayload: wifiPayload,
       wifiPasswordProblem: wifiPasswordProblem,
       wifiSsidProblem: wifiSsidProblem,
+      wifiScanCaution: wifiScanCaution,
     };
   }
 
