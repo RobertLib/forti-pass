@@ -1,0 +1,382 @@
+"use strict";
+
+/* Interface text baked into the HTML. Runtime text (toasts, verdicts, crack
+   times) lives in script.js / core.js and, for Czech, in locale-cs.js.
+   Values may contain inline HTML; anything that ends up in an attribute is
+   escaped by the templates. */
+
+const en = {
+  skip: "Skip to the tool",
+  home: "FortiPass home",
+  theme: "Switch colour theme",
+  themeTitle: "Switch theme (T)",
+  toolsNav: "Tools",
+  otherLanguage: "Česky",
+  otherLanguageShort: "CS",
+  otherLanguageTitle: "Tato stránka česky",
+
+  // The three app sections in the main navigation.
+  sections: { generator: "Generator", checker: "Check", wifi: "Wi-Fi" },
+  toolNames: {
+    home: "Password generator",
+    passphrase: "Passphrase generator",
+    pin: "PIN generator",
+    wifi: "Wi-Fi password & QR code",
+    checker: "Password strength checker",
+    crack: "How long to crack a password",
+  },
+  trust: [
+    ["i-lock", "Made in your browser, never sent"],
+    ["i-offline", "Works offline"],
+    ["i-code", "Open source"],
+  ],
+
+  generatorHeading: "Password generator",
+  modeLabel: "What to generate",
+  tabs: { password: "Password", passphrase: "Passphrase", pin: "PIN" },
+  clickToCopy: "Click to copy",
+  hide: "Hide",
+  hideTitle: "Hide (H)",
+  new: "New",
+  newTitle: "Generate a new one (G)",
+  copy: "Copy",
+  copyTitle: "Copy (C)",
+  download: "Download as a text file",
+  clearClipboard: "Clear the clipboard 30 s after copying",
+  clearClipboardNote:
+    "Browsers only allow this while FortiPass is the active tab, so it may wait until you come back.",
+  excellent: "Excellent",
+  entropyTitle: "Bits of entropy — every extra bit doubles the guessing effort",
+  crackTitle: "Estimated average time for an offline attack at 100 billion guesses per second",
+
+  length: "Length",
+  lengthSlider: "Password length slider",
+  lengthInput: "Password length",
+  lengthHint: "4–128 characters. 16 or more is recommended.",
+  charTypes: "Characters",
+  uppercase: "Uppercase",
+  lowercase: "Lowercase",
+  numbers: "Digits",
+  symbols: "Symbols",
+  presetsLabel: "Quick settings",
+  presets: {
+    password: [
+      ["login", "Web login · 16"],
+      ["paranoid", "Maximum · 32"],
+      ["readable", "Easy to read"],
+    ],
+    pin: [
+      ["pin4", "4 digits"],
+      ["pin6", "6 digits"],
+      ["pin8", "8 digits"],
+    ],
+  },
+  advanced: "More rules",
+  advancedHint: "look-alikes, repeats, excluded characters",
+  requireEach: "Use every selected type at least once",
+  requireEachNote: "Satisfies sites that demand a digit or symbol.",
+  excludeAmbiguous: "Avoid look-alike characters",
+  excludeAmbiguousNote: "Skips <code>I l 1 O 0 o</code> and friends — easier to read aloud.",
+  noRepeats: "No repeated characters",
+  noRepeatsNote: "Every character appears at most once.",
+  excludeChars: "Never use these characters",
+  excludeCharsPlaceholder: "e.g. <>&\"'",
+  excludeCharsHint: "Handy when a site rejects certain symbols.",
+
+  words: "Words",
+  wordsHint: (bits) =>
+    'Each random word adds <span id="wordBits">' +
+    bits +
+    "</span> bits — six words clear the 70-bit “Strong” mark.",
+  wordLanguage: "Word list",
+  languageNames: { en: "English", cs: "Czech" },
+  asciiOnly: "Without accents",
+  asciiOnlyNote: "",
+  separator: "Separator",
+  separators: [
+    ["-", "Hyphen", "correct-horse-battery"],
+    [".", "Dot", "correct.horse.battery"],
+    ["_", "Underscore", "correct_horse_battery"],
+    [" ", "Space", "correct horse battery"],
+    ["", "None", "correcthorsebattery"],
+    ["digit", "Random digit", "correct4horse7battery"],
+  ],
+  capitalize: "Capitalise each word",
+  capitalizeExample: "Correct-Horse-Battery",
+  addNumber: "Add a number",
+  addNumberNote: "Keeps rule-based password policies happy.",
+  addSymbol: "Add a symbol",
+  addSymbolNote: "Appends one random symbol.",
+  digits: "Digits",
+  pinHint:
+    "PINs are short by design — pair them with a device that locks after a few wrong attempts.",
+  count: "How many",
+  countHint: "Generate a list of up to 50 at once.",
+  fewer: "Fewer",
+  more: "More",
+
+  historyHeading: "Recent",
+  clear: "Clear",
+  historySub:
+    "What you generated or copied in this tab, kept in memory only. Reloading or closing the page wipes it.",
+
+  checkerHeading: "Test a password",
+  checkLabel: "Password to test",
+  checkPlaceholder: "Type or paste a password",
+  checkPrivacy: "Scored in your browser. Nothing you type is sent anywhere or remembered.",
+  findingsHeading: "What the check found",
+  findingsEmpty: "Start typing and you will see how an attacker would approach the password — piece by piece.",
+  checkerCta: "Need a better one?",
+  checkerCtaLink: "Generate a strong password",
+  showPassword: "Show password",
+  waiting: "Waiting for input",
+
+  wifiHeading: "Wi-Fi password and QR code",
+  ssid: "Network name (SSID)",
+  ssidPlaceholder: "e.g. Home-WiFi",
+  security: "Security",
+  securityOptions: [
+    ["WPA", "WPA2 / WPA3 (recommended)"],
+    ["nopass", "Open network (no password)"],
+  ],
+  hiddenNetwork: "Hidden network",
+  hiddenNetworkNote: "Only tick this if your router does not broadcast the name.",
+  wifiStyle: "Password style",
+  wifiStyles: [
+    ["easy", "20 letters and digits — easy to type on a TV"],
+    ["words", "5 random words — easy to read out to guests"],
+    ["strong", "32 characters with symbols"],
+    ["max", "63 letters and digits — the WPA maximum"],
+  ],
+  wifiPassword: "Password",
+  wifiPasswordHint: "Generated for you — or type the password you already use.",
+  wifiPreview: "Guest card",
+  qrLabel: "QR code for joining the Wi-Fi network",
+  printCard: "Print card",
+  saveQr: "Save QR (SVG)",
+  printNetwork: "Network",
+  printPassword: "Password",
+  printNote: "Point your phone camera at the code to join — no typing.",
+  wifiPrivacy:
+    "The QR code is drawn in your browser. The network name and password are never sent or stored.",
+
+  shortcutsDialog: "Keyboard shortcuts",
+  shortcutsLink: "Keyboard shortcuts",
+  close: "Close",
+  shortcutList: {
+    g: "Generate new",
+    c: "Copy",
+    h: "Hide / show",
+    t: "Switch light / dark theme",
+    modes: "Password / passphrase / PIN",
+    help: "This dialog",
+    esc: "Close dialog",
+  },
+  shortcutsNote: "Shortcuts are ignored while you are typing in a field.",
+  copyDialogTitle: "Copy it yourself",
+  copyDialogNote:
+    "The browser blocked access to the clipboard. The text below is already selected — press <kbd>Ctrl</kbd>&nbsp;<kbd>C</kbd> (<kbd>⌘</kbd>&nbsp;<kbd>C</kbd> on a Mac).",
+  copyValue: "Value to copy",
+  noscript:
+    "FortiPass generates passwords in your browser, which needs JavaScript enabled. Nothing is sent to a server either way.",
+
+  footerTagline:
+    "Strong passwords, passphrases, PINs and Wi-Fi codes, generated on your device. No accounts, no tracking, no network requests.",
+  footerFree: "Free and open source",
+  footerSource: "Source on GitHub",
+  footerNote:
+    "FortiPass stores none of the passwords it generates. It is a tool, not a substitute for a password manager and two-factor authentication.",
+  footerCredit:
+    'English words: <a href="https://www.eff.org/dice" rel="noopener">EFF Large Wordlist</a> (CC BY 3.0 US).',
+  updated: "Updated",
+  faqHeading: "Questions people ask",
+};
+
+const cs = {
+  skip: "Přeskočit na nástroj",
+  home: "FortiPass – úvod",
+  theme: "Přepnout barevný motiv",
+  themeTitle: "Přepnout motiv (T)",
+  toolsNav: "Nástroje",
+  otherLanguage: "English",
+  otherLanguageShort: "EN",
+  otherLanguageTitle: "This page in English",
+
+  sections: { generator: "Generátor", checker: "Kontrola", wifi: "Wi-Fi" },
+  toolNames: {
+    home: "Generátor hesel",
+    passphrase: "Generátor hesel ze slov",
+    pin: "Generátor PIN",
+    wifi: "Heslo k Wi-Fi a QR kód",
+    checker: "Kontrola síly hesla",
+    crack: "Jak dlouho trvá prolomit heslo",
+  },
+  trust: [
+    ["i-lock", "Vzniká v prohlížeči, nikam se neposílá"],
+    ["i-offline", "Funguje offline"],
+    ["i-code", "Open source"],
+  ],
+
+  generatorHeading: "Generátor hesel",
+  modeLabel: "Co vygenerovat",
+  tabs: { password: "Heslo", passphrase: "Ze slov", pin: "PIN" },
+  clickToCopy: "Kliknutím zkopírujete",
+  hide: "Skrýt",
+  hideTitle: "Skrýt (H)",
+  new: "Nové",
+  newTitle: "Vygenerovat nové (G)",
+  copy: "Kopírovat",
+  copyTitle: "Kopírovat (C)",
+  download: "Stáhnout jako textový soubor",
+  clearClipboard: "Vymazat schránku 30 s po zkopírování",
+  clearClipboardNote:
+    "Prohlížeče to dovolí jen tehdy, když je FortiPass aktivní karta, takže to může počkat, až se vrátíte.",
+  excellent: "Výborné",
+  entropyTitle: "Entropie v bitech — každý bit navíc zdvojnásobí počet potřebných pokusů",
+  crackTitle: "Odhad průměrné doby offline útoku při 100 miliardách pokusů za sekundu",
+
+  length: "Délka",
+  lengthSlider: "Posuvník délky hesla",
+  lengthInput: "Délka hesla",
+  lengthHint: "4–128 znaků. Doporučujeme 16 a víc.",
+  charTypes: "Znaky",
+  uppercase: "Velká písmena",
+  lowercase: "Malá písmena",
+  numbers: "Číslice",
+  symbols: "Symboly",
+  presetsLabel: "Rychlá volba",
+  presets: {
+    password: [
+      ["login", "Na web · 16"],
+      ["paranoid", "Maximum · 32"],
+      ["readable", "Snadno čitelné"],
+      ["isds", "Datová schránka"],
+    ],
+    pin: [
+      ["pin4", "4 číslice"],
+      ["pin6", "6 číslic"],
+      ["pin8", "8 číslic"],
+    ],
+  },
+  advanced: "Další pravidla",
+  advancedHint: "podobné znaky, opakování, vyloučené znaky",
+  requireEach: "Použít každý vybraný typ aspoň jednou",
+  requireEachNote: "Vyhoví webům, které vyžadují číslici nebo symbol.",
+  excludeAmbiguous: "Vynechat podobné znaky",
+  excludeAmbiguousNote: "Vynechá <code>I l 1 O 0 o</code> a podobné — snáz se čtou i opisují.",
+  noRepeats: "Žádné opakované znaky",
+  noRepeatsNote: "Každý znak se objeví nejvýš jednou.",
+  excludeChars: "Nikdy nepoužít tyto znaky",
+  excludeCharsPlaceholder: "např. <>&\"'",
+  excludeCharsHint: "Hodí se, když web některé symboly odmítá.",
+
+  words: "Počet slov",
+  wordsHint: (bits) =>
+    'Každé náhodné slovo přidá <span id="wordBits">' +
+    bits +
+    "</span> bitu — šest slov překročí hranici 70 bitů pro „Silné“.",
+  wordLanguage: "Jazyk slov",
+  languageNames: { en: "angličtina", cs: "čeština" },
+  asciiOnly: "Bez diakritiky",
+  asciiOnlyNote: "kun-zluty místo kůň-žlutý — projde všude, i na zahraniční klávesnici. Síla zůstává stejná.",
+  separator: "Oddělovač",
+  separators: [
+    ["-", "Spojovník", "slunce-most-kolo"],
+    [".", "Tečka", "slunce.most.kolo"],
+    ["_", "Podtržítko", "slunce_most_kolo"],
+    [" ", "Mezera", "slunce most kolo"],
+    ["", "Žádný", "sluncemostkolo"],
+    ["digit", "Náhodná číslice", "slunce4most7kolo"],
+  ],
+  capitalize: "Velké první písmeno",
+  capitalizeExample: "Slunce-Most-Kolo",
+  addNumber: "Přidat číslici",
+  addNumberNote: "Uspokojí weby, které číslici vyžadují.",
+  addSymbol: "Přidat symbol",
+  addSymbolNote: "Připojí na konec jeden náhodný symbol.",
+  digits: "Počet číslic",
+  pinHint:
+    "PIN je krátký záměrně — patří k zařízení nebo kartě, které se po pár špatných pokusech zablokují.",
+  count: "Kolik najednou",
+  countHint: "Vygeneruje seznam až 50 hodnot.",
+  fewer: "Méně",
+  more: "Více",
+
+  historyHeading: "Nedávné",
+  clear: "Vymazat",
+  historySub:
+    "Co jste v této kartě vygenerovali nebo zkopírovali — jen v paměti. Obnovením nebo zavřením stránky se to smaže.",
+
+  checkerHeading: "Otestovat heslo",
+  checkLabel: "Heslo k otestování",
+  checkPlaceholder: "Napište nebo vložte heslo",
+  checkPrivacy: "Hodnotí se ve vašem prohlížeči. Nic, co napíšete, se nikam neposílá ani neukládá.",
+  findingsHeading: "Co kontrola zjistila",
+  findingsEmpty: "Začněte psát a uvidíte, jak by na heslo šel útočník — kousek po kousku.",
+  checkerCta: "Potřebujete lepší?",
+  checkerCtaLink: "Vygenerujte silné heslo",
+  showPassword: "Zobrazit heslo",
+  waiting: "Čekám na zadání",
+
+  wifiHeading: "Heslo k Wi-Fi a QR kód",
+  ssid: "Název sítě (SSID)",
+  ssidPlaceholder: "např. Doma-WiFi",
+  security: "Zabezpečení",
+  securityOptions: [
+    ["WPA", "WPA2 / WPA3 (doporučeno)"],
+    ["nopass", "Otevřená síť (bez hesla)"],
+  ],
+  hiddenNetwork: "Skrytá síť",
+  hiddenNetworkNote: "Zaškrtněte jen tehdy, když router název sítě nevysílá.",
+  wifiStyle: "Typ hesla",
+  wifiStyles: [
+    ["easy", "20 písmen a číslic — snadno se píše i na televizi"],
+    ["words", "5 náhodných slov — snadno se nadiktuje návštěvě"],
+    ["strong", "32 znaků včetně symbolů"],
+    ["max", "63 písmen a číslic — maximum pro WPA"],
+  ],
+  wifiPassword: "Heslo",
+  wifiPasswordHint: "Vygenerované pro vás — nebo napište heslo, které už používáte.",
+  wifiPreview: "Kartička pro hosty",
+  qrLabel: "QR kód pro připojení k Wi-Fi",
+  printCard: "Vytisknout",
+  saveQr: "Uložit QR (SVG)",
+  printNetwork: "Síť",
+  printPassword: "Heslo",
+  printNote: "Namiřte na kód fotoaparát telefonu a připojíte se bez opisování.",
+  wifiPrivacy:
+    "QR kód se kreslí ve vašem prohlížeči. Název sítě ani heslo se nikam neposílají a neukládají.",
+
+  shortcutsDialog: "Klávesové zkratky",
+  shortcutsLink: "Klávesové zkratky",
+  close: "Zavřít",
+  shortcutList: {
+    g: "Vygenerovat nové",
+    c: "Kopírovat",
+    h: "Skrýt / zobrazit",
+    t: "Přepnout světlý / tmavý motiv",
+    modes: "Heslo / ze slov / PIN",
+    help: "Tento dialog",
+    esc: "Zavřít dialog",
+  },
+  shortcutsNote: "Zkratky nefungují, když píšete do pole.",
+  copyDialogTitle: "Zkopírujte si to sami",
+  copyDialogNote:
+    "Prohlížeč zablokoval přístup ke schránce. Text níže je už označený — stiskněte <kbd>Ctrl</kbd>&nbsp;<kbd>C</kbd> (na Macu <kbd>⌘</kbd>&nbsp;<kbd>C</kbd>).",
+  copyValue: "Hodnota ke zkopírování",
+  noscript:
+    "FortiPass vytváří hesla ve vašem prohlížeči, a k tomu potřebuje zapnutý JavaScript. Na server se nic neposílá v žádném případě.",
+
+  footerTagline:
+    "Silná hesla, hesla ze slov, PINy a kódy k Wi-Fi vytvořené ve vašem zařízení. Bez účtů, bez sledování, bez síťových požadavků.",
+  footerFree: "Zdarma a open source",
+  footerSource: "Zdrojový kód na GitHubu",
+  footerNote:
+    "FortiPass žádné z vygenerovaných hesel neukládá. Je to nástroj, ne náhrada správce hesel a dvoufázového ověření.",
+  footerCredit:
+    'Anglická slova: <a href="https://www.eff.org/dice" rel="noopener">EFF Large Wordlist</a> (CC BY 3.0 US). Česká slova: vlastní seznam FortiPass.',
+  updated: "Aktualizováno",
+  faqHeading: "Časté otázky",
+};
+
+module.exports = { en, cs };

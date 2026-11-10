@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "__MSG_extName__",
+  "short_name": "FortiPass",
+  "description": "__MSG_extDescription__",
+  "version": "1.0.0",
+  "default_locale": "en",
+  "homepage_url": "https://robertlib.github.io/forti-pass/",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "__MSG_extName__",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "permissions": [],
+  "content_security_policy": {
+    "extension_pages": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "fortipass@roblib.dev",
+      "strict_min_version": "115.0"
+    }
+  }
+}

@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <!-- Social preview (Open Graph / Twitter). Render with:
+       rsvg-convert -w 1200 -h 630 og-image-cs.svg -o og-image-cs.png -->
+  <defs>
+    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6366f1" />
+      <stop offset="1" stop-color="#22d3ee" />
+    </linearGradient>
+    <linearGradient id="brandText" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#818cf8" />
+      <stop offset="1" stop-color="#22d3ee" />
+    </linearGradient>
+    <radialGradient id="glowA" cx="0.12" cy="0.02" r="0.62">
+      <stop offset="0" stop-color="#4f46e5" stop-opacity="0.55" />
+      <stop offset="1" stop-color="#4f46e5" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="glowB" cx="0.98" cy="0.4" r="0.55">
+      <stop offset="0" stop-color="#06b6d4" stop-opacity="0.38" />
+      <stop offset="1" stop-color="#06b6d4" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="#080b16" />
+  <rect width="1200" height="630" fill="url(#glowA)" />
+  <rect width="1200" height="630" fill="url(#glowB)" />
+
+  <!-- Badge -->
+  <g transform="translate(96 92)">
+    <rect width="128" height="128" rx="30" fill="url(#brand)" />
+    <g transform="scale(0.25)" fill="none" stroke="#ffffff" stroke-width="28"
+       stroke-linecap="round" stroke-linejoin="round">
+      <path d="M256 118l104 39v106c0 74-58 118-104 137-46-19-104-63-104-137V157l104-39z" />
+      <path d="M218 262l30 30 56-58" />
+    </g>
+  </g>
+
+  <text x="96" y="338" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif"
+        font-size="96" font-weight="800" letter-spacing="-2" fill="#eef1f8">Forti<tspan fill="url(#brandText)">Pass</tspan></text>
+
+  <text x="98" y="400" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif"
+        font-size="38" font-weight="500" fill="#b9c1d4">Silná hesla, vytvořená ve vašem zařízení</text>
+
+  <!-- Sample output, coloured the way the app colours it -->
+  <rect x="96" y="446" width="760" height="88" rx="20" fill="#ffffff" fill-opacity="0.05"
+        stroke="#ffffff" stroke-opacity="0.12" stroke-width="2" />
+  <text x="130" y="504" font-family="Menlo, 'SF Mono', Consolas, monospace" font-size="40"
+        font-weight="700" fill="#eef1f8">k<tspan fill="#6ee7ff">7</tspan><tspan fill="#ff9ec4">#</tspan>Vq<tspan fill="#ff9ec4">-</tspan>Rm<tspan fill="#6ee7ff">2</tspan><tspan fill="#ff9ec4">@</tspan>xT<tspan fill="#6ee7ff">9</tspan><tspan fill="#ff9ec4">!</tspan>pLw<tspan fill="#6ee7ff">4</tspan>Zs</text>
+
+  <text x="1104" y="584" text-anchor="end"
+        font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif"
+        font-size="26" font-weight="600" fill="#8a93aa">Zdarma · Open source · Funguje offline</text>
+</svg>

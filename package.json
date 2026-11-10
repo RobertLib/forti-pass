@@ -1,10 +1,37 @@
 {
-  "name": "forti-pass",
-  "version": "1.1.0",
+  "name": "fortipass",
+  "version": "1.2.0",
   "private": true,
-  "description": "Password, passphrase and PIN generator that runs entirely in the browser.",
+  "description": "Password, passphrase, PIN and Wi-Fi QR generator that runs entirely in the browser — and on the command line.",
   "license": "MIT",
+  "homepage": "https://robertlib.github.io/forti-pass/",
+  "repository": "github:robertlib/forti-pass",
+  "keywords": [
+    "password",
+    "password-generator",
+    "passphrase",
+    "diceware",
+    "pin",
+    "entropy",
+    "czech",
+    "cli"
+  ],
+  "bin": {
+    "fortipass": "cli/fortipass.js"
+  },
+  "files": [
+    "cli/",
+    "core.js",
+    "wordlist-en.js",
+    "wordlist-cs.js",
+    "locale-cs.js"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
+    "build": "node build/build.js",
+    "build:extension": "node build/extension.js",
     "test": "node --test"
   }
 }

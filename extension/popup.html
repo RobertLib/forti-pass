@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FortiPass</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="tabs" role="tablist">
+      <button type="button" role="tab" data-mode="password" data-i18n="password"></button>
+      <button type="button" role="tab" data-mode="passphrase" data-i18n="passphrase"></button>
+      <button type="button" role="tab" data-mode="pin" data-i18n="pin"></button>
+    </div>
+
+    <output class="value" id="value" aria-live="polite"></output>
+
+    <div class="actions">
+      <button type="button" id="newBtn" data-i18n="regenerate"></button>
+      <button type="button" id="copyBtn" class="primary" data-i18n="copy"></button>
+    </div>
+
+    <div class="meter" id="meter" data-score="0" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <p class="meta"><strong id="label"></strong> · <span id="bits"></span> · <span id="crack"></span></p>
+
+    <div class="panel" data-panel="password">
+      <label class="range">
+        <span><span data-i18n="length"></span> <output id="lengthValue"></output></span>
+        <input type="range" id="length" min="8" max="64" value="20" />
+      </label>
+      <div class="checks">
+        <label><input type="checkbox" id="upper" checked /> <span data-i18n="uppercase"></span></label>
+        <label><input type="checkbox" id="lower" checked /> <span data-i18n="lowercase"></span></label>
+        <label><input type="checkbox" id="digits" checked /> <span data-i18n="numbers"></span></label>
+        <label><input type="checkbox" id="symbols" checked /> <span data-i18n="symbols"></span></label>
+      </div>
+      <label class="check-line"><input type="checkbox" id="readable" /> <span data-i18n="readable"></span></label>
+    </div>
+
+    <div class="panel" data-panel="passphrase" hidden>
+      <label class="range">
+        <span><span data-i18n="words"></span> <output id="wordsValue"></output></span>
+        <input type="range" id="words" min="3" max="10" value="6" />
+      </label>
+      <label class="select-line">
+        <span data-i18n="language"></span>
+        <select id="language">
+          <option value="en" data-i18n="langEn"></option>
+          <option value="cs" data-i18n="langCs"></option>
+        </select>
+      </label>
+    </div>
+
+    <div class="panel" data-panel="pin" hidden>
+      <label class="range">
+        <span><span data-i18n="digits"></span> <output id="pinValue"></output></span>
+        <input type="range" id="pin" min="4" max="12" value="6" />
+      </label>
+    </div>
+
+    <footer>
+      <a id="site" href="https://robertlib.github.io/forti-pass/" target="_blank" rel="noopener" data-i18n="moreTools"></a>
+      <p data-i18n="privacy"></p>
+    </footer>
+
+    <script src="wordlist-en.js"></script>
+    <script src="wordlist-cs.js"></script>
+    <script src="core.js"></script>
+    <script src="locale-cs.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

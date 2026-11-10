@@ -6,8 +6,8 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#080b16",
-  "theme_color": "#0b1020",
+  "background_color": "#0c0e14",
+  "theme_color": "#0c0e14",
   "categories": [
     "utilities",
     "security",
@@ -45,17 +45,22 @@
     {
       "name": "New password",
       "short_name": "Password",
-      "url": "./?mode=password"
+      "url": "./"
     },
     {
       "name": "New passphrase",
       "short_name": "Passphrase",
-      "url": "./?mode=passphrase"
+      "url": "./passphrase-generator/"
     },
     {
       "name": "New PIN",
       "short_name": "PIN",
-      "url": "./?mode=pin"
+      "url": "./pin-generator/"
+    },
+    {
+      "name": "Check a password",
+      "short_name": "Check",
+      "url": "./password-strength-checker/"
     }
   ]
 }

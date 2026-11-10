@@ -1,7 +1,8 @@
 /* ==========================================================================
    FortiPass core — randomness, generators, entropy maths and the strength
    checker. It never touches the DOM, so the same file runs in the browser
-   (as window.FortiPassCore) and under `node --test` (as module.exports).
+   (as window.FortiPassCore) and under Node (as module.exports, used by the
+   tests, the static-site build and the command-line tool).
    ========================================================================== */
 
 (function (root) {
@@ -26,8 +27,6 @@
   const LOG10_2 = Math.log10(2);
   const SECONDS_PER_YEAR = 3.15576e7;
 
-  const SCORE_LABELS = ["", "Very weak", "Weak", "Fair", "Strong", "Excellent"];
-
   const YEAR_SCALES = [
     [1e3, "thousand"],
     [1e6, "million"],
@@ -44,6 +43,8 @@
   // of tries for any realistic option mix. This only stops a pathological one.
   const MAX_ATTEMPTS = 100000;
 
+  // Stored without diacritics: the checker folds its input the same way, so
+  // "Kočička" and "kocicka" are the same guess — as they are to a cracker.
   const COMMON_PASSWORDS = new Set(
     (
       "123456 password 123456789 12345678 12345 qwerty abc123 111111 123123 1234567890 " +
@@ -57,7 +58,33 @@
       "letmein1 p@ssword p@ssw0rd password123 welcome1 admin123 root123 " +
       "iloveyou1 samsung google chrome firefox internet computer 987654321 " +
       "asdf1234 zxcvbnm 1qaz2wsx 1q2w3e4r 1q2w3e4r5t qwer1234 poiuyt lkjhg " +
-      "monkey1 sunshine1 princess1 michael1 love sex god money"
+      "monkey1 sunshine1 princess1 michael1 love sex god money " +
+      // The famous XKCD example is in every cracking list by now.
+      "correcthorsebatterystaple correcthorse " +
+      // Czech favourites: the word for "password", greetings, clubs, pets,
+      // pet names, cars and cities.
+      "heslo heslo1 heslo12 heslo123 heslo1234 mojeheslo tajneheslo noveheslo " +
+      "heslicko ahoj ahojky ahoj123 ahojahoj nazdar cau cus qwertz qwertz123 " +
+      "yxcvbnm sparta slavia banik hokej fotbal pivo praha brno ostrava plzen " +
+      "cesko skoda octavia fabia felicia jawa tatra kocicka kocour pejsek " +
+      "medved medvidek zajicek beruska princezna andilek poklad zlaticko " +
+      "milacek laska miluji milujute slunicko slunce maminka tatinek babicka " +
+      "dedecek pepicek honzik " +
+      // The most common Czech given names and surnames.
+      "jan jiri petr josef pavel martin tomas jaroslav miroslav zdenek vaclav " +
+      "michal frantisek jakub milan karel lukas david ondrej vladimir ladislav " +
+      "roman stanislav marek radek daniel filip adam vojtech matej antonin " +
+      "jaromir ales dominik patrik libor robert vlastimil oldrich rudolf " +
+      "bohumil ivan richard radim kamil jindrich honza pepa franta tonda jirka " +
+      "ondra kuba marie jana eva hana anna lenka katerina petra lucie vera " +
+      "alena martina jaroslava veronika zuzana ivana michaela jitka tereza " +
+      "marketa monika barbora helena ludmila jarmila zdenka kristyna dana " +
+      "marcela vlasta pavla eliska natalie adela klara karolina simona andrea " +
+      "nikola denisa iveta blanka romana olga radka sarka zaneta katka misa " +
+      "terka bara novak svoboda novotny dvorak cerny prochazka kucera vesely " +
+      "horak nemec pospisil pokorny hajek kral jelinek ruzicka benes fiala " +
+      "sedlacek dolezal zeman kolar navratil cermak vanek urban blazek kriz " +
+      "kovar bartos vlcek polak kopecky konecny maly holub stastny"
     ).split(/\s+/)
   );
 
@@ -68,7 +95,10 @@
     "asdfghjkl",
     "zxcvbnm",
     "qwertzuiop",
+    "yxcvbnm",
     "azertyuiop",
+    // The Czech keyboard's number row, typed without Shift.
+    "ěščřžýáíé",
   ];
 
   // The usual leet swaps. "1" and "|" stand for "i" as often as for "l", so
@@ -89,26 +119,144 @@
   };
   const LEET_L = Object.assign({}, LEET_I, { "1": "l", "|": "l" });
 
+  /* -------------------------------------------------------------- messages */
+
+  const plural = (n, one, many) => n + " " + (n === 1 ? one : many);
+
+  // English is built in; a locale file (locale-cs.js) overrides any part.
+  const MESSAGES_EN = {
+    scoreLabels: ["", "Very weak", "Weak", "Fair", "Strong", "Excellent"],
+    errors: {
+      noTypes: "Select at least one character type.",
+      allExcluded:
+        "Every character of the selected types is excluded — remove some exclusions.",
+      notEnoughUnique: (n) =>
+        "Only " + n + " unique characters available — shorten the password or allow repeats.",
+      unsatisfiable:
+        "These options cannot be satisfied — lengthen the password or relax them.",
+      tooRestrictive:
+        "These options are too restrictive — lengthen the password or allow more characters.",
+      noWordList: "Word list failed to load — reload the page.",
+    },
+    time: {
+      instantly: "instantly",
+      count: (n, unit) => plural(n, unit, unit + "s"),
+      scaled: (value, scale) => value + " " + scale + " years",
+      power: (exponent) => "10^" + exponent + " years",
+    },
+    findings: {
+      mostGuessed:
+        "This is one of the most guessed passwords in the world — change it everywhere it is used.",
+      dressedUp:
+        "A well-known password dressed up with predictable swaps (@ for a, 0 for o, a number on the end). Cracking tools try those first.",
+      tooShort: (n) =>
+        "Only " + plural(n, "character", "characters") + ". Anything under 8 falls in seconds.",
+      short: (n) => n + " characters is short. Aim for 16 or more.",
+      goodLength: (n) => n + " characters is a good length.",
+      commonName:
+        "Contains a very common password or name — cracking lists try those first.",
+      singleWord:
+        "Built around a single dictionary word — a word list cracks that far faster than its length suggests.",
+      words: (n) =>
+        "Recognised as " + n + " dictionary words, so it is scored per word rather than per character.",
+      copy: "Repeats an earlier part of itself — a repeated block adds almost nothing.",
+      repeatChar: "Contains a character repeated three or more times in a row.",
+      run: "Contains a keyboard or alphabet run such as “abcd”, “1234” or “qwer”.",
+      year: "Looks like it contains a year — birthdays and dates are guessed early.",
+      fewTypes: (n) =>
+        "Only " +
+        plural(n, "character type", "character types") +
+        " in use. Mixing upper case, digits and symbols multiplies the search space.",
+      allTypes: "Uses all four character types.",
+      nothingToImprove: "Nothing obvious to improve — just never reuse it on another site.",
+    },
+  };
+
+  function mergeMessages(custom) {
+    const merged = {};
+    Object.keys(MESSAGES_EN).forEach((group) => {
+      const base = MESSAGES_EN[group];
+      const over = custom && custom[group];
+      merged[group] = Array.isArray(base)
+        ? (Array.isArray(over) ? over : base).slice()
+        : Object.assign({}, base, over || {});
+    });
+    return merged;
+  }
+
+  /* ---------------------------------------------------------------- text */
+
+  /** "č" → "c", "Ů" → "U"; anything that is not a letter plus accents stays. */
+  function foldChar(c) {
+    if (c.charCodeAt(0) < 0x80) return c;
+    const base = c.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    return base.length === 1 ? base : c;
+  }
+
+  function fold(text) {
+    return Array.from(String(text)).map(foldChar).join("");
+  }
+
   /* ------------------------------------------------------------------ core */
 
   /**
-   * @param {{crypto?: {getRandomValues: Function}, words?: string[]}} config
+   * @param {{
+   *   crypto?: {getRandomValues: Function},
+   *   wordLists?: Object<string, {words: string[], extra?: string[]}>,
+   *   words?: string[],
+   *   messages?: Object
+   * }} config  `wordLists` maps a language code to its passphrase list and
+   *   optional checker-only extra words; `words` is shorthand for English.
    */
   function createCore(config) {
-    const cryptoObj = config && config.crypto;
-    const wordList = config && Array.isArray(config.words) ? config.words : [];
+    const cfg = config || {};
+    const cryptoObj = cfg.crypto;
     const hasCrypto =
       !!cryptoObj && typeof cryptoObj.getRandomValues === "function";
+    const M = mergeMessages(cfg.messages);
 
-    const WORD_SET = new Set(wordList);
-    const WORD_BITS = Math.log2(Math.max(WORD_SET.size, 2));
-    // Common passwords that are also passphrase words are scored as list
-    // words, so the checker never undercuts a passphrase this app generated.
+    const sources = Object.assign({}, cfg.wordLists || {});
+    if (Array.isArray(cfg.words) && !sources.en) sources.en = { words: cfg.words };
+
+    // Passphrase lists, de-duplicated after folding accents so that the
+    // "without diacritics" option cannot make two picks identical — every
+    // word then contributes exactly log2(list size) bits either way.
+    const LISTS = {};
+    // Checker dictionary: folded word → bits to guess it, which is the size
+    // of the cheapest language dictionary it appears in. That is never below
+    // the passphrase list it came from, so the checker cannot undercut a
+    // passphrase this app generated.
+    const DICTIONARY = new Map();
+    Object.keys(sources).forEach((lang) => {
+      const source = sources[lang] || {};
+      const seen = new Set();
+      const words = [];
+      (source.words || []).forEach((raw) => {
+        const word = String(raw).toLowerCase().trim();
+        const key = fold(word);
+        if (!word || seen.has(key)) return;
+        seen.add(key);
+        words.push(word);
+      });
+      if (words.length) LISTS[lang] = words;
+
+      const all = new Set(seen);
+      (source.extra || []).forEach((raw) => all.add(fold(String(raw).toLowerCase().trim())));
+      all.delete("");
+      const bits = Math.log2(Math.max(all.size, 2));
+      all.forEach((key) => {
+        if (!DICTIONARY.has(key) || DICTIONARY.get(key) > bits) DICTIONARY.set(key, bits);
+      });
+    });
+    const LANGUAGES = Object.keys(LISTS);
+
+    // Common passwords that are also dictionary words are scored as words,
+    // so the checker never undercuts a passphrase this app generated.
     const COMMON_ONLY = new Set(
-      Array.from(COMMON_PASSWORDS).filter((word) => !WORD_SET.has(word))
+      Array.from(COMMON_PASSWORDS).filter((word) => !DICTIONARY.has(word))
     );
     const COMMON_BITS = Math.log2(COMMON_ONLY.size);
-    const MAX_TOKEN_LENGTH = Array.from(WORD_SET)
+    const MAX_TOKEN_LENGTH = Array.from(DICTIONARY.keys())
       .concat(Array.from(COMMON_ONLY))
       .reduce((longest, word) => Math.max(longest, word.length), 0);
 
@@ -225,25 +373,15 @@
 
     function makePassword(opts) {
       if (!(opts.uppercase || opts.lowercase || opts.numbers || opts.symbols)) {
-        return { error: "Select at least one character type." };
+        return { error: M.errors.noTypes };
       }
       const sets = buildCharacterSets(opts);
-      if (!sets.length) {
-        return {
-          error:
-            "Every character of the selected types is excluded — remove some exclusions.",
-        };
-      }
+      if (!sets.length) return { error: M.errors.allExcluded };
 
       const pool = [].concat.apply([], sets);
 
       if (opts.noRepeats && opts.length > pool.length) {
-        return {
-          error:
-            "Only " +
-            pool.length +
-            " unique characters available — shorten the password or allow repeats.",
-        };
+        return { error: M.errors.notEnoughUnique(pool.length) };
       }
 
       const useEach =
@@ -255,11 +393,7 @@
         !!opts.noRepeats,
         useEach
       );
-      if (!isFinite(entropy)) {
-        return {
-          error: "These options cannot be satisfied — lengthen the password or relax them.",
-        };
-      }
+      if (!isFinite(entropy)) return { error: M.errors.unsatisfiable };
 
       const setOf = new Map();
       sets.forEach((set, index) => set.forEach((c) => setOf.set(c, index)));
@@ -283,26 +417,28 @@
         return { value: chars.join(""), entropy: entropy };
       }
 
-      return {
-        error:
-          "These options are too restrictive — lengthen the password or allow more characters.",
-      };
+      return { error: M.errors.tooRestrictive };
+    }
+
+    /** The list for `language`, or the first one loaded. */
+    function listFor(language) {
+      return LISTS[language] || LISTS[LANGUAGES[0]] || [];
     }
 
     function makePassphrase(opts) {
-      if (wordList.length < 100) {
-        return { error: "Word list failed to load — reload the page." };
-      }
+      const list = listFor(opts.language);
+      if (list.length < 100) return { error: M.errors.noWordList };
 
       const words = [];
       for (let i = 0; i < opts.words; i++) {
-        const word = pick(wordList);
+        let word = pick(list);
+        if (opts.ascii) word = fold(word);
         words.push(
           opts.capitalize ? word.charAt(0).toUpperCase() + word.slice(1) : word
         );
       }
 
-      let entropy = opts.words * Math.log2(wordList.length);
+      let entropy = opts.words * Math.log2(list.length);
       let value;
 
       if (opts.separator === "digit") {
@@ -347,40 +483,36 @@
       return value < 10 ? Math.round(value * 10) / 10 : Math.round(value);
     }
 
-    function countOf(value, unit) {
-      const n = Math.round(value);
-      return n + " " + unit + (n === 1 ? "" : "s");
-    }
-
     function formatCrackTime(bits) {
-      if (!isFinite(bits) || bits <= 0) return "instantly";
+      const T = M.time;
+      if (!isFinite(bits) || bits <= 0) return T.instantly;
 
       // Average work is half the keyspace; stay in log space so huge
       // keyspaces do not overflow to Infinity.
       const log10Seconds =
         (bits - 1) * LOG10_2 - Math.log10(GUESSES_PER_SECOND);
-      if (log10Seconds < 0) return "instantly";
+      if (log10Seconds < 0) return T.instantly;
 
       const log10Years = log10Seconds - Math.log10(SECONDS_PER_YEAR);
-      if (log10Years >= 18) return "10^" + Math.round(log10Years) + " years";
+      if (log10Years >= 18) return T.power(Math.round(log10Years));
 
       // Each threshold sits half a unit below the next unit, so rounding
       // never produces "60 minutes" or "365 days".
       const seconds = Math.pow(10, log10Seconds);
-      if (seconds < 59.5) return countOf(seconds, "second");
-      if (seconds < 59.5 * 60) return countOf(seconds / 60, "minute");
-      if (seconds < 23.5 * 3600) return countOf(seconds / 3600, "hour");
-      if (seconds < 364.5 * 86400) return countOf(seconds / 86400, "day");
+      if (seconds < 59.5) return T.count(Math.round(seconds), "second");
+      if (seconds < 59.5 * 60) return T.count(Math.round(seconds / 60), "minute");
+      if (seconds < 23.5 * 3600) return T.count(Math.round(seconds / 3600), "hour");
+      if (seconds < 364.5 * 86400) return T.count(Math.round(seconds / 86400), "day");
 
       const years = seconds / SECONDS_PER_YEAR;
-      if (years < 999.5) return countOf(years, "year");
+      if (years < 999.5) return T.count(Math.round(years), "year");
       for (let s = 0; s < YEAR_SCALES.length; s++) {
         const next = s + 1 < YEAR_SCALES.length ? YEAR_SCALES[s + 1][0] : 1e18;
         if (years < next * 0.9995) {
-          return round1(years / YEAR_SCALES[s][0]) + " " + YEAR_SCALES[s][1] + " years";
+          return T.scaled(round1(years / YEAR_SCALES[s][0]), YEAR_SCALES[s][1]);
         }
       }
-      return "10^18 years";
+      return T.power(18);
     }
 
     /* -------------------------------------------------- strength checker */
@@ -421,7 +553,7 @@
     }
 
     function isLetter(c) {
-      return /^[a-z]$/i.test(c);
+      return /^\p{L}$/u.test(c);
     }
 
     function isDigit(c) {
@@ -433,7 +565,9 @@
       if (/[a-z]/.test(password)) size += 26;
       if (/[A-Z]/.test(password)) size += 26;
       if (/[0-9]/.test(password)) size += 10;
-      if (/[^a-zA-Z0-9]/.test(password)) size += 32;
+      // Accented letters (č, ř, ů…) are their own pool, not symbols.
+      if (/(?![a-zA-Z])\p{L}/u.test(password)) size += 30;
+      if (/[^\p{L}\p{N}]/u.test(password)) size += 32;
       return Math.max(size, 2);
     }
 
@@ -475,7 +609,7 @@
       return shapes.reduce((sum, shape, i) => {
         if (shape === "lower") return sum;
         if (shape === "mixed") {
-          return sum + 1 + (words[i].match(/[A-Z]/g) || []).length;
+          return sum + 1 + (words[i].match(/\p{Lu}/gu) || []).length;
         }
         return sum + 1;
       }, 0);
@@ -484,14 +618,15 @@
     /**
      * Estimates how many guesses an attacker needs by splitting the password
      * into the cheapest sequence of pieces an attacker would try: dictionary
-     * words (with leet undone), common passwords, years, character runs,
-     * keyboard sequences, copies of an earlier stretch, or single characters
-     * from the observed pool. A small dynamic programme finds the split with
-     * the lowest total cost in bits.
+     * words (with leet and accents undone), common passwords, years, character
+     * runs, keyboard sequences, copies of an earlier stretch, or single
+     * characters from the observed pool. A small dynamic programme finds the
+     * split with the lowest total cost in bits.
      */
     function estimate(chars) {
       const n = chars.length;
-      const lower = chars.map((c) => c.toLowerCase());
+      // Accents are folded away: crackers try "kocicka" for "kočička".
+      const lower = chars.map((c) => foldChar(c.toLowerCase()));
       const readings = [
         lower,
         lower.map((c) => LEET_I[c] || c),
@@ -560,9 +695,9 @@
           readings.forEach((reading, r) => {
             if (r > 0 && len < 4) return;
             const text = reading.slice(i, i + len).join("");
-            const inList = WORD_SET.has(text);
+            const inList = DICTIONARY.has(text);
             if (!inList && !COMMON_ONLY.has(text)) return;
-            let bits = inList ? WORD_BITS : COMMON_BITS;
+            let bits = inList ? DICTIONARY.get(text) : COMMON_BITS;
             for (let k = i; k < i + len; k++) {
               if (reading[k] !== lower[k]) bits += 1;
             }
@@ -600,9 +735,10 @@
     }
 
     function analyze(input) {
-      const chars = Array.from(String(input)).slice(0, MAX_CHECK_LENGTH);
+      const F = M.findings;
+      const chars = Array.from(String(input).normalize("NFC")).slice(0, MAX_CHECK_LENGTH);
       const password = chars.join("");
-      const lower = password.toLowerCase();
+      const lower = fold(password.toLowerCase());
       const length = chars.length;
 
       const result = estimate(chars);
@@ -626,12 +762,10 @@
       let common = null;
       if (COMMON_PASSWORDS.has(lower)) {
         bits = Math.min(bits, 8);
-        common =
-          "This is one of the most guessed passwords in the world — change it everywhere it is used.";
+        common = F.mostGuessed;
       } else if (variants.some((v) => v.length >= 3 && COMMON_PASSWORDS.has(v))) {
         bits = Math.min(bits, 22);
-        common =
-          "A well-known password dressed up with predictable swaps (@ for a, 0 for o, a number on the end). Cracking tools try those first.";
+        common = F.dressedUp;
       }
 
       const score = scoreFromBits(bits);
@@ -639,14 +773,11 @@
       if (common) findings.push(["bad", common]);
 
       if (length < 8) {
-        findings.push([
-          "bad",
-          "Only " + length + " characters. Anything under 8 falls in seconds.",
-        ]);
+        findings.push(["bad", F.tooShort(length)]);
       } else if (length < 12) {
-        findings.push(["warn", length + " characters is short. Aim for 16 or more."]);
+        findings.push(["warn", F.short(length)]);
       } else {
-        findings.push(["good", length + " characters is a good length."]);
+        findings.push(["good", F.goodLength(length)]);
       }
 
       const wordTokens = tokens.filter(
@@ -655,35 +786,21 @@
       const wordLetters = wordTokens.reduce((sum, t) => sum + t.end - t.start, 0);
       if (!common && wordTokens.length && wordLetters >= length * 0.5) {
         if (wordTokens.some((t) => t.kind === "common")) {
-          findings.push([
-            "bad",
-            "Contains a very common password or name — cracking lists try those first.",
-          ]);
+          findings.push(["bad", F.commonName]);
         }
         if (wordTokens.length === 1) {
-          findings.push([
-            "warn",
-            "Built around a single dictionary word — a word list cracks that far faster than its length suggests.",
-          ]);
+          findings.push(["warn", F.singleWord]);
         } else {
-          findings.push([
-            score >= 4 ? "good" : "warn",
-            "Recognised as " +
-              wordTokens.length +
-              " dictionary words, so it is scored per word rather than per character.",
-          ]);
+          findings.push([score >= 4 ? "good" : "warn", F.words(wordTokens.length)]);
         }
       }
 
       if (tokens.some((t) => t.kind === "copy")) {
-        findings.push([
-          "warn",
-          "Repeats an earlier part of itself — a repeated block adds almost nothing.",
-        ]);
+        findings.push(["warn", F.copy]);
       }
 
       if (/(.)\1{2,}/u.test(password)) {
-        findings.push(["warn", "Contains a character repeated three or more times in a row."]);
+        findings.push(["warn", F.repeatChar]);
       }
 
       let longestRun = 0;
@@ -691,44 +808,28 @@
         longestRun = Math.max(longestRun, runFrom(chars, i));
       }
       if (longestRun >= 4) {
-        findings.push([
-          "warn",
-          "Contains a keyboard or alphabet run such as “abcd”, “1234” or “qwer”.",
-        ]);
+        findings.push(["warn", F.run]);
       }
 
       if (/(19|20)\d{2}/.test(password)) {
-        findings.push([
-          "warn",
-          "Looks like it contains a year — birthdays and dates are guessed early.",
-        ]);
+        findings.push(["warn", F.year]);
       }
 
       // Length beats variety, so only nag about variety when it shows.
       const classes = [
-        /[a-z]/.test(password),
-        /[A-Z]/.test(password),
+        /\p{Ll}/u.test(password),
+        /\p{Lu}/u.test(password),
         /[0-9]/.test(password),
-        /[^a-zA-Z0-9]/.test(password),
+        /[^\p{L}\p{N}]/u.test(password),
       ].filter(Boolean).length;
       if (classes <= 2 && score < 4) {
-        findings.push([
-          "warn",
-          "Only " +
-            classes +
-            " character type" +
-            (classes === 1 ? "" : "s") +
-            " in use. Mixing upper case, digits and symbols multiplies the search space.",
-        ]);
+        findings.push(["warn", F.fewTypes(classes)]);
       } else if (classes === 4) {
-        findings.push(["good", "Uses all four character types."]);
+        findings.push(["good", F.allTypes]);
       }
 
       if (score >= 4 && !findings.some((f) => f[0] !== "good")) {
-        findings.push([
-          "good",
-          "Nothing obvious to improve — just never reuse it on another site.",
-        ]);
+        findings.push(["good", F.nothingToImprove]);
       }
 
       // Praise reads as mockery next to a failing verdict, so drop it.
@@ -738,12 +839,47 @@
       return { bits: bits, score: score, findings: relevant.slice(0, 5) };
     }
 
+    /* ------------------------------------------------------------- Wi-Fi */
+
+    /** Backslash-escapes the characters the Wi-Fi QR format reserves. */
+    function escapeWifi(text) {
+      return String(text).replace(/([\\;,:"])/g, "\\$1");
+    }
+
+    /**
+     * The text phones understand when a Wi-Fi QR code is scanned:
+     * WIFI:T:WPA;S:<name>;P:<password>;;  ("WPA" covers WPA2 and WPA3 too).
+     */
+    function wifiPayload(opts) {
+      const open = opts.security === "nopass";
+      let text = "WIFI:T:" + (open ? "nopass" : "WPA") + ";S:" + escapeWifi(opts.ssid) + ";";
+      if (!open) text += "P:" + escapeWifi(opts.password) + ";";
+      if (opts.hidden) text += "H:true;";
+      return text + ";";
+    }
+
+    /**
+     * Why a WPA key would be rejected by a router, or null: it must be 8–63
+     * printable ASCII characters (a 64-digit hex string is a raw key).
+     */
+    function wifiPasswordProblem(password) {
+      const text = String(password);
+      if (/^[0-9a-fA-F]{64}$/.test(text)) return null;
+      if (/[^\x20-\x7e]/.test(text)) return "ascii";
+      if (text.length < 8) return "short";
+      if (text.length > 63) return "long";
+      return null;
+    }
+
     return {
       CHARS: CHARS,
-      SCORE_LABELS: SCORE_LABELS,
+      SCORE_LABELS: M.scoreLabels,
       MAX_CHECK_LENGTH: MAX_CHECK_LENGTH,
+      GUESSES_PER_SECOND: GUESSES_PER_SECOND,
       hasCrypto: hasCrypto,
-      wordCount: wordList.length,
+      languages: LANGUAGES,
+      wordCount: (language) => listFor(language).length,
+      fold: fold,
       randomInt: randomInt,
       shuffle: shuffle,
       buildCharacterSets: buildCharacterSets,
@@ -754,17 +890,23 @@
       scoreFromBits: scoreFromBits,
       formatCrackTime: formatCrackTime,
       analyze: analyze,
+      wifiPayload: wifiPayload,
+      wifiPasswordProblem: wifiPasswordProblem,
     };
   }
 
   if (typeof module === "object" && module.exports) {
     module.exports = createCore;
   } else {
-    // wordlist.js declares WORDS as a top-level const, which is a lexical
-    // global rather than a property of window — hence the typeof guard.
+    // The word-list files register themselves in FortiPassWordLists and the
+    // optional locale file in FortiPassLocale; both load before this one.
+    const locale = root.FortiPassLocale;
+    // The browser extension builds its own instance in the browser's language.
+    root.FortiPassCreateCore = createCore;
     root.FortiPassCore = createCore({
       crypto: root.crypto || root.msCrypto,
-      words: typeof WORDS !== "undefined" && Array.isArray(WORDS) ? WORDS : [],
+      wordLists: root.FortiPassWordLists || {},
+      messages: locale && locale.core,
     });
   }
 })(typeof self !== "undefined" ? self : globalThis);

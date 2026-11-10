@@ -1,20 +1,56 @@
 # FortiPass — Strong Password & Passphrase Generator
 
 🔐 **Free online password generator** that runs entirely in your browser. Random
-passwords, memorable passphrases and PINs, with honest strength maths and no
-network requests at all.
+passwords, memorable passphrases (English or Czech), PINs and Wi-Fi QR codes,
+with honest strength maths and no network requests at all.
 
-**Live demo:** [robertlib.github.io/forti-pass](https://robertlib.github.io/forti-pass/)
+**Live:** [robertlib.github.io/forti-pass](https://robertlib.github.io/forti-pass/)
+· **Česky:** [robertlib.github.io/forti-pass/cs/](https://robertlib.github.io/forti-pass/cs/)
+
+## Tools
+
+Every tool has its own page in English and Czech, linked with `hreflang`:
+
+| Tool                        | English                          | Czech                                |
+| --------------------------- | -------------------------------- | ------------------------------------ |
+| Password generator          | `/`                              | `/cs/`                               |
+| Passphrase generator        | `/passphrase-generator/`         | `/cs/generator-hesel-ze-slov/`       |
+| PIN generator               | `/pin-generator/`                | `/cs/generator-pin/`                 |
+| Password strength checker   | `/password-strength-checker/`    | `/cs/kontrola-sily-hesla/`           |
+| Wi-Fi password & QR code    | `/wifi-password-generator/`      | `/cs/generator-hesla-wifi/`          |
+| Crack-time table            | `/how-long-to-crack-a-password/` | `/cs/jak-dlouho-trva-prolomit-heslo/` |
+
+Also available as a [command-line tool](#command-line) and a
+[browser extension](#browser-extension).
+
+### How the app is laid out
+
+- **Three sections** — Generator, Check and Wi-Fi — in the top bar on a
+  computer and in a tab bar at the bottom on a phone.
+- **One card per tool.** The result sits on the left with its strength and
+  actions, the settings on the right, so every change is visible at once; on
+  narrow screens the two stack.
+- **Password, Passphrase and PIN are pages, not hidden tabs.** The switch at
+  the top of the generator links between them, so the address always matches
+  what is on screen and each mode can be bookmarked or shared. Settings are
+  remembered per mode; "Hide" carries over while you switch.
+- Supporting text, tables and FAQs follow below the tool, never above it.
 
 ## Features
 
-### Three ways to generate
+### Generators
 
 - **Password** — 4 to 128 characters, any mix of uppercase, lowercase, numbers
   and symbols
-- **Passphrase** — random words from a 2,200+ word list (~11 bits per word),
-  with a choice of separators, capitalisation, a trailing number or symbol
-- **PIN** — 3 to 16 digits
+- **Passphrase** — random words from the 7,776-word EFF list or a 7,776-word
+  Czech list (12.9 bits per word), Czech optionally without accents; a choice of
+  separators, capitalisation, a trailing number or symbol
+- **PIN** — 3 to 16 digits, shown with its number of combinations rather
+  than an offline crack time (PINs rely on lockouts, not length)
+- **Wi-Fi** — WPA2/WPA3 passwords in four styles (easy to type on a TV, words,
+  32 characters, 63 characters) and a QR code phones can scan to join; print a
+  guest card or save the code as SVG. The QR encoder (`qr.js`) is written from
+  scratch with no dependencies, so the page still makes no network requests.
 
 ### Strength you can actually reason about
 
@@ -28,16 +64,20 @@ network requests at all.
 
 Paste a password you already use and get a local verdict: entropy, crack time
 and specific findings. The estimate splits the password into the cheapest
-pieces an attacker would try — dictionary words (also when glued together, as
-in `correcthorse`), common passwords and names, leet-speak variants such as
-`P@ssw0rd`, years, repeated characters, keyboard and alphabet runs, and copies
-of an earlier block (`Ab3$Ab3$Ab3$`) — so patterned passwords are not scored
-as if every character were random.
+pieces an attacker would try — dictionary words in English and Czech (also
+glued together, as in `correcthorse`, and with accents folded, so `kocicka` is
+`kočička`), common passwords and Czech names, leet-speak variants such as
+`P@ssw0rd`, years, repeated characters, keyboard runs (QWERTY, QWERTZ and the
+Czech `ěščřžý` row) and copies of an earlier block (`Ab3$Ab3$Ab3$`) — so
+patterned passwords are not scored as if every character were random.
 
 ### Usability
 
-- Quick presets: Memorable, Web login, Maximum, Easy to read, 6-digit PIN
-- Generate up to 50 at once, with copy-all, download and per-row regeneration
+- Quick settings: Web login (16), Maximum (32), Easy to read and, in Czech,
+  **Datová schránka** (24 characters that meet the ISDS rules); 4, 6 or 8
+  digits for PINs. A chip stays lit only while the options still match it.
+- Generate a list of up to 50 at once, with copy-all, download and per-row
+  regeneration
 - Colour-coded characters so digits and symbols are easy to read off the screen
 - Click-to-copy anywhere, plus a hide/show toggle for shoulder surfers
 - Optional clipboard clearing 30 seconds after a copy
@@ -45,7 +85,7 @@ as if every character were random.
 - Advanced options: avoid look-alike characters, forbid repeats, require every
   selected type, exclude specific characters
 - Light and dark themes, remembered settings, keyboard shortcuts
-- Installable PWA that works fully offline
+- Installable PWA that works fully offline, in English and Czech
 
 ### Keyboard shortcuts
 
@@ -55,12 +95,12 @@ as if every character were random.
 | `C`         | Copy the current password   |
 | `H`         | Hide / show passwords       |
 | `T`         | Switch light / dark theme   |
-| `1` `2` `3` | Password / passphrase / PIN |
+| `1` `2` `3` | Password / passphrase / PIN page |
 | `?`         | Keyboard shortcuts dialog   |
 
 `1` `2` `3` are matched by physical key, so they also work on layouts where the
-digit row needs Shift (Czech, French…). In the mode tabs, the arrow keys, Home
-and End switch modes.
+digit row needs Shift (Czech, French…). The shortcut list is linked from the
+footer of every page.
 
 ## Security
 
@@ -73,58 +113,103 @@ and End switch modes.
 - **Exact entropy.** "Use every selected type" is enforced by rejection
   sampling, so every valid password is equally likely and the bits shown are
   computed exactly (inclusion–exclusion), not approximated.
+- **Honest word lists.** Both lists are de-duplicated after folding accents, so
+  "without accents" never merges two words and every word is worth exactly
+  log₂(list size) bits.
 - **Nothing leaves the device.** No accounts, no analytics, no requests — and a
   Content Security Policy with `connect-src 'none'` makes the browser enforce
-  that. Only your generator preferences are stored (in `localStorage`);
-  generated passwords never are.
+  that, on every page and in the extension. Only your generator preferences
+  are stored (in `localStorage`); generated passwords, Wi-Fi names and Wi-Fi
+  passwords never are.
 - **No password is ever injected as markup** — values are set via `textContent`,
   so there is nothing to escape.
 
-## Usage
+## Command line
 
-1. Pick a mode: password, passphrase or PIN
-2. Adjust length, character types or word count
-3. Press **Generate** (or `G`) and click the result to copy it
+The same `core.js` and word lists, on Node 18+:
+
+```bash
+node cli/fortipass.js                     # one 20-character password
+node cli/fortipass.js -l 32 -n 5          # five 32-character passwords
+node cli/fortipass.js -w 6 --lang cs      # a Czech passphrase, no accents
+node cli/fortipass.js --pin 6 --json      # machine-readable
+node cli/fortipass.js --check             # rate a password typed without echo
+```
+
+Values go to stdout and the strength summary to stderr, so
+`node cli/fortipass.js | pbcopy` copies only the password. `--check` exits 1
+for anything below Strong, which makes it usable in scripts.
+
+`package.json` already declares the `fortipass` binary and the files to ship.
+It is marked `"private": true` so nothing is published by accident; remove that
+line and run `npm publish` to make `npx fortipass` work.
+
+## Browser extension
+
+`extension/` is a Manifest V3 popup for Chrome, Edge and Firefox with the same
+generators, in English and Czech. It requests **no permissions** and its CSP
+forbids network access.
+
+```bash
+npm run build:extension
+```
+
+This copies the shared `core.js`, word lists and Czech strings into
+`dist/fortipass-extension/` (load it as an unpacked extension to try it) and
+zips it as `dist/fortipass-extension-<version>.zip` for the Chrome Web Store,
+Firefox Add-ons and Edge Add-ons.
 
 ## Development
 
-There is no build step. Clone the repository and open `index.html`, or serve the
-folder to exercise the service worker:
+The pages are generated: templates and content live in `build/`, the word
+lists in `wordlists/`. Generated files are committed, so GitHub Pages serves
+the repository as it is.
 
 ```bash
-python3 -m http.server 8000
-# then open http://localhost:8000
+npm run build      # regenerate pages, word-list scripts, manifests, sitemap, sw.js
+npm test           # Node's built-in runner, no dependencies
+python3 -m http.server 8000   # then open http://localhost:8000
 ```
 
-Tests use Node's built-in runner (Node 18+, no dependencies):
+`npm test` fails if a generated file is out of date, if a link or `hreflang`
+pair is broken, if a page lacks an element `script.js` needs, or if a script is
+not pre-cached by the service worker.
 
-```bash
-npm test
-```
+| Path                       | Purpose                                                         |
+| -------------------------- | --------------------------------------------------------------- |
+| `build/site.js`            | Site URL, asset version, page list — **edit to change domain**  |
+| `build/content/en.js`, `cs.js` | Page copy, FAQ; figures are computed by `core.js`           |
+| `build/strings.js`         | Interface text baked into the HTML                              |
+| `build/layout.js`          | `<head>` (SEO, hreflang, JSON-LD, CSP), navigation, footer      |
+| `build/components.js`      | Generator (per mode), checker, Wi-Fi card, crack-time tables    |
+| `build/sw.template.js`     | Service worker source                                           |
+| `wordlists/*.txt`          | Word lists, one word per line                                   |
+| `core.js`                  | Randomness, generators, entropy maths, strength checker, Wi-Fi  |
+| `qr.js`                    | Dependency-free QR code encoder                                 |
+| `locale-cs.js`             | Czech strings for `core.js` and `script.js`                     |
+| `script.js`                | User interface wiring                                           |
+| `styles.css`               | Design tokens, light/dark themes, layout, tab bar, print card   |
+| `cli/`, `extension/`       | Command-line tool and browser extension                         |
+| `tests/`                   | Unit tests and site consistency checks                          |
+| `*.svg`                    | Sources for the icons and social previews                       |
 
-| File                | Purpose                                                   |
-| ------------------- | --------------------------------------------------------- |
-| `index.html`        | Markup, SEO metadata, structured data, CSP                |
-| `styles.css`        | Design tokens, light/dark themes, layout                  |
-| `core.js`           | Randomness, generators, entropy maths, strength checker   |
-| `script.js`         | User interface wiring                                     |
-| `wordlist.js`       | Passphrase word list                                      |
-| `sw.js`             | Offline caching                                           |
-| `tests/`            | Unit tests for `core.js`, consistency checks for the site |
-| `icon.svg`          | Icon source for the generated PNGs                        |
-| `icon-maskable.svg` | Full-bleed icon source for Android adaptive icons         |
-| `og-image.svg`      | Social preview source                                     |
+Generated (do not edit by hand): every `index.html`, `404.html`,
+`wordlist-en.js`, `wordlist-cs.js`, `manifest.json`, `cs/manifest.json`,
+`sitemap.xml`, `robots.txt`, `sw.js`.
 
 ### Shipping a change
 
-1. Bump `ASSET_VERSION` in `sw.js` **and** the `?v=` query on the stylesheet
-   and scripts in `index.html`. The versioned URLs stop a returning visitor from
-   getting new HTML with stale JavaScript from the old cache.
-2. If you edit the inline theme script in `index.html`, update its
-   `sha256-…` hash in the Content Security Policy.
-3. Update `<lastmod>` in `sitemap.xml`.
-4. Run `npm test` — it fails if steps 1 or 2 were missed and prints the
-   correct hash.
+1. Bump `ASSET_VERSION` in `build/site.js` — it busts the service-worker cache
+   and the `?v=` query on every script and stylesheet together.
+2. Bump `UPDATED` in `build/site.js` if the content changed (sitemap `lastmod`,
+   "Updated" date on the crack-time table).
+3. `npm run build && npm test`.
+
+### Moving to your own domain
+
+Set `SITE_URL` in `build/site.js`, run `npm run build`, add a `CNAME` file and
+set the custom domain in the repository's GitHub Pages settings. GitHub then
+redirects the old `github.io` URLs to the new domain.
 
 Images are rendered from the SVG sources:
 
@@ -134,15 +219,30 @@ rsvg-convert -w 512 -h 512 icon.svg -o icon-512.png
 rsvg-convert -w 180 -h 180 icon.svg -o apple-touch-icon.png
 rsvg-convert -w 512 -h 512 icon-maskable.svg -o icon-maskable-512.png
 rsvg-convert -w 1200 -h 630 og-image.svg -o og-image.png
+rsvg-convert -w 1200 -h 630 og-image-cs.svg -o og-image-cs.png
+for s in 16 32 48 128; do rsvg-convert -w $s -h $s icon.svg -o extension/icons/icon-$s.png; done
 ```
+
+## Word lists
+
+- **English:** the [EFF Large Wordlist](https://www.eff.org/dice) by the
+  Electronic Frontier Foundation, licensed
+  [CC BY 3.0 US](https://creativecommons.org/licenses/by/3.0/us/). Changed for
+  FortiPass: the hyphen removed from four entries (drop-down, felt-tip, t-shirt,
+  yo-yo) so a hyphen separator stays unambiguous, and the resulting duplicate
+  "yoyo" replaced by "horse". `wordlists/en-extra.txt` adds common English words
+  the strength checker recognises; the generator never uses them.
+- **Czech:** compiled for FortiPass — everyday nouns, adjectives, verbs and
+  adverbs of 3–8 letters, checked with a Czech spell checker, with offensive
+  and distressing words left out, and unique even with accents removed.
 
 ## Notes on the strength checker
 
-The checker is a heuristic, not a full cracking simulation. It knows a list of
-very common passwords, the built-in word list, leet substitutions, repeats,
-keyboard runs and years. It cannot know your pet's name, your city or words
-in other languages — treat a good score as "no obvious weakness found", not a
-guarantee.
+The checker is a heuristic, not a full cracking simulation. It knows lists of
+very common passwords and Czech names, the English and Czech word lists, leet
+substitutions, repeats, keyboard runs and years. It cannot know your pet's
+name, your city, or whether a password has already leaked — treat a good score
+as "no obvious weakness found", not a guarantee.
 
 For generated output the checker and the generator agree closely, with one
 deliberate difference: the checker does not know which separator a
@@ -155,8 +255,5 @@ Issues and pull requests are welcome.
 
 ## License
 
-MIT License — feel free to use and modify.
-
----
-
-**Tags:** #password #passphrase #security #generator #cybersecurity #pwa #javascript #webtools
+MIT License — feel free to use and modify. The English word list is CC BY 3.0
+US (see above).

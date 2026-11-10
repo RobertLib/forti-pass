@@ -1,0 +1,66 @@
+{
+  "id": "fortipass-cs",
+  "name": "FortiPass – generátor silných hesel",
+  "short_name": "FortiPass",
+  "description": "Silná hesla, hesla z českých slov a PINy vytvořené přímo ve vašem zařízení, se skutečnou entropií a odhadem doby prolomení.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0c0e14",
+  "theme_color": "#0c0e14",
+  "categories": [
+    "utilities",
+    "security",
+    "productivity"
+  ],
+  "lang": "cs",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "../icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "../icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "../icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "../icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nové heslo",
+      "short_name": "Heslo",
+      "url": "./"
+    },
+    {
+      "name": "Nové heslo ze slov",
+      "short_name": "Ze slov",
+      "url": "./generator-hesel-ze-slov/"
+    },
+    {
+      "name": "Nový PIN",
+      "short_name": "PIN",
+      "url": "./generator-pin/"
+    },
+    {
+      "name": "Zkontrolovat heslo",
+      "short_name": "Kontrola",
+      "url": "./kontrola-sily-hesla/"
+    }
+  ]
+}
