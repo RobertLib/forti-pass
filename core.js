@@ -61,7 +61,8 @@
       "123456 password 123456789 12345678 12345 qwerty abc123 111111 123123 1234567890 " +
       "1234567 password1 qwerty123 000000 iloveyou dragon monkey letmein football " +
       "admin welcome login princess sunshine master 123qwe qwertyuiop starwars " +
-      "passw0rd zaq12wsx qazwsx trustno1 hello freedom whatever qwe123 asdfgh " +
+      "passw0rd zaq12wsx qazwsx qazwsxedc qazwsxedcrfv trustno1 hello freedom " +
+      "whatever qwe123 asdfgh " +
       "michael jordan superman batman charlie donald hunter shadow ranger " +
       "baseball soccer hockey killer jennifer joshua maggie mustang pepper " +
       "summer winter spring autumn secret ninja azerty 654321 666666 121212 " +
@@ -70,8 +71,14 @@
       "iloveyou1 samsung google chrome firefox internet computer 987654321 " +
       "asdf1234 zxcvbnm 1qaz2wsx 1q2w3e4r 1q2w3e4r5t qwer1234 poiuyt lkjhg " +
       "monkey1 sunshine1 princess1 michael1 love sex god money " +
-      // The famous XKCD example is in every cracking list by now.
-      "correcthorsebatterystaple correcthorse " +
+      // The famous XKCD example is in every cracking list by now, and so
+      // are pangrams and film quotes — with any separator, in any case.
+      "correcthorsebatterystaple correcthorse thequickbrownfoxjumpsoverthelazydog " +
+      "thequickbrownfox maytheforcebewithyou priliszlutouckykunupeldabelskeody " +
+      "priliszlutouckykun " +
+      // More of the RockYou leak's top twenty-five.
+      "rockyou nicole babygirl lovely jessica ashley iloveu michelle tigger anthony " +
+      "butterfly angel " +
       // Czech favourites: the word for "password", greetings, clubs, pets,
       // pet names, cars and cities.
       "heslo heslo1 heslo12 heslo123 heslo1234 mojeheslo tajneheslo noveheslo " +
@@ -98,6 +105,41 @@
       "kovar bartos vlcek polak kopecky konecny maly holub stastny"
     ).split(/\s+/)
   );
+
+  // The most frequent words of each language that no passphrase list holds
+  // — "the", "with", "nothing", "jsem", "moje". A cracker's word list is
+  // sorted by frequency and tries them long before "zygote", so each one
+  // costs only the choice among these. Folded like the passwords above.
+  const COMMON_WORDS = {
+    en: (
+      "about above after again all along also and answer any are ask away babe baby " +
+      "back bear because been before began begin being below best bestfriend big " +
+      "black blue boy boys brother but call came can car cat cherry children " +
+      "chocolate christ close cookie cool cute daddy day days dear did different does " +
+      "dog dream eat eight end enough ever every everything eye eyes face far father " +
+      "february feet few find fire first for forever form found four friends funny " +
+      "get girl girls give gold got great grow hand hands hard has have head hear " +
+      "help her here hey high him himself his home honey hot how hundred into its " +
+      "jesus just kind know land later learn leave light like live long look loveme " +
+      "lover lucky made magic make man may mean men might miss mommy mother must " +
+      "mylove near need new night nine nobody not nothing november now off often once " +
+      "one orange our ourselves out over own papa part people pink place play please " +
+      "point prince put queen read really red right rock run saw school sea see seem " +
+      "seven sexy she should show side six some somebody someone something sometimes " +
+      "son song soon sorry sound star stars still stop story sunday sweet sweetheart " +
+      "sweetie talk tell ten than thanks the their them themselves then there they " +
+      "things this thought three through time times together too took turn two under " +
+      "use want was way wednesday well went were what when where which while white " +
+      "who will with without woman words world would write year years yellow yes you " +
+      "young your yourself"
+    ).split(" "),
+    cs: (
+      "ale bude budes budu byl byla bylo chces chci jako jeho jeji jejich jsem jsi " +
+      "jsme jsou jste kdo kdyz kocko lasko maji mam mame mas mate mezi milacku miluju " +
+      "mne moje moji muj muzes muzu nad nas nebo nejsem neni nic ona oni prasatko " +
+      "pred pro proc sebe tato tebe ten tento toto tvoje tvuj vas vsechno"
+    ).split(" "),
+  };
 
   // Alphabet, digits and keyboard lines a walk can follow, in either
   // direction. Rows cover QWERTY, QWERTZ and AZERTY; columns are what
@@ -277,11 +319,16 @@
     // word then contributes exactly log2(list size) bits either way.
     const LISTS = {};
     // Checker dictionary: folded word → bits to guess it, which is the size
-    // of the cheapest language dictionary it appears in. That is never below
+    // of the cheapest language dictionary it appears in (or of COMMON_WORDS,
+    // for the most frequent words no passphrase list holds). That is never below
     // the passphrase list it came from, so the checker cannot undercut a
     // passphrase this app generated with a separator. (Words run together
     // can now and then be split into other, cheaper words.)
     const DICTIONARY = new Map();
+    // Every word any passphrase list can produce, folded, and what a word
+    // of each language's dictionary costs.
+    const PASSPHRASE_WORDS = new Set();
+    const WORD_BITS = {};
     Object.keys(sources).forEach((lang) => {
       const source = sources[lang] || {};
       const seen = new Set();
@@ -291,6 +338,7 @@
         const key = fold(word);
         if (!word || seen.has(key)) return;
         seen.add(key);
+        PASSPHRASE_WORDS.add(key);
         words.push(word);
       });
       if (words.length) LISTS[lang] = words;
@@ -299,11 +347,31 @@
       (source.extra || []).forEach((raw) => all.add(fold(String(raw).toLowerCase().trim())));
       all.delete("");
       const bits = Math.log2(Math.max(all.size, 2));
+      WORD_BITS[lang] = bits;
       all.forEach((key) => {
         if (!DICTIONARY.has(key) || DICTIONARY.get(key) > bits) DICTIONARY.set(key, bits);
       });
     });
     const LANGUAGES = Object.keys(LISTS);
+
+    // The most frequent words of the loaded languages cost only the choice
+    // among them. A three-letter one turns up by chance in random strings,
+    // though, so it costs what any word of its language does. A word that a
+    // passphrase list holds keeps the list's price, so a generated passphrase
+    // is still never undercut; and two common words cost more than one list
+    // word, so splitting a list word in two gains nothing either.
+    const COMMON = Object.keys(sources).filter((lang) => COMMON_WORDS[lang]);
+    const COMMON_WORD_BITS = Math.log2(
+      Math.max(COMMON.reduce((sum, lang) => sum + COMMON_WORDS[lang].length, 0), 2)
+    );
+    COMMON.forEach((lang) => {
+      COMMON_WORDS[lang].forEach((word) => {
+        if (PASSPHRASE_WORDS.has(word) || COMMON_PASSWORDS.has(word)) return;
+        const bits = word.length > 3 ? COMMON_WORD_BITS : Math.max(COMMON_WORD_BITS, WORD_BITS[lang]);
+        const listed = DICTIONARY.has(word) ? DICTIONARY.get(word) : Infinity;
+        DICTIONARY.set(word, Math.min(listed, bits));
+      });
+    });
 
     // Common passwords that are also dictionary words are scored as words,
     // so a generated passphrase is never priced as a list of common passwords.
@@ -668,21 +736,29 @@
 
     /**
      * Capitalising every word the same way is one rule to an attacker, not
-     * one choice per word.
+     * one choice per word, and a word that breaks the rule costs only that
+     * exception — one stray lower-case piece among capitalised words must
+     * not turn the rule back into a choice per word.
      */
     function caseBits(words) {
       if (!words.length) return 0;
       const shapes = words.map(caseShape);
-      if (shapes[0] !== "mixed" && shapes.every((shape) => shape === shapes[0])) {
-        return shapes[0] === "lower" ? 0 : 1;
-      }
-      return shapes.reduce((sum, shape, i) => {
-        if (shape === "lower") return sum;
-        if (shape === "mixed") {
-          return sum + 1 + (words[i].match(/\p{Lu}/gu) || []).length;
-        }
-        return sum + 1;
-      }, 0);
+      // A word on its own: free in lower case, a bit for a capital or all
+      // caps, and a bit per capital letter on top when they are mixed.
+      const own = (i) => {
+        if (shapes[i] === "lower") return 0;
+        if (shapes[i] === "mixed") return 1 + (words[i].match(/\p{Lu}/gu) || []).length;
+        return 1;
+      };
+      let best = shapes.reduce((sum, shape, i) => sum + own(i), 0);
+      ["capital", "upper"].forEach((rule) => {
+        const bits = shapes.reduce(
+          (sum, shape, i) => sum + (shape === rule ? 0 : shape === "lower" ? 1 : own(i)),
+          1
+        );
+        best = Math.min(best, bits);
+      });
+      return best;
     }
 
     /**

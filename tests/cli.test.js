@@ -78,10 +78,23 @@ test("JSON output carries the values, the entropy and a numeric score", () => {
   assert.ok(Math.abs(data.bits - 6 * Math.log2(10)) < 1e-9);
   assert.equal(data.score, 1);
   assert.equal(data.label, "Very weak");
+  // A PIN counts its combinations; an offline crack time would mislead.
+  assert.equal(data.combinations, 1e6);
+  assert.ok(!("crackTime" in data));
 
   const strong = JSON.parse(run(["-l", "32", "--json"]).stdout);
   assert.equal(strong.score, 5);
   assert.equal(strong.label, "Excellent");
+  assert.equal(typeof strong.crackTime, "string");
+  assert.ok(!("combinations" in strong));
+});
+
+test("a PIN's summary gives its combinations, as the website does", () => {
+  const en = run(["--pin", "6"]);
+  assert.equal(en.status, 0);
+  assert.equal(en.stderr, "1,000,000 combinations · 20 bits\n");
+  const cs = run(["--pin", "4", "--lang", "cs"]);
+  assert.equal(cs.stderr, "10\u00a0000 kombinací · 13 bitů\n");
 });
 
 test("--version prints the package version", () => {

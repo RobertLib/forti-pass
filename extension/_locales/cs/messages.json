@@ -22,7 +22,8 @@
   "bits": { "message": "$N$ b", "placeholders": { "n": { "content": "$1" } } },
   "toCrack": { "message": "$T$ na prolomení", "placeholders": { "t": { "content": "$1" } } },
   "crackedInstantly": { "message": "prolomení okamžitě" },
+  "combinations": { "message": "$N$ kombinací", "placeholders": { "n": { "content": "$1" } } },
   "moreTools": { "message": "QR kód k\u00a0Wi-Fi, kontrola síly hesla a\u00a0další" },
   "privacy": { "message": "Vzniká v\u00a0tomto zařízení. Nic se neodesílá, ukládá se jen nastavení." },
-  "copyFailed": { "message": "Označte text a\u00a0zkopírujte ho ručně." }
+  "copyFailed": { "message": "Označeno – stiskněte $KEY$", "placeholders": { "key": { "content": "$1" } } }
 }

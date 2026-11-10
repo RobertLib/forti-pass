@@ -33,7 +33,8 @@ Also available as a [command-line tool](#command-line) and a
 - **Password, Passphrase and PIN are pages, not hidden tabs.** The switch at
   the top of the generator links between them, so the address always matches
   what is on screen and each mode can be bookmarked or shared. Settings are
-  remembered per mode; "Hide" carries over while you switch.
+  remembered per mode (how many to generate too); "Hide" carries over while
+  you switch.
 - Supporting text, tables and FAQs follow below the tool, never above it.
 
 ## Features
@@ -68,7 +69,10 @@ Paste a password you already use and get a local verdict: entropy, crack time
 and specific findings. The estimate splits the password into the cheapest
 pieces an attacker would try — dictionary words in English and Czech (also
 glued together, as in `correcthorse`, and with accents folded, so `kocicka` is
-`kočička`), common passwords and Czech names, leet-speak variants such as
+`kočička`; the few hundred most frequent words, such as `the`, `with` or
+`jsem`, cost less than the rest, because a cracker tries them first), common
+passwords and Czech names, well-known phrases such as pangrams and film
+quotes, leet-speak variants such as
 `P@ssw0rd`, years, repeated characters, keyboard walks (rows and columns on
 QWERTY and QWERTZ, the Shift layer as in `!@#$%`, column walks such as
 `1qaz2wsx`, and the Czech `+ěščřžý` row) and copies of an earlier block
@@ -93,7 +97,10 @@ keep the strength they genuinely add.
   Copying something yourself on the page cancels it. A copy made in another
   app cannot be seen, so the wipe clears whatever is on the clipboard by then
   (the switch says so)
-- Session list of what you generated and copied — memory only, gone on reload
+- Session list of what you generated and copied — memory only, gone when you
+  leave or reload the page (each generator mode is a page of its own)
+- The Wi-Fi password field wraps, so even a 63-character key is in view whole
+  on a phone
 - Advanced options: avoid look-alike characters, forbid repeats, require every
   selected type, exclude specific characters (excluding every character of a
   selected type is an error, not a silent change)
@@ -155,6 +162,9 @@ node cli/fortipass.js --help                   # every option and its limits
 Values go to stdout and the strength summary to stderr, so
 `node cli/fortipass.js | pbcopy` copies only the password. Limits match the
 website (length 4–128, 3–12 words, PIN 3–16 digits); `-n` goes up to 1000.
+As on the website, a PIN's summary gives its number of combinations rather
+than a crack time (in `--json`, `combinations` takes the place of
+`crackTime`).
 Numbers must be plain digits, and an option for another kind of value (such as
 `--length` with `--pin`, or `-s` without `-w`) is a usage error rather than
 silently ignored.
@@ -171,7 +181,8 @@ line and run `npm publish` to make `npx fortipass` work.
 `extension/` is a Manifest V3 popup for Chrome, Edge and Firefox (140+, 142+
 on Android) with the same generators and limits as the website — except that
 passwords stop at 64 characters, the end of the slider (the website's number
-field goes on to 128) — in English and Czech. It
+field goes on to 128) — in English and Czech. Like the website, it rates a PIN
+by its number of combinations. It
 requests **no permissions**, declares to Firefox that it collects no data, and
 its CSP forbids network access. Its version is the project's (`package.json`),
 and `npm test` fails if the two drift apart.
@@ -210,7 +221,10 @@ python3 -m http.server 8000   # then open http://localhost:8000
 `#fragment` it points at) or an `hreflang` pair is broken, if a page lacks an
 element `script.js` needs, if a script is not pre-cached by the service worker,
 or if the site stops working offline: `tests/offline.test.js` lets the service
-worker install, shuts the server down and opens every page.
+worker install, shuts the server down and opens every page. The test that
+compares the checker with the generator on random samples draws them from a
+seeded source, so it checks the same samples on every run instead of failing
+now and then on a rare one.
 
 The browser tests (`tests/app.test.js` for the site, `tests/popup.test.js` for
 the extension) drive headless Chromium over the DevTools protocol, with no npm
@@ -303,18 +317,29 @@ for s in 16 32 48 128; do rsvg-convert -w $s -h $s icon.svg -o extension/icons/i
 ## Notes on the strength checker
 
 The checker is a heuristic, not a full cracking simulation. It knows lists of
-very common passwords and Czech names, the English and Czech word lists, leet
-substitutions, repeats, keyboard runs and years. It cannot know your pet's
-name, your city, or whether a password has already leaked — treat a good score
-as "no obvious weakness found", not a guarantee.
+very common passwords, famous phrases and Czech names, the English and Czech
+word lists, the most frequent words of both languages, leet substitutions,
+repeats, keyboard runs and years. Its dictionaries hold base forms of about
+17,000 words, not every plural or Czech case ending, so a phrase built from
+rarer or inflected words can still come out stronger than a real cracker would
+find it. It cannot know your pet's name, your city, or whether a password has
+already leaked — treat a good score as "no obvious weakness found", not a
+guarantee.
+
+The most frequent words (`the`, `with`, `nothing`, `jsem`, `moje`) cost less
+than other dictionary words, because a cracker's word list is sorted by
+frequency. Words a passphrase list holds keep that list's price, and
+three-letter ones cost a full dictionary word, since they turn up by chance in
+random strings.
 
 For generated passphrases with a separator the checker does not give a lower
 rating than the generator; it usually credits a few bits more, because it does
 not know which separator you chose, while the generator assumes the attacker
 knows your exact settings. (When one word repeats most of an earlier one, as
 `vzor` after `vzorec`, it can come out a bit or so lower — not enough to change
-the rating in 36,000 simulated passphrases.) Words run together with no separator can occasionally be split
-into other, cheaper words. For random passwords the checker sometimes spots a
+the rating in 40,000 simulated passphrases.) Words run together with no
+separator can occasionally be split into other, cheaper words. For random
+passwords the checker sometimes spots a
 pattern that appeared by chance (a short keyboard run, a repeated pair), so a
 password near a boundary may land one level lower there than in the
 generator — roughly one in twenty-five 12-character passwords.

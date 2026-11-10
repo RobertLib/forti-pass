@@ -14,6 +14,8 @@
   // How long "Copied" and the copy-it-yourself hint replace the button label.
   const COPIED_MS = 1400;
   const COPY_FAILED_MS = 4000;
+  // What copies the selected value by hand, on this computer.
+  const COPY_KEYS = /Mac|iPhone|iPad/.test(navigator.platform || "") ? "⌘C" : "Ctrl+C";
 
   const core = globalThis.FortiPassCreateCore({
     crypto: globalThis.crypto,
@@ -85,10 +87,10 @@
   }
 
   /** Shows `key` on the Copy button (and to screen readers) for a while. */
-  function copyFeedback(key, ms) {
+  function copyFeedback(key, ms, substitutions) {
     clearTimeout(copyTimer);
-    $("copyBtn").textContent = t(key);
-    $("status").textContent = t(key);
+    $("copyBtn").textContent = t(key, substitutions);
+    $("status").textContent = t(key, substitutions);
     copyTimer = setTimeout(resetCopy, ms);
   }
 
@@ -141,14 +143,32 @@
     $("copyBtn").disabled = false;
     paint(current);
     const score = core.scoreFromBits(result.entropy);
-    const time = core.formatCrackTime(result.entropy);
+    const bits = t("bits", [String(Math.round(result.entropy))]);
     $("meter").dataset.score = String(score);
     $("meta").hidden = false;
-    $("label").textContent = core.SCORE_LABELS[score];
-    $("bits").textContent = t("bits", [String(Math.round(result.entropy))]);
-    $("announce").textContent = core.SCORE_LABELS[score] + ", " + $("bits").textContent;
-    $("crack").textContent = time === INSTANTLY ? t("crackedInstantly") : t("toCrack", [time]);
+    let label;
+    const details = [bits];
+    if (mode === "pin") {
+      // As on the website: a PIN is kept safe by a lockout after a few wrong
+      // tries, so it is rated by its combinations — "cracked instantly"
+      // would only mislead.
+      const combinations = Math.pow(10, options.pinLength).toLocaleString(czech ? "cs" : "en");
+      label = t("combinations", [combinations]);
+    } else {
+      const time = core.formatCrackTime(result.entropy);
+      label = core.SCORE_LABELS[score];
+      details.push(time === INSTANTLY ? t("crackedInstantly") : t("toCrack", [time]));
+    }
+    showMeta(label, details);
+    $("announce").textContent = label + ", " + bits;
     save();
+  }
+
+  /** "Strong · 81 bits · 350 thousand years to crack", the verdict in bold. */
+  function showMeta(label, details) {
+    const strong = document.createElement("strong");
+    strong.textContent = label;
+    $("meta").replaceChildren(strong, details.map((detail) => " · " + detail).join(""));
   }
 
   function setMode(next) {
@@ -188,7 +208,7 @@
       const selection = getSelection();
       selection.removeAllRanges();
       selection.addRange(range);
-      copyFeedback("copyFailed", COPY_FAILED_MS);
+      copyFeedback("copyFailed", COPY_FAILED_MS, [COPY_KEYS]);
     }
   }
 

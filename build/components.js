@@ -324,6 +324,11 @@ function checker(t, ctx) {
         </section>`;
 }
 
+/**
+ * The Wi-Fi card. Its password field is a text area, so a long key wraps
+ * and stays in view whole on a phone; script.js keeps it to one line of
+ * text and as tall as it wraps.
+ */
 function wifi(t) {
   return `<section class="tool wifi" id="wifi" aria-labelledby="wifiHeading">
           <h2 class="sr-only" id="wifiHeading">${t.wifiHeading}</h2>
@@ -348,7 +353,7 @@ function wifi(t) {
                 <div class="field">
                   <label for="wifiPassword">${t.wifiPassword}</label>
                   <div class="input-row">
-                    <input type="text" id="wifiPassword" class="text-input mono" maxlength="64" autocomplete="off" autocapitalize="off" spellcheck="false" data-1p-ignore data-lpignore="true" data-bwignore aria-describedby="wifiPasswordHint wifiHint" />
+                    <textarea id="wifiPassword" class="text-input mono wifi-password" rows="1" maxlength="64" autocomplete="off" autocapitalize="off" spellcheck="false" data-1p-ignore data-lpignore="true" data-bwignore aria-describedby="wifiPasswordHint wifiHint"></textarea>
                     <button type="button" class="icon-btn" id="wifiNewBtn" aria-label="${esc(t.new)}" title="${esc(t.newTitle)}">
                       ${icon("i-refresh")}
                     </button>

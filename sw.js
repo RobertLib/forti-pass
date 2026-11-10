@@ -6,7 +6,7 @@
    installs a fresh cache, so a page never mixes new HTML with stale
    JavaScript or CSS from an older one. */
 
-const ASSET_VERSION = "1375b3f035";
+const ASSET_VERSION = "dffde52dfa";
 // Cache Storage belongs to the whole origin, which on github.io is shared
 // with every other repository the account publishes — so only caches with
 // this prefix are ours to replace.

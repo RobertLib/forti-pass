@@ -164,6 +164,9 @@
     ["pinLength", "pinLength", "int"],
     ["clearClipboard", "clearClipboard", "bool"],
   ];
+  // Every generator page has "How many", but each mode keeps its own: fifty
+  // door codes on the PIN page must not turn the password page into a list.
+  const PER_MODE = ["count"];
   const LIMITS = {
     length: [4, 128, 16],
     count: [1, 50, 1],
@@ -988,6 +991,7 @@
     const password = el.wifiPassword.value;
 
     el.wifiPasswordField.hidden = open;
+    fitWifiPassword();
 
     // A password the user typed is scored by the checker; one we generated
     // carries its exact entropy.
@@ -1049,6 +1053,33 @@
     const side = qr.size + 8;
     el.wifiQr.setAttribute("viewBox", "0 0 " + side + " " + side);
     el.wifiQrPath.setAttribute("d", QR.toPath(qr, 4));
+  }
+
+  /**
+   * The password field wraps: words at their separators, random characters
+   * anywhere (see .wifi-password). Then it is made exactly as tall as that.
+   */
+  function fitWifiPassword() {
+    const area = el.wifiPassword;
+    if (!area) return;
+    area.classList.toggle("is-words", /^[\p{L}\d]+(?:[-\s._][\p{L}\d]+)+$/u.test(area.value));
+    // Hidden (an open network), it has no size to measure.
+    if (!area.offsetParent) return;
+    area.style.height = "auto";
+    area.style.height = area.scrollHeight + (area.offsetHeight - area.clientHeight) + "px";
+  }
+
+  /**
+   * A Wi-Fi password is one line, though its field wraps: no line break may
+   * get in, not even the one a pasted password often brings along.
+   */
+  function dropLineBreaks() {
+    const area = el.wifiPassword;
+    const value = area.value;
+    if (!/[\r\n]/.test(value)) return;
+    const caret = area.selectionStart - (value.slice(0, area.selectionStart).match(/[\r\n]/g) || []).length;
+    area.value = value.replace(/[\r\n]+/g, "");
+    area.setSelectionRange(caret, caret);
   }
 
   function saveWifiQr() {
@@ -1121,7 +1152,13 @@
     });
     el.wifiHidden.addEventListener("change", renderWifi);
     el.wifiSsid.addEventListener("input", renderWifi);
-    el.wifiPassword.addEventListener("input", renderWifi);
+    el.wifiPassword.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") event.preventDefault();
+    });
+    el.wifiPassword.addEventListener("input", () => {
+      dropLineBreaks();
+      renderWifi();
+    });
     el.wifiPrintBtn.addEventListener("click", () => window.print());
     el.wifiSaveBtn.addEventListener("click", saveWifiQr);
   }
@@ -1205,6 +1242,11 @@
 
   /* --------------------------------------------------------------- settings */
 
+  /** Where a setting is stored: "count:pin" for one kept per mode. */
+  function storedAs(key) {
+    return PER_MODE.indexOf(key) === -1 ? key : key + ":" + state.mode;
+  }
+
   function readSettings() {
     try {
       const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "null");
@@ -1222,12 +1264,13 @@
     if (!el.generator) return;
     const settings = Object.assign({}, readSettings() || {});
     delete settings.mode; // the address decides the mode now
+    PER_MODE.forEach((key) => delete settings[key]); // once shared by every mode
     FIELDS.forEach(([key, id, kind]) => {
       const node = el[id];
       if (!node) return;
-      if (kind === "bool") settings[key] = node.checked;
-      else if (kind === "int") settings[key] = intOf(node, key);
-      else settings[key] = node.value;
+      if (kind === "bool") settings[storedAs(key)] = node.checked;
+      else if (kind === "int") settings[storedAs(key)] = intOf(node, key);
+      else settings[storedAs(key)] = node.value;
     });
     try {
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
@@ -1242,7 +1285,7 @@
 
     FIELDS.forEach(([key, id, kind]) => {
       const node = el[id];
-      const value = saved[key];
+      const value = saved[storedAs(key)];
       if (!node || value === undefined) return;
       if (kind === "bool") {
         if (typeof value === "boolean") node.checked = value;
@@ -1592,10 +1635,12 @@
       }
 
       // Physical keys for 1/2/3, so layouts that need Shift for digits
-      // (Czech, French…) work too.
-      const digit = /^(?:Digit|Numpad)([1-3])$/.exec(event.code || "");
-      if (digit && el.generator) {
-        goToMode(MODES[Number(digit[1]) - 1]);
+      // (Czech, French…) work too. With Num Lock off the keypad's 1, 2 and 3
+      // are End, ↓ and Page Down, which must keep scrolling the page — so a
+      // keypad key counts only while it types its digit.
+      const digit = /^(Digit|Numpad)([1-3])$/.exec(event.code || "");
+      if (digit && el.generator && (digit[1] === "Digit" || event.key === digit[2])) {
+        goToMode(MODES[Number(digit[2]) - 1]);
         return;
       }
 
@@ -1719,7 +1764,14 @@
 
     syncSliders();
     syncScrollers();
-    window.addEventListener("resize", debounce(syncScrollers, 150));
+    window.addEventListener(
+      "resize",
+      debounce(() => {
+        syncScrollers();
+        // A new width wraps the Wi-Fi password differently.
+        fitWifiPassword();
+      }, 150)
+    );
 
     if ("serviceWorker" in navigator) {
       const root = document.documentElement.dataset.root || "./";

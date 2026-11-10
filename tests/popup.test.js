@@ -166,8 +166,9 @@ popupSuite("en", (ctx) => {
     });
     await new Promise((resolve) => setTimeout(resolve, 100));
     let s = await page.evaluate(state);
-    assert.equal(s.copy, "Select the text and copy it yourself.");
-    assert.equal(s.status, "Select the text and copy it yourself.");
+    const keys = await page.evaluate(() => (/Mac|iPhone|iPad/.test(navigator.platform) ? "⌘C" : "Ctrl+C"));
+    assert.equal(s.copy, "Selected — press " + keys);
+    assert.equal(s.status, "Selected — press " + keys);
     assert.equal(await page.evaluate(() => String(getSelection())), s.value);
 
     // A new value puts the label back at once…
@@ -203,7 +204,7 @@ popupSuite("en", (ctx) => {
     await page.close();
   });
 
-  test("a weak PIN reads “cracked instantly”", async (t) => {
+  test("a PIN is rated by its combinations, as on the website, not by a crack time", async (t) => {
     const page = await openPopup(ctx, t);
     if (!page) return;
     await page.evaluate(() => {
@@ -214,7 +215,8 @@ popupSuite("en", (ctx) => {
     });
     const s = await page.evaluate(state);
     assert.match(s.value, /^\d{3}$/);
-    assert.equal(s.meta, "Very weak · 10 bits · cracked instantly");
+    assert.equal(s.meta, "1,000 combinations · 10 bits");
+    assert.equal(await page.evaluate(() => document.getElementById("announce").textContent), "1,000 combinations, 10 bits");
     await page.close();
   });
 
@@ -255,7 +257,7 @@ popupSuite("cs", (ctx) => {
       pin.dispatchEvent(new Event("input"));
     });
     s = await page.evaluate(state);
-    assert.equal(s.meta, "Velmi slabé · 10 b · prolomení okamžitě");
+    assert.equal(s.meta, "1\u00a0000 kombinací · 10 b");
     assert.deepEqual(page.errors, []);
     await page.close();
   });

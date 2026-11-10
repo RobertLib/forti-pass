@@ -50,12 +50,15 @@ Passphrases
       --symbol          append a symbol as well
 
 PINs
-      --pin <n>         PIN of n digits, 3–16
+      --pin <n>         PIN of n digits, 3–16. Like the website, the summary
+                        gives its combinations, not a crack time: a PIN is
+                        kept safe by a lockout, not by its length
 
 General
   -n, --count <n>       how many to generate, 1–1000 (default 1)
       --check           rate a password from stdin instead of generating
-      --json            machine-readable output
+      --json            machine-readable output (for PINs, "combinations"
+                        takes the place of "crackTime")
   -q, --quiet           no strength summary on stderr; with --check, print
                         nothing and only set the exit status
   -V, --version         print the version
@@ -319,25 +322,30 @@ async function main() {
   }
 
   const score = core.scoreFromBits(entropy);
+  // A PIN is rated by its combinations, as on the website: it relies on a
+  // lockout after a few wrong tries, so an offline crack time ("instantly")
+  // would only mislead.
+  const combinations = o.pin ? Math.pow(10, o.pin) : 0;
   if (o.json) {
-    process.stdout.write(
-      JSON.stringify({
-        values,
-        score,
-        label: core.SCORE_LABELS[score],
-        bits: entropy,
-        crackTime: core.formatCrackTime(entropy),
-      }) + "\n"
-    );
+    const result = { values, score, label: core.SCORE_LABELS[score], bits: entropy };
+    if (o.pin) result.combinations = combinations;
+    else result.crackTime = core.formatCrackTime(entropy);
+    process.stdout.write(JSON.stringify(result) + "\n");
     return;
   }
   process.stdout.write(values.join("\n") + "\n");
-  if (!o.quiet) {
-    process.stderr.write(
-      `${core.SCORE_LABELS[score]} · ${bits(entropy)} · ${core.formatCrackTime(entropy)}` +
-        (czech ? " při 10^11 pokusech za sekundu\n" : " at 10^11 guesses per second\n")
-    );
+  if (o.quiet) return;
+  if (o.pin) {
+    const count = czech
+      ? LOCALE_CS.ui.combinations(combinations)
+      : combinations.toLocaleString("en") + " combinations";
+    process.stderr.write(`${count} · ${bits(entropy)}\n`);
+    return;
   }
+  process.stderr.write(
+    `${core.SCORE_LABELS[score]} · ${bits(entropy)} · ${core.formatCrackTime(entropy)}` +
+      (czech ? " při 10^11 pokusech za sekundu\n" : " at 10^11 guesses per second\n")
+  );
 }
 
 main().catch((err) => fail(err.message));

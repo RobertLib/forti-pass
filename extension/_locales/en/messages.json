@@ -22,7 +22,8 @@
   "bits": { "message": "$N$ bits", "placeholders": { "n": { "content": "$1" } } },
   "toCrack": { "message": "$T$ to crack", "placeholders": { "t": { "content": "$1" } } },
   "crackedInstantly": { "message": "cracked instantly" },
+  "combinations": { "message": "$N$ combinations", "placeholders": { "n": { "content": "$1" } } },
   "moreTools": { "message": "Wi-Fi QR codes, strength checker and more" },
   "privacy": { "message": "Made on this device. Nothing is sent; only your settings are saved." },
-  "copyFailed": { "message": "Select the text and copy it yourself." }
+  "copyFailed": { "message": "Selected — press $KEY$", "placeholders": { "key": { "content": "$1" } } }
 }

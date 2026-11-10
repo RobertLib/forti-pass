@@ -16,6 +16,35 @@ const czech = createCore({
   messages: LOCALE_CS.core,
 });
 
+/**
+ * A seeded stand-in for crypto.getRandomValues (sfc32), for the tests that
+ * compare the checker with the generator on random samples. A checker can
+ * spot a pattern that appeared by chance, so some rare sample always lies
+ * far out in the tail; with fresh randomness the suite would then fail one
+ * run in a hundred or so. Seeded, it checks the same samples every time.
+ */
+function seededCrypto(seed) {
+  let a = 0x9e3779b9;
+  let b = 0x243f6a88;
+  let c = 0xb7e15162;
+  let d = seed >>> 0;
+  const next = () => {
+    const t = (((a + b) >>> 0) + d) >>> 0;
+    d = (d + 1) >>> 0;
+    a = b ^ (b >>> 9);
+    b = (c + (c << 3)) >>> 0;
+    c = (((c << 21) | (c >>> 11)) + t) >>> 0;
+    return t;
+  };
+  for (let i = 0; i < 15; i++) next();
+  return {
+    getRandomValues(array) {
+      for (let i = 0; i < array.length; i++) array[i] = next();
+      return array;
+    },
+  };
+}
+
 const BASE = {
   length: 16,
   uppercase: true,
@@ -233,11 +262,30 @@ test("checker rates well-known weak patterns as weak", () => {
     "correct horse battery staple": 1,
     "Correct-Horse-Battery-Staple7": 1,
     "Password2024!!": 1,
+    // Pangrams and film quotes are in cracking lists, glued or spaced.
+    thequickbrownfoxjumpsoverthelazydog: 1,
+    "The quick brown fox jumps over the lazy dog": 1,
+    MayTheForceBeWithYou: 1,
+    // RockYou favourites, and phrases of the most common words.
+    babygirl: 1,
+    babygirl123: 1,
+    iloveyouforever: 1,
+    whatwouldyoudo: 2,
+    andyouandme: 2,
   };
   for (const [password, maxScore] of Object.entries(cases)) {
     const { score } = core.analyze(password);
     assert.ok(score <= maxScore, `${password} scored ${score}, expected ≤ ${maxScore}`);
   }
+});
+
+test("one word in another case costs a bit, not the capitalisation rule", () => {
+  // "Capitalise each word" is one rule; a word that breaks it is one
+  // exception, not a reason to price every capital separately.
+  const ruled = core.analyze("Cider Buffer Saloon Wobble Sequester").bits;
+  const broken = core.analyze("Cider Buffer Saloon wobble Sequester").bits;
+  assert.ok(broken - ruled <= 1 + 1e-9, `${broken.toFixed(1)} vs ${ruled.toFixed(1)}`);
+  assert.ok(broken > ruled);
 });
 
 test("checker does not call random strings common passwords", () => {
@@ -265,21 +313,22 @@ test("random characters around a common word keep the strength they add", () => 
 });
 
 test("checker agrees with the generator on generated output", () => {
+  const seeded = createCore({ crypto: seededCrypto(1), wordLists: { en: EN } });
   const configs = [
-    ["16-char password", core.makePassword, opts({})],
-    ["12-char password", core.makePassword, opts({ length: 12 })],
-    ["readable password", core.makePassword, opts({ length: 20, symbols: false, excludeAmbiguous: true })],
-    ["6 words, hyphen, number", core.makePassphrase, opts({})],
-    ["6 words, lowercase", core.makePassphrase, opts({ capitalize: false, addNumber: false })],
-    ["3 words, no separator", core.makePassphrase, opts({ words: 3, separator: "", capitalize: false, addNumber: false })],
-    ["5 words, no separator", core.makePassphrase, opts({ words: 5, separator: "", addNumber: false })],
-    ["6 words, digit separator", core.makePassphrase, opts({ separator: "digit" })],
-    ["7 words, space, symbol", core.makePassphrase, opts({ words: 7, separator: " ", addSymbol: true })],
+    ["16-char password", seeded.makePassword, opts({})],
+    ["12-char password", seeded.makePassword, opts({ length: 12 })],
+    ["readable password", seeded.makePassword, opts({ length: 20, symbols: false, excludeAmbiguous: true })],
+    ["6 words, hyphen, number", seeded.makePassphrase, opts({})],
+    ["6 words, lowercase", seeded.makePassphrase, opts({ capitalize: false, addNumber: false })],
+    ["3 words, no separator", seeded.makePassphrase, opts({ words: 3, separator: "", capitalize: false, addNumber: false })],
+    ["5 words, no separator", seeded.makePassphrase, opts({ words: 5, separator: "", addNumber: false })],
+    ["6 words, digit separator", seeded.makePassphrase, opts({ separator: "digit" })],
+    ["7 words, space, symbol", seeded.makePassphrase, opts({ words: 7, separator: " ", addSymbol: true })],
   ];
   for (const [label, make, options] of configs) {
     for (let i = 0; i < 150; i++) {
       const generated = make(options);
-      const checked = core.analyze(generated.value).bits;
+      const checked = seeded.analyze(generated.value).bits;
       const diff = checked - generated.entropy;
       // The checker may spot an accidental word or run in a random string,
       // and it gives a few bits for not knowing the separator — but it must
@@ -377,6 +426,10 @@ test("checker knows Czech passwords, names and words without accents", () => {
     "Novak.Jana": 2,
     "ěščřžý": 2,
     yxcvbnm: 1,
+    // The pangram every Czech knows, whole or begun, and the commonest words.
+    "příliš žluťoučký kůň úpěl ďábelské ódy": 1,
+    "Příliš žluťoučký kůň": 1,
+    jsemtvojelasko: 1,
   };
   for (const [password, maxScore] of Object.entries(cases)) {
     const { score } = both.analyze(password);

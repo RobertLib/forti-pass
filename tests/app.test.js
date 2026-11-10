@@ -132,6 +132,27 @@ test("the generator makes a password, regenerates and remembers its settings", {
   assert.ok(!(await page.evaluate(() => localStorage.getItem("fortipass:settings:v1"))).includes(await hero(page)));
 });
 
+test("each mode remembers its own “How many”", { skip }, async (t) => {
+  const page = await open(t, "pin-generator/");
+  await page.evaluate(() => {
+    document.getElementById("countUp").click();
+    document.getElementById("countUp").click();
+  });
+  assert.equal(await page.evaluate(() => document.querySelectorAll("#passwordList li").length), 3);
+
+  // A list of PINs leaves the password page at one password…
+  await page.navigate(base);
+  const one = await page.evaluate(() => ({
+    count: document.getElementById("count").value,
+    single: !document.getElementById("heroPassword").hidden,
+  }));
+  assert.deepEqual(one, { count: "1", single: true });
+
+  // …and the PIN page still makes three.
+  await page.navigate(base + "pin-generator/");
+  assert.equal(await page.evaluate(() => document.querySelectorAll("#passwordList li").length), 3);
+});
+
 test("presets light up while they match and a list regenerates one row", { skip }, async (t) => {
   const page = await open(t, "");
   const chip = (preset) =>
@@ -204,6 +225,22 @@ test("hiding masks the value, describes it and carries over to the next mode", {
   await loaded;
   assert.match(await page.evaluate(() => location.pathname), /\/passphrase-generator\/$/);
   assert.match(await hero(page), /^•+$/);
+});
+
+test("keypad keys switch modes only while they type digits", { skip }, async (t) => {
+  const page = await open(t, "passphrase-generator/");
+  // Num Lock off: the keypad's 1 is End and must stay a scrolling key.
+  for (const type of ["rawKeyDown", "keyUp"]) {
+    await page.send("Input.dispatchKeyEvent", { type, key: "End", code: "Numpad1", windowsVirtualKeyCode: 35 });
+  }
+  await sleep(300);
+  assert.match(await page.evaluate(() => location.pathname), /\/passphrase-generator\/$/);
+
+  // Num Lock on: the same key types "1" and opens the password page.
+  const loaded = page.connection.once("Page.loadEventFired", page.sessionId);
+  await pressCode(page, "1", "Numpad1");
+  await loaded;
+  assert.equal(await page.evaluate(() => location.pathname), PREFIX);
 });
 
 test("copying puts the value on the clipboard and in the session list", { skip }, async (t) => {
@@ -330,6 +367,36 @@ test("the checker scores as you type and its reveal button keeps one name", { sk
     };
   });
   assert.deepEqual(reveal, { type: "text", pressed: "true", label: "Show password" });
+});
+
+test("the Wi-Fi password is in view whole on a phone and stays one line", { skip }, async (t) => {
+  const page = await open(t, "wifi-password-generator/");
+  await page.send("Emulation.setDeviceMetricsOverride", { width: 320, height: 700, deviceScaleFactor: 1, mobile: true });
+  const fits = await page.evaluate(async () => {
+    const results = {};
+    for (const style of ["easy", "words", "strong", "max"]) {
+      const select = document.getElementById("wifiStyle");
+      select.value = style;
+      select.dispatchEvent(new Event("change"));
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+      const area = document.getElementById("wifiPassword");
+      results[style] = area.scrollWidth <= area.clientWidth && area.scrollHeight <= area.clientHeight;
+    }
+    return results;
+  });
+  assert.deepEqual(fits, { easy: true, words: true, strong: true, max: true });
+
+  // A pasted password brings its line break along; Enter adds none.
+  await page.evaluate(() => {
+    const area = document.getElementById("wifiPassword");
+    area.value = "Gq7pW2xLm9Tz\n";
+    area.dispatchEvent(new Event("input", { bubbles: true }));
+    area.focus();
+  });
+  for (const type of ["keyDown", "keyUp"]) {
+    await page.send("Input.dispatchKeyEvent", Object.assign({ type, key: "Enter", code: "Enter", windowsVirtualKeyCode: 13 }, type === "keyDown" ? { text: "\r" } : {}));
+  }
+  assert.equal(await page.evaluate(() => document.getElementById("wifiPassword").value), "Gq7pW2xLm9Tz");
 });
 
 test("the Wi-Fi card draws a QR code once it has a name and a valid password", { skip }, async (t) => {

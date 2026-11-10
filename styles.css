@@ -1297,6 +1297,28 @@ details[open] > summary .summary-chevron {
   height: 52px;
 }
 
+/* The Wi-Fi password wraps instead of scrolling sideways, so all of a long
+   key is in view, on a phone too. One line is as tall as any other field;
+   script.js grows it to fit the text. Random characters may break anywhere,
+   into lines of even length rather than one stray character on the last;
+   words (.is-words) break at their separators. */
+.wifi-password {
+  display: block;
+  height: auto;
+  min-height: 44px;
+  padding-block: 10px;
+  line-height: 1.4;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  word-break: break-all;
+  text-wrap: balance;
+  resize: none;
+}
+
+.wifi-password.is-words {
+  word-break: normal;
+}
+
 .select-wrap {
   position: relative;
 }
@@ -2876,7 +2898,7 @@ input[type="range"]:focus-visible::-moz-range-thumb {
   }
 
   .input-row .text-input {
-    padding: 0 12px;
+    padding-inline: 12px;
   }
 
   .toggle-body {

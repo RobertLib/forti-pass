@@ -122,7 +122,7 @@ const en = {
   historyHeading: "Recent",
   clear: "Clear",
   historySub:
-    "What you generated or copied in this tab, kept in memory only. Reloading or closing the page wipes it.",
+    "What you generated or copied on this page, kept in memory only. Leaving the page — to another mode too — or reloading it wipes the list.",
 
   checkerHeading: "Test a password",
   checkLabel: "Password to test",
@@ -314,7 +314,7 @@ const cs = {
   historyHeading: "Nedávné",
   clear: "Vymazat",
   historySub:
-    "Co jste v této kartě vygenerovali nebo zkopírovali – jen v paměti. Obnovením nebo zavřením stránky se to smaže.",
+    "Co jste na této stránce vygenerovali nebo zkopírovali – jen v paměti. Odchodem ze stránky (i do jiného režimu) nebo jejím obnovením se seznam smaže.",
 
   checkerHeading: "Otestovat heslo",
   checkLabel: "Heslo k otestování",
