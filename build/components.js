@@ -236,7 +236,7 @@ function generator(t, ctx) {
                 </button>
               </div>
 
-              ${meter("meter", 5, t.excellent, {
+              ${meter("meter", 0, "—", {
                 name: t.strengthMeter,
                 label: "strengthLabel",
                 bitsId: "entropyText",
@@ -302,7 +302,7 @@ function checker(t, ctx) {
                 <label for="checkInput">${t.checkLabel}</label>
                 <div class="input-row">
                   <input type="password" id="checkInput" class="text-input input-lg mono" placeholder="${esc(t.checkPlaceholder)}" maxlength="256" autocomplete="off" autocapitalize="off" spellcheck="false" data-1p-ignore data-lpignore="true" data-bwignore aria-describedby="checkVerdict checkPrivacy" />
-                  <button type="button" class="icon-btn icon-btn-lg" id="checkRevealBtn" aria-label="${esc(t.showPassword)}" aria-pressed="false">
+                  <button type="button" class="icon-btn" id="checkRevealBtn" aria-label="${esc(t.showPassword)}" aria-pressed="false">
                     ${icon("i-eye")}
                   </button>
                 </div>
@@ -349,10 +349,10 @@ function wifi(t) {
                   <label for="wifiPassword">${t.wifiPassword}</label>
                   <div class="input-row">
                     <input type="text" id="wifiPassword" class="text-input mono" maxlength="64" autocomplete="off" autocapitalize="off" spellcheck="false" data-1p-ignore data-lpignore="true" data-bwignore aria-describedby="wifiPasswordHint wifiHint" />
-                    <button type="button" class="icon-btn icon-btn-lg" id="wifiNewBtn" aria-label="${esc(t.new)}" title="${esc(t.newTitle)}">
+                    <button type="button" class="icon-btn" id="wifiNewBtn" aria-label="${esc(t.new)}" title="${esc(t.newTitle)}">
                       ${icon("i-refresh")}
                     </button>
-                    <button type="button" class="icon-btn icon-btn-lg" id="wifiCopyBtn" aria-label="${esc(t.copy)}" title="${esc(t.copyTitle)}" data-copy>
+                    <button type="button" class="icon-btn" id="wifiCopyBtn" aria-label="${esc(t.copy)}" title="${esc(t.copyTitle)}" data-copy>
                       ${icon("i-copy")}
                     </button>
                   </div>

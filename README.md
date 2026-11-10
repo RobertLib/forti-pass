@@ -47,8 +47,8 @@ Also available as a [command-line tool](#command-line) and a
   separators, capitalisation, a trailing number or symbol
 - **PIN** — 3 to 16 digits, shown with its number of combinations rather
   than an offline crack time (PINs rely on lockouts, not length)
-- **Wi-Fi** — WPA2/WPA3 passwords in four styles (easy to type on a TV, words,
-  32 characters, 63 characters) and a QR code phones can scan to join; print a
+- **Wi-Fi** — WPA2/WPA3 passwords in four styles (easy to type on a TV, six
+  words, 32 characters, 63 characters) and a QR code phones can scan to join; print a
   guest card or save the code as SVG. The network name is checked against the
   32-byte SSID limit (an accented letter takes two). The QR encoder (`qr.js`)
   is written from scratch with no dependencies, so the page still makes no
@@ -89,10 +89,14 @@ keep the strength they genuinely add.
 - Click-to-copy anywhere, plus a hide/show toggle for shoulder surfers
 - Optional clipboard clearing 30 seconds after a copy. The deadline survives
   moving between FortiPass pages; Firefox and Safari only allow the wipe during
-  a click or key press, so there it happens at your next one on the page
+  a click or key press, so there it happens at your next one on the page.
+  Copying something yourself on the page cancels it. A copy made in another
+  app cannot be seen, so the wipe clears whatever is on the clipboard by then
+  (the switch says so)
 - Session list of what you generated and copied — memory only, gone on reload
 - Advanced options: avoid look-alike characters, forbid repeats, require every
-  selected type, exclude specific characters
+  selected type, exclude specific characters (excluding every character of a
+  selected type is an error, not a silent change)
 - Light and dark themes (toggling back to your system's theme follows the
   system again), remembered settings, keyboard shortcuts
 - Installable PWA that works fully offline, in English and Czech
@@ -151,6 +155,9 @@ node cli/fortipass.js --help                   # every option and its limits
 Values go to stdout and the strength summary to stderr, so
 `node cli/fortipass.js | pbcopy` copies only the password. Limits match the
 website (length 4–128, 3–12 words, PIN 3–16 digits); `-n` goes up to 1000.
+Numbers must be plain digits, and an option for another kind of value (such as
+`--length` with `--pin`, or `-s` without `-w`) is a usage error rather than
+silently ignored.
 `--check` reads the first line of stdin, or prompts without echo on a terminal,
 and exits 1 for anything below Strong; add `-q` to print nothing and use only
 the exit status in scripts. Usage errors exit 2.
@@ -175,7 +182,9 @@ This copies the shared `core.js`, word lists and Czech strings into
 `dist/fortipass-extension/` (load it as an unpacked extension to try it) and
 zips it as `dist/fortipass-extension-<version>.zip` for the Chrome Web Store,
 Firefox Add-ons and Edge Add-ons. The zip is written by the build script itself
-(no `zip` program needed, so it works on Windows) and is reproducible.
+(no `zip` program needed, so it works on Windows). Entries are sorted and
+timestamps fixed, so a rebuild with the same Node version gives the same bytes;
+another Node version may compress a little differently.
 
 ## Development
 
@@ -183,8 +192,11 @@ The pages are generated: templates and content live in `build/`, the word
 lists in `wordlists/`. Generated files are committed, so GitHub Pages serves
 the repository as it is (`.nojekyll` turns off Jekyll, which would otherwise
 skip `_`-prefixed folders and render Markdown files as pages). The build also
-typesets the Czech text — a one-letter preposition never ends a line — and
-loads the word lists only on the pages that use them.
+typesets the Czech text — a one-letter preposition never ends a line, a dash
+never starts one, code samples stay as typed — formats numbers and dates itself
+(so the output does not depend on Node's ICU data), and loads the word lists
+only on the pages that use them. `.gitattributes` keeps every text file at LF
+line endings, so a Windows checkout hashes and builds the same.
 
 ```bash
 npm run build      # regenerate pages, word-list scripts, manifests, sitemap, sw.js
@@ -192,9 +204,11 @@ npm test           # Node's built-in runner, no dependencies
 python3 -m http.server 8000   # then open http://localhost:8000
 ```
 
-`npm test` fails if a generated file is out of date, if a link or `hreflang`
-pair is broken, if a page lacks an element `script.js` needs, or if a script is
-not pre-cached by the service worker.
+`npm test` fails if a generated file is out of date, if a link (or the
+`#fragment` it points at) or an `hreflang` pair is broken, if a page lacks an
+element `script.js` needs, if a script is not pre-cached by the service worker,
+or if the site stops working offline: `tests/offline.test.js` lets the service
+worker install, shuts the server down and opens every page.
 
 The browser tests (`tests/app.test.js` for the site, `tests/popup.test.js` for
 the extension) drive headless Chromium over the DevTools protocol, with no npm
@@ -225,6 +239,13 @@ Generated (do not edit by hand): every `index.html`, `404.html`,
 `wordlist-en.js`, `wordlist-cs.js`, `manifest.json`, `cs/manifest.json`,
 `sitemap.xml`, `robots.txt`, `sw.js`.
 
+The manifests list screenshots for the browser's install dialog. They are
+taken from the real pages, so retake them after a visible change:
+
+```bash
+npm run screenshots   # screenshots/{en,cs}-{wide,narrow}.png, via headless Chromium
+```
+
 ### Shipping a change
 
 1. Bump `UPDATED` in `build/site.js` if the content changed (sitemap `lastmod`,
@@ -242,6 +263,10 @@ was not rebuilt after an asset changed.
 Set `SITE_URL` in `build/site.js`, run `npm run build`, add a `CNAME` file and
 set the custom domain in the repository's GitHub Pages settings. GitHub then
 redirects the old `github.io` URLs to the new domain.
+
+A custom domain also narrows the Content Security Policy: `'self'` means the
+whole origin, which on `robertlib.github.io` includes every other repository
+published there.
 
 Crawlers only read `robots.txt` at the root of a host, so while the site lives
 under `/forti-pass/` the generated `robots.txt` (and its `Sitemap:` line) is
@@ -281,10 +306,14 @@ substitutions, repeats, keyboard runs and years. It cannot know your pet's
 name, your city, or whether a password has already leaked — treat a good score
 as "no obvious weakness found", not a guarantee.
 
-For generated output the checker and the generator agree closely, with one
-deliberate difference: the checker does not know which separator a
-passphrase uses, so it credits a few bits more than the generator, which
-assumes the attacker knows your exact settings.
+For generated passphrases with a separator the checker never scores lower
+than the generator; it credits a few bits more, because it does not know
+which separator you chose, while the generator assumes the attacker knows your
+exact settings. Words run together with no separator can occasionally be split
+into other, cheaper words. For random passwords the checker sometimes spots a
+pattern that appeared by chance (a short keyboard run, a repeated pair), so a
+password near a boundary may land one level lower there than in the
+generator — roughly one in twenty-five 12-character passwords.
 
 ## Contributing
 

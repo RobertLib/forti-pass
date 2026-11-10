@@ -11,7 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <title>How Long Does It Take to Crack a Password? 2026 Table | FortiPass</title>
-    <meta name="description" content="Brute-force crack times for random passwords of 4 to 20 characters in every character set, plus passphrases, at 100 billion guesses per second. Transparent maths, free to reuse." />
+    <meta name="description" content="Brute-force crack times for random passwords of 4 to 20 characters and for passphrases, at 100 billion guesses per second. Transparent maths, free to reuse." />
     <meta name="author" content="Robert Libšanský" />
     <meta name="robots" content="index, follow" />
     <meta name="color-scheme" content="dark light" />
@@ -29,17 +29,17 @@
     <meta property="og:type" content="article" />
     <meta property="og:url" content="https://robertlib.github.io/forti-pass/how-long-to-crack-a-password/" />
     <meta property="og:site_name" content="FortiPass" />
-    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale" content="en_GB" />
     <meta property="og:locale:alternate" content="cs_CZ" />
     <meta property="og:title" content="How Long Does It Take to Crack a Password? 2026 Table | FortiPass" />
-    <meta property="og:description" content="Brute-force crack times for random passwords of 4 to 20 characters in every character set, plus passphrases, at 100 billion guesses per second. Transparent maths, free to reuse." />
+    <meta property="og:description" content="Brute-force crack times for random passwords of 4 to 20 characters and for passphrases, at 100 billion guesses per second. Transparent maths, free to reuse." />
     <meta property="og:image" content="https://robertlib.github.io/forti-pass/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="FortiPass logo with the tagline “Strong passwords, made on your device” and a sample generated password" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="How Long Does It Take to Crack a Password? 2026 Table | FortiPass" />
-    <meta name="twitter:description" content="Brute-force crack times for random passwords of 4 to 20 characters in every character set, plus passphrases, at 100 billion guesses per second. Transparent maths, free to reuse." />
+    <meta name="twitter:description" content="Brute-force crack times for random passwords of 4 to 20 characters and for passphrases, at 100 billion guesses per second. Transparent maths, free to reuse." />
     <meta name="twitter:image" content="https://robertlib.github.io/forti-pass/og-image.png" />
     <meta name="twitter:image:alt" content="FortiPass logo with the tagline “Strong passwords, made on your device” and a sample generated password" />
 
@@ -52,7 +52,7 @@
   "@context": "https://schema.org",
   "@type": "Article",
   "headline": "How long does it take to crack a password?",
-  "description": "Brute-force crack times for random passwords of 4 to 20 characters in every character set, plus passphrases, at 100 billion guesses per second. Transparent maths, free to reuse.",
+  "description": "Brute-force crack times for random passwords of 4 to 20 characters and for passphrases, at 100 billion guesses per second. Transparent maths, free to reuse.",
   "inLanguage": "en",
   "url": "https://robertlib.github.io/forti-pass/how-long-to-crack-a-password/",
   "datePublished": "2026-11-09",
@@ -118,7 +118,7 @@
 }
     </script>
 
-    <link rel="stylesheet" href="../styles.css?v=729cd690fe" />
+    <link rel="stylesheet" href="../styles.css?v=a9394ea508" />
     <script>
       (function () {
         try {
@@ -182,10 +182,6 @@
         <symbol id="i-moon" viewBox="0 0 24 24">
           <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
         </symbol>
-        <symbol id="i-keyboard" viewBox="0 0 24 24">
-          <rect x="2" y="6" width="20" height="12" rx="2" />
-          <path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8" />
-        </symbol>
         <symbol id="i-close" viewBox="0 0 24 24">
           <line x1="18" y1="6" x2="6" y2="18" />
           <line x1="6" y1="6" x2="18" y2="18" />
@@ -201,9 +197,6 @@
         <symbol id="i-search" viewBox="0 0 24 24">
           <circle cx="11" cy="11" r="7.5" />
           <line x1="21" y1="21" x2="16.5" y2="16.5" />
-        </symbol>
-        <symbol id="i-bolt" viewBox="0 0 24 24">
-          <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z" />
         </symbol>
         <symbol id="i-history" viewBox="0 0 24 24">
           <path d="M3 12a9 9 0 1 0 3-6.7" />
@@ -351,7 +344,7 @@
           </figure>
 
           <h2>How the numbers are calculated</h2>
-          <p>A random password of length <var>L</var> drawn from <var>N</var> characters has <var>N</var><sup><var>L</var></sup> possibilities, or <var>L</var> × log₂ <var>N</var> bits. On average an attacker finds it after trying half of them. The table divides that by 10¹¹ — 100 billion guesses per second, roughly what a single current high-end graphics card manages against a fast, unsalted hash such as MD5 or NTLM after a database breach. A rig of eight such cards cuts every time in the table by about ten — worth about half a character of a random password.</p>
+          <p>A random password of length <var>L</var> drawn from <var>N</var> characters has <var>N</var><sup><var>L</var></sup> possibilities, or <var>L</var> × log₂ <var>N</var> bits. On average an attacker finds it after trying half of them. The table divides that by 10¹¹ — 100 billion guesses per second, roughly what a single current high-end graphics card manages against a fast, unsalted hash such as MD5 or NTLM after a database breach. A rig of eight such cards cuts every time in the table by a factor of about ten — worth about half a character of a random password.</p>
           <ul class="tips">
             <li><strong>Slow hashes help enormously.</strong> Sites that store passwords with bcrypt, scrypt or Argon2 hold attackers to thousands or millions of guesses per second, multiplying every time in the table by a hundred thousand or more.</li>
             <li><strong>Online attacks are slower still.</strong> A login form that limits attempts allows a handful of guesses per minute — but never rely on that: databases leak.</li>
@@ -407,7 +400,7 @@
             <li><a href="../passphrase-generator/">Passphrase generator</a></li>
             <li><a href="../pin-generator/">PIN generator</a></li>
             <li><a href="../password-strength-checker/">Password strength checker</a></li>
-            <li><a href="../wifi-password-generator/">Wi-Fi password & QR code</a></li>
+            <li><a href="../wifi-password-generator/"><span class="nowrap">Wi-Fi</span> password & QR code</a></li>
             <li><a href="../how-long-to-crack-a-password/" aria-current="page">How long to crack a password</a></li>
         </ul>
         <div class="footer-bottom">
@@ -453,6 +446,6 @@
       <div class="noscript">FortiPass generates passwords in your browser, which needs JavaScript enabled. Nothing is sent to a server either way.</div>
     </noscript>
 
-    <script src="../script.js?v=729cd690fe"></script>
+    <script src="../script.js?v=a9394ea508"></script>
   </body>
 </html>

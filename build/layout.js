@@ -36,17 +36,19 @@ const CSP = [
 // Browser chrome colours; script.js and the manifests use the same values.
 const THEME_COLORS = { light: "#f6f7fb", dark: "#0c0e14" };
 
-const OG_LOCALE = { en: "en_US", cs: "cs_CZ" };
+// The English copy is British (colour, licence), so it says so.
+const OG_LOCALE = { en: "en_GB", cs: "cs_CZ" };
 const OG_IMAGE = { en: "og-image.png", cs: "og-image-cs.png" };
 const OG_ALT = {
   en: "FortiPass logo with the tagline “Strong passwords, made on your device” and a sample generated password",
-  cs: "Logo FortiPass s heslem „Silná hesla, vytvořená ve vašem zařízení“ a ukázkou vygenerovaného hesla",
+  cs: "Logo FortiPass se sloganem „Silná hesla vytvořená ve vašem zařízení“ a ukázkou vygenerovaného hesla",
 };
 
 function jsonLd(data) {
-  // "</" inside a string would close the script element early.
+  // Any "<" is written as \u003c, still valid JSON: then neither "</script>"
+  // nor "<!--" inside a string can end or confuse the script element.
   return `<script type="application/ld+json">
-${JSON.stringify(data, null, 2).replace(/<\//g, "<\\/")}
+${JSON.stringify(data, null, 2).replace(/</g, "\\u003c")}
     </script>`;
 }
 
@@ -71,7 +73,7 @@ function structuredData(ctx, content) {
     blocks.push({
       "@context": "https://schema.org",
       "@type": "WebApplication",
-      name: "FortiPass — " + text(ctx.t.toolNames[page.id]),
+      name: "FortiPass – " + text(ctx.t.toolNames[page.id]),
       description: content.description,
       url: url,
       inLanguage: lang,
@@ -212,11 +214,14 @@ function topbar(ctx) {
     </header>`;
 }
 
+/** Link text keeps "Wi-Fi" on one line, as the build does for prose. */
+const nowrapWifi = (label) => label.replace(/Wi-Fi/g, '<span class="nowrap">Wi-Fi</span>');
+
 function footer(ctx) {
   const { t } = ctx;
   const year = site.UPDATED.slice(0, 4);
   const links = ctx.pages
-    .map((target) => `<li><a href="${ctx.href(target)}"${target.id === ctx.page.id ? ' aria-current="page"' : ""}>${t.toolNames[target.id]}</a></li>`)
+    .map((target) => `<li><a href="${ctx.href(target)}"${target.id === ctx.page.id ? ' aria-current="page"' : ""}>${nowrapWifi(t.toolNames[target.id])}</a></li>`)
     .join("\n            ");
   return `<footer class="site-footer">
       <div class="container footer-grid">

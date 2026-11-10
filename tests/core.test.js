@@ -120,9 +120,15 @@ test("password errors explain what is wrong", () => {
   const tooLong = core.makePassword(opts({ length: 100, noRepeats: true }));
   assert.match(tooLong.error, /unique characters/);
 
+  // A selected type whose every character is excluded is not dropped
+  // silently: the password would lack digits the user asked for.
+  const noDigits = core.makePassword(opts({ excludeChars: "0123456789" }));
+  assert.match(noDigits.error, /one of the selected types/);
+
   // The page marks the control at fault, so every error says which it is.
   assert.equal(none.code, "noTypes");
   assert.equal(allExcluded.code, "allExcluded");
+  assert.equal(noDigits.code, "typeExcluded");
   assert.equal(tooLong.code, "notEnoughUnique");
 });
 
@@ -430,6 +436,33 @@ test("Czech verdicts and errors come from the locale", () => {
   assert.match(none.error, /aspoň jeden typ znaků/);
   const tooLong = czech.makePassword(opts({ length: 100, noRepeats: true }));
   assert.match(tooLong.error, /různých znaků/);
+});
+
+test("the Czech locale has a message for every error and Wi-Fi problem", () => {
+  // script.js falls back to English key by key, but a Czech page should
+  // never show English: every code core.js can return needs Czech text.
+  const codes = new Set();
+  const probe = [
+    opts({ uppercase: false, lowercase: false, numbers: false, symbols: false }),
+    opts({ uppercase: false, lowercase: false, symbols: false, excludeChars: "0123456789" }),
+    opts({ excludeChars: "0123456789" }),
+    opts({ length: 100, noRepeats: true }),
+  ];
+  probe.forEach((o) => codes.add(core.makePassword(o).code));
+  codes.add(createCore({ crypto: globalThis.crypto }).makePassphrase(opts({})).code);
+  for (const code of codes) {
+    assert.ok(LOCALE_CS.core.errors[code], "Czech error message for " + code);
+  }
+  const problems = [
+    core.wifiSsidProblem("x".repeat(33)),
+    core.wifiPasswordProblem("short"),
+    core.wifiPasswordProblem("x".repeat(64)),
+    core.wifiPasswordProblem("heslíčko123"),
+  ];
+  assert.deepEqual(problems, ["ssidLong", "short", "long", "ascii"]);
+  for (const problem of problems) {
+    assert.ok(LOCALE_CS.ui.wifiProblem[problem], "Czech Wi-Fi message for " + problem);
+  }
 });
 
 /* ------------------------------------------------------------------- Wi-Fi */

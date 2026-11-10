@@ -11,7 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <title>Generátor hesel – silná hesla offline a zdarma | FortiPass</title>
-    <meta name="description" content="Generátor silných hesel, hesel z českých slov a PINů, který běží jen ve vašem prohlížeči. Poctivý výpočet entropie a doby prolomení, kontrola síly hesla. Zdarma, bez registrace, funguje offline." />
+    <meta name="description" content="Generátor silných hesel, hesel z českých slov a PINů přímo ve vašem prohlížeči. Poctivá entropie i doba prolomení. Zdarma, bez registrace, offline." />
     <meta name="author" content="Robert Libšanský" />
     <meta name="robots" content="index, follow" />
     <meta name="color-scheme" content="dark light" />
@@ -30,18 +30,18 @@
     <meta property="og:url" content="https://robertlib.github.io/forti-pass/cs/" />
     <meta property="og:site_name" content="FortiPass" />
     <meta property="og:locale" content="cs_CZ" />
-    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:locale:alternate" content="en_GB" />
     <meta property="og:title" content="FortiPass – generátor silných hesel a hesel ze slov" />
-    <meta property="og:description" content="Generátor silných hesel, hesel z českých slov a PINů, který běží jen ve vašem prohlížeči. Poctivý výpočet entropie a doby prolomení, kontrola síly hesla. Zdarma, bez registrace, funguje offline." />
+    <meta property="og:description" content="Generátor silných hesel, hesel z českých slov a PINů přímo ve vašem prohlížeči. Poctivá entropie i doba prolomení. Zdarma, bez registrace, offline." />
     <meta property="og:image" content="https://robertlib.github.io/forti-pass/og-image-cs.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Logo FortiPass s heslem „Silná hesla, vytvořená ve vašem zařízení“ a ukázkou vygenerovaného hesla" />
+    <meta property="og:image:alt" content="Logo FortiPass se sloganem „Silná hesla vytvořená ve vašem zařízení“ a ukázkou vygenerovaného hesla" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="FortiPass – generátor silných hesel a hesel ze slov" />
-    <meta name="twitter:description" content="Generátor silných hesel, hesel z českých slov a PINů, který běží jen ve vašem prohlížeči. Poctivý výpočet entropie a doby prolomení, kontrola síly hesla. Zdarma, bez registrace, funguje offline." />
+    <meta name="twitter:description" content="Generátor silných hesel, hesel z českých slov a PINů přímo ve vašem prohlížeči. Poctivá entropie i doba prolomení. Zdarma, bez registrace, offline." />
     <meta name="twitter:image" content="https://robertlib.github.io/forti-pass/og-image-cs.png" />
-    <meta name="twitter:image:alt" content="Logo FortiPass s heslem „Silná hesla, vytvořená ve vašem zařízení“ a ukázkou vygenerovaného hesla" />
+    <meta name="twitter:image:alt" content="Logo FortiPass se sloganem „Silná hesla vytvořená ve vašem zařízení“ a ukázkou vygenerovaného hesla" />
 
     <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="../apple-touch-icon.png" />
@@ -51,8 +51,8 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "FortiPass — Generátor hesel",
-  "description": "Generátor silných hesel, hesel z českých slov a PINů, který běží jen ve vašem prohlížeči. Poctivý výpočet entropie a doby prolomení, kontrola síly hesla. Zdarma, bez registrace, funguje offline.",
+  "name": "FortiPass – Generátor hesel",
+  "description": "Generátor silných hesel, hesel z českých slov a PINů přímo ve vašem prohlížeči. Poctivá entropie i doba prolomení. Zdarma, bez registrace, offline.",
   "url": "https://robertlib.github.io/forti-pass/cs/",
   "inLanguage": "cs",
   "applicationCategory": "SecurityApplication",
@@ -81,7 +81,7 @@
       "name": "Posílají se vygenerovaná hesla někam?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Ne. Všechno vzniká v kartě vašeho prohlížeče pomocí Web Crypto API a bezpečnostní politika stránky (Content Security Policy) zakazuje jakýkoli síťový požadavek — otevřete si v prohlížeči panel Síť a uvidíte, že zůstane prázdný. Na zařízení se ukládá jen vaše nastavení, vygenerované hodnoty nikdy."
+        "text": "Ne. Všechno vzniká v kartě vašeho prohlížeče pomocí Web Crypto API a bezpečnostní politika stránky (Content Security Policy) jejím skriptům zakazuje jakýkoli síťový požadavek. V panelu Síť v prohlížeči uvidíte jen to, jak FortiPass načítá své vlastní soubory – nic z toho, co vygenerujete, ven neodejde. Na zařízení se ukládá jen vaše nastavení, vygenerované hodnoty nikdy."
       }
     },
     {
@@ -89,7 +89,7 @@
       "name": "Jak dlouhé má heslo být?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Pro všechno, co ukládáte do správce hesel, použijte 16 a víc znaků všech typů — to je přes 100 bitů entropie, mimo dosah útoku hrubou silou. Pro heslo, které musíte psát zpaměti, je lepší heslo ze šesti a více slov (asi 77,5 bitu)."
+        "text": "Pro všechno, co ukládáte do správce hesel, použijte 16 a víc znaků všech typů – to je přes 100 bitů entropie, mimo dosah útoku hrubou silou. Pro heslo, které musíte psát zpaměti, je lepší heslo ze šesti a více slov (asi 77,5 bitu)."
       }
     },
     {
@@ -113,7 +113,7 @@
       "name": "Jaké heslo vyhoví datové schránce?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Klikněte na předvolbu Datová schránka. Vznikne 24 znaků s velkými i malými písmeny, číslicemi a jen povolenými symboly, bez opakovaných znaků — vyhoví starším i novějším pravidlům ISDS."
+        "text": "Klikněte na předvolbu Datová schránka. Vznikne 24 znaků s velkými i malými písmeny, číslicemi a jen povolenými symboly, bez opakovaných znaků – vyhoví starším i novějším pravidlům ISDS."
       }
     },
     {
@@ -121,7 +121,7 @@
       "name": "Funguje FortiPass offline a jde nainstalovat?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Ano. Po první návštěvě se aplikace uloží do zařízení a načte se i bez připojení. Většina prohlížečů ji nabídne nainstalovat — hledejte „Instalovat aplikaci“ nebo „Přidat na plochu“."
+        "text": "Ano. Po první návštěvě se aplikace uloží do zařízení a načte se i bez připojení. Většina prohlížečů ji nabídne nainstalovat – hledejte „Instalovat aplikaci“ nebo „Přidat na plochu“."
       }
     },
     {
@@ -129,14 +129,22 @@
       "name": "Odesílá kontrola síly to, co napíšu?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Ne. Kontrola běží na pravidlech a výpočtech, které jsou součástí stránky — slovníková slova v češtině i angličtině, nejčastější hesla a jména, záměny písmen za číslice, opakování, řady z klávesnice a roky. Nic se neposílá po síti a pole se vymaže, jakmile stránku opustíte."
+        "text": "Ne. Kontrola běží na pravidlech a výpočtech, které jsou součástí stránky – slovníková slova v češtině i angličtině, nejčastější hesla a jména, záměny písmen za číslice, opakování, řady z klávesnice a roky. Nic se neposílá po síti a pole se vymaže, jakmile stránku opustíte."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Je FortiPass open source?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ano, pod licencí MIT. Zdrojový kód je na GitHubu, včetně testů, které ověřují, že je náhoda rovnoměrná a výpočet entropie přesný."
       }
     }
   ]
 }
     </script>
 
-    <link rel="stylesheet" href="../styles.css?v=729cd690fe" />
+    <link rel="stylesheet" href="../styles.css?v=a9394ea508" />
     <script>
       (function () {
         try {
@@ -200,10 +208,6 @@
         <symbol id="i-moon" viewBox="0 0 24 24">
           <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
         </symbol>
-        <symbol id="i-keyboard" viewBox="0 0 24 24">
-          <rect x="2" y="6" width="20" height="12" rx="2" />
-          <path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8" />
-        </symbol>
         <symbol id="i-close" viewBox="0 0 24 24">
           <line x1="18" y1="6" x2="6" y2="18" />
           <line x1="6" y1="6" x2="18" y2="18" />
@@ -219,9 +223,6 @@
         <symbol id="i-search" viewBox="0 0 24 24">
           <circle cx="11" cy="11" r="7.5" />
           <line x1="21" y1="21" x2="16.5" y2="16.5" />
-        </symbol>
-        <symbol id="i-bolt" viewBox="0 0 24 24">
-          <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z" />
         </symbol>
         <symbol id="i-history" viewBox="0 0 24 24">
           <path d="M3 12a9 9 0 1 0 3-6.7" />
@@ -285,7 +286,7 @@
 
     <header class="topbar">
       <div class="container topbar-inner">
-        <a class="brand" href="../cs/" aria-label="FortiPass – úvod">
+        <a class="brand" href="../cs/" aria-label="FortiPass – úvod">
           <span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="#i-shield" /></svg></span>
           <span class="brand-text">Forti<span class="brand-accent">Pass</span></span>
         </a>
@@ -357,13 +358,13 @@
                 </button>
               </div>
 
-              <div class="meter" id="meter" data-score="5">
-              <div class="meter-track" role="meter" aria-label="Síla hesla" aria-valuemin="0" aria-valuemax="5" aria-valuenow="5" aria-valuetext="Výborné" id="meterTrack">
+              <div class="meter" id="meter" data-score="0">
+              <div class="meter-track" role="meter" aria-label="Síla hesla" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="—" id="meterTrack">
                 <span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span>
               </div>
               <div class="meter-meta">
-                <strong class="strength-label" id="strengthLabel">Výborné</strong>
-                <span class="meta-item" title="Entropie v bitech — každý bit navíc zdvojnásobí počet potřebných pokusů">
+                <strong class="strength-label" id="strengthLabel">—</strong>
+                <span class="meta-item" title="Entropie v bitech – každý bit navíc zdvojnásobí počet potřebných pokusů">
                   <svg class="icon icon-sm" aria-hidden="true"><use href="#i-gauge" /></svg>
                   <span id="entropyText">—</span>
                 </span>
@@ -380,7 +381,7 @@
                 <span class="switch-track" aria-hidden="true"></span>
                 <span class="switch-text">
                   <span>Vymazat schránku 30 s po zkopírování</span>
-                  <small>Pokud to prohlížeč na pozadí nedovolí, schránka se vymaže při vašem dalším kliknutí nebo stisku klávesy na stránce FortiPass.</small>
+                  <small>Pokud to prohlížeč na pozadí nedovolí, schránka se vymaže při vašem dalším kliknutí nebo stisku klávesy na stránce FortiPass. Smaže se tím cokoli, co v ní zrovna bude.</small>
                 </span>
               </label>
 
@@ -392,7 +393,7 @@
                   <svg class="icon icon-sm summary-chevron" aria-hidden="true"><use href="#i-chevron" /></svg>
                 </summary>
                 <div class="recent-body">
-                  <p class="hint">Co jste v této kartě vygenerovali nebo zkopírovali — jen v paměti. Obnovením nebo zavřením stránky se to smaže.</p>
+                  <p class="hint">Co jste v této kartě vygenerovali nebo zkopírovali – jen v paměti. Obnovením nebo zavřením stránky se to smaže.</p>
                   <ul class="password-list" id="historyList"></ul>
                   <button type="button" class="btn btn-sm btn-quiet" id="clearHistoryBtn">
                     <svg class="icon icon-sm" aria-hidden="true"><use href="#i-trash" /></svg>
@@ -406,9 +407,9 @@
             <div class="field">
               <div class="field-head">
                 <label for="length">Délka</label>
-                <input type="number" id="length" class="num-input" min="4" max="128" value="16" inputmode="numeric" aria-label="Délka hesla" />
+                <input type="number" id="length" class="num-input" min="4" max="128" value="16" inputmode="numeric" aria-label="Délka hesla ve znacích" />
               </div>
-              <input type="range" id="lengthRange" min="4" max="64" step="1" value="16" aria-label="Posuvník délky hesla" />
+              <input type="range" id="lengthRange" min="4" max="64" step="1" value="16" aria-label="Délka hesla" />
               <p class="hint">4–128 znaků. Doporučujeme 16 a víc.</p>
             </div>
 
@@ -475,7 +476,7 @@
                   <span class="switch-track" aria-hidden="true"></span>
                   <span class="switch-text">
                     <span>Vynechat podobné znaky</span>
-                    <small>Vynechá <code>I l 1 O 0 o</code> a podobné — snáz se čtou i opisují.</small>
+                    <small>Vynechá <code>I l 1 O 0 o</code> a podobné – heslo se pak snáz čte i opisuje.</small>
                   </span>
                 </label>
                 <label class="switch">
@@ -515,7 +516,7 @@
           <div class="feature-grid">
             <article class="feature">
               <h3>Skutečná kryptografická náhoda</h3>
-              <p>Každý znak pochází z <code>crypto.getRandomValues()</code> s odmítacím vzorkováním, takže výsledek není zkreslený ani předvídatelný — na rozdíl od generátorů postavených na <code>Math.random()</code>.</p>
+              <p>Každý znak pochází z <code>crypto.getRandomValues()</code> a vybírá se metodou zamítání (rejection sampling), takže výsledek není zkreslený ani předvídatelný – na rozdíl od generátorů postavených na <code>Math.random()</code>.</p>
             </article>
             <article class="feature">
               <h3>Poctivá čísla o síle</h3>
@@ -534,10 +535,10 @@
           <h2>Jak vybrat dobré heslo</h2>
           <ul class="tips">
             <li><strong>Délka je víc než složitost.</strong> Heslo o 16 znacích z tohoto generátoru by útočník lámal 2,5 bilionu let, heslo o 8 znacích 3 hodiny. Podívejte se na <a href="../cs/jak-dlouho-trva-prolomit-heslo/">celou tabulku doby prolomení</a>.</li>
-            <li><strong>Nikdy nepoužívejte stejné heslo dvakrát.</strong> Únik dat z jednoho e-shopu nesmí odemknout váš e-mail. Právě na jedinečná hesla je správce hesel.</li>
+            <li><strong>Nikdy nepoužívejte stejné heslo dvakrát.</strong> Únik dat z jednoho e-shopu nesmí odemknout váš e-mail. Právě na jedinečná hesla je tu správce hesel.</li>
             <li><strong>Co píšete ručně, ať je ze slov.</strong> Přihlášení do počítače nebo hlavní heslo správce hesel se lépe píše jako šest a víc <a href="../cs/generator-hesel-ze-slov/">náhodných slov</a>.</li>
-            <li><strong>Zapněte dvoufázové ověření.</strong> Ani dokonalé heslo vás samo neochrání před phishingem.</li>
-            <li><strong>Heslo měňte, když je důvod.</strong> Únik nebo sdílení — ne kalendář, který nařizuje změnu každých 90 dní.</li>
+            <li><strong>Zapněte dvoufázové ověření, nebo použijte přístupový klíč.</strong> Ani dokonalé heslo nepomůže, když ho vyláká phishing. Přístupové klíče (passkeys) a hardwarové bezpečnostní klíče phishingu odolají; kód z aplikace nebo ze SMS útočník vyláká spolu s heslem.</li>
+            <li><strong>Heslo měňte, když je důvod.</strong> Únik nebo sdílení – ne kalendář, který nařizuje změnu každých 90 dní.</li>
           </ul>
 
           <h2>Heslo pro datovou schránku</h2>
@@ -549,11 +550,11 @@
           <div class="faq">
             <details>
               <summary>Posílají se vygenerovaná hesla někam?</summary>
-              <p>Ne. Všechno vzniká v kartě vašeho prohlížeče pomocí Web Crypto API a bezpečnostní politika stránky (Content Security Policy) zakazuje jakýkoli síťový požadavek — otevřete si v prohlížeči panel Síť a uvidíte, že zůstane prázdný. Na zařízení se ukládá jen vaše nastavení, vygenerované hodnoty nikdy.</p>
+              <p>Ne. Všechno vzniká v kartě vašeho prohlížeče pomocí Web Crypto API a bezpečnostní politika stránky (Content Security Policy) jejím skriptům zakazuje jakýkoli síťový požadavek. V panelu Síť v prohlížeči uvidíte jen to, jak FortiPass načítá své vlastní soubory – nic z toho, co vygenerujete, ven neodejde. Na zařízení se ukládá jen vaše nastavení, vygenerované hodnoty nikdy.</p>
             </details>
             <details>
               <summary>Jak dlouhé má heslo být?</summary>
-              <p>Pro všechno, co ukládáte do správce hesel, použijte 16 a víc znaků všech typů — to je přes 100 bitů entropie, mimo dosah útoku hrubou silou. Pro heslo, které musíte psát zpaměti, je lepší heslo ze šesti a více slov (asi 77,5 bitu).</p>
+              <p>Pro všechno, co ukládáte do správce hesel, použijte 16 a víc znaků všech typů – to je přes 100 bitů entropie, mimo dosah útoku hrubou silou. Pro heslo, které musíte psát zpaměti, je lepší heslo ze šesti a více slov (asi 77,5 bitu).</p>
             </details>
             <details>
               <summary>Co přesně znamená „entropie“?</summary>
@@ -565,15 +566,19 @@
             </details>
             <details>
               <summary>Jaké heslo vyhoví datové schránce?</summary>
-              <p>Klikněte na předvolbu Datová schránka. Vznikne 24 znaků s velkými i malými písmeny, číslicemi a jen povolenými symboly, bez opakovaných znaků — vyhoví starším i novějším pravidlům ISDS.</p>
+              <p>Klikněte na předvolbu Datová schránka. Vznikne 24 znaků s velkými i malými písmeny, číslicemi a jen povolenými symboly, bez opakovaných znaků – vyhoví starším i novějším pravidlům ISDS.</p>
             </details>
             <details>
               <summary>Funguje FortiPass offline a jde nainstalovat?</summary>
-              <p>Ano. Po první návštěvě se aplikace uloží do zařízení a načte se i bez připojení. Většina prohlížečů ji nabídne nainstalovat — hledejte „Instalovat aplikaci“ nebo „Přidat na plochu“.</p>
+              <p>Ano. Po první návštěvě se aplikace uloží do zařízení a načte se i bez připojení. Většina prohlížečů ji nabídne nainstalovat – hledejte „Instalovat aplikaci“ nebo „Přidat na plochu“.</p>
             </details>
             <details>
               <summary>Odesílá kontrola síly to, co napíšu?</summary>
-              <p>Ne. Kontrola běží na pravidlech a výpočtech, které jsou součástí stránky — slovníková slova v češtině i angličtině, nejčastější hesla a jména, záměny písmen za číslice, opakování, řady z klávesnice a roky. Nic se neposílá po síti a pole se vymaže, jakmile stránku opustíte.</p>
+              <p>Ne. Kontrola běží na pravidlech a výpočtech, které jsou součástí stránky – slovníková slova v češtině i angličtině, nejčastější hesla a jména, záměny písmen za číslice, opakování, řady z klávesnice a roky. Nic se neposílá po síti a pole se vymaže, jakmile stránku opustíte.</p>
+            </details>
+            <details>
+              <summary>Je FortiPass open source?</summary>
+              <p>Ano, pod licencí MIT. <a href="https://github.com/robertlib/forti-pass" rel="noopener">Zdrojový kód je na GitHubu</a>, včetně testů, které ověřují, že je náhoda rovnoměrná a výpočet entropie přesný.</p>
             </details>
           </div>
         </section>
@@ -583,7 +588,7 @@
     <footer class="site-footer">
       <div class="container footer-grid">
         <div class="footer-about">
-          <a class="brand brand-sm" href="../cs/" aria-label="FortiPass – úvod">
+          <a class="brand brand-sm" href="../cs/" aria-label="FortiPass – úvod">
           <span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="#i-shield" /></svg></span>
           <span class="brand-text">Forti<span class="brand-accent">Pass</span></span>
         </a>
@@ -592,9 +597,9 @@
         <ul class="footer-links">
             <li><a href="../cs/" aria-current="page">Generátor hesel</a></li>
             <li><a href="../cs/generator-hesel-ze-slov/">Generátor hesel ze slov</a></li>
-            <li><a href="../cs/generator-pin/">Generátor PIN</a></li>
+            <li><a href="../cs/generator-pin/">Generátor PIN kódů</a></li>
             <li><a href="../cs/kontrola-sily-hesla/">Kontrola síly hesla</a></li>
-            <li><a href="../cs/generator-hesla-wifi/">Heslo k Wi-Fi a QR kód</a></li>
+            <li><a href="../cs/generator-hesla-wifi/">Heslo k <span class="nowrap">Wi-Fi</span> a QR kód</a></li>
             <li><a href="../cs/jak-dlouho-trva-prolomit-heslo/">Jak dlouho trvá prolomit heslo</a></li>
         </ul>
         <div class="footer-bottom">
@@ -636,16 +641,16 @@
           <svg class="icon" aria-hidden="true"><use href="#i-close" /></svg>
         </button>
       </div>
-      <p class="dialog-note dialog-note-top">Prohlížeč zablokoval přístup ke schránce. Text níže je už označený — stiskněte <kbd>Ctrl</kbd>&nbsp;<kbd>C</kbd> (na Macu <kbd>⌘</kbd>&nbsp;<kbd>C</kbd>).</p>
+      <p class="dialog-note dialog-note-top">Prohlížeč zablokoval přístup ke schránce. Text níže je už označený – stiskněte <kbd>Ctrl</kbd>&nbsp;<kbd>C</kbd> (na Macu <kbd>⌘</kbd>&nbsp;<kbd>C</kbd>).</p>
       <textarea id="copyDialogText" class="text-input copy-text" rows="1" readonly spellcheck="false" aria-label="Hodnota ke zkopírování"></textarea>
     </dialog>
 
     <noscript>
-      <div class="noscript">FortiPass vytváří hesla ve vašem prohlížeči, a k tomu potřebuje zapnutý JavaScript. Na server se nic neposílá v žádném případě.</div>
+      <div class="noscript">FortiPass vytváří hesla ve vašem prohlížeči a potřebuje k tomu zapnutý JavaScript. Na server se nic neposílá v žádném případě.</div>
     </noscript>
 
-    <script src="../locale-cs.js?v=729cd690fe"></script>
-    <script src="../core.js?v=729cd690fe"></script>
-    <script src="../script.js?v=729cd690fe"></script>
+    <script src="../locale-cs.js?v=a9394ea508"></script>
+    <script src="../core.js?v=a9394ea508"></script>
+    <script src="../script.js?v=a9394ea508"></script>
   </body>
 </html>

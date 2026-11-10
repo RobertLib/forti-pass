@@ -10,8 +10,8 @@
     <meta name="referrer" content="no-referrer" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
-    <title>PIN Generator – Random 4, 6 or 8-Digit PINs | FortiPass</title>
-    <meta name="description" content="Generate truly random PIN codes of 3 to 16 digits with your browser's cryptographic randomness — no birthdays, no 1234. Bulk generation, free, offline, nothing sent." />
+    <title>PIN Generator – Random 4-, 6- or 8-Digit PINs | FortiPass</title>
+    <meta name="description" content="Truly random PINs of 3 to 16 digits from your browser's cryptographic randomness — no birthdays, no 1234. Generate many at once, free and offline." />
     <meta name="author" content="Robert Libšanský" />
     <meta name="robots" content="index, follow" />
     <meta name="color-scheme" content="dark light" />
@@ -29,17 +29,17 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://robertlib.github.io/forti-pass/pin-generator/" />
     <meta property="og:site_name" content="FortiPass" />
-    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale" content="en_GB" />
     <meta property="og:locale:alternate" content="cs_CZ" />
-    <meta property="og:title" content="PIN Generator – Random 4, 6 or 8-Digit PINs | FortiPass" />
-    <meta property="og:description" content="Generate truly random PIN codes of 3 to 16 digits with your browser's cryptographic randomness — no birthdays, no 1234. Bulk generation, free, offline, nothing sent." />
+    <meta property="og:title" content="PIN Generator – Random 4-, 6- or 8-Digit PINs | FortiPass" />
+    <meta property="og:description" content="Truly random PINs of 3 to 16 digits from your browser's cryptographic randomness — no birthdays, no 1234. Generate many at once, free and offline." />
     <meta property="og:image" content="https://robertlib.github.io/forti-pass/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="FortiPass logo with the tagline “Strong passwords, made on your device” and a sample generated password" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="PIN Generator – Random 4, 6 or 8-Digit PINs | FortiPass" />
-    <meta name="twitter:description" content="Generate truly random PIN codes of 3 to 16 digits with your browser's cryptographic randomness — no birthdays, no 1234. Bulk generation, free, offline, nothing sent." />
+    <meta name="twitter:title" content="PIN Generator – Random 4-, 6- or 8-Digit PINs | FortiPass" />
+    <meta name="twitter:description" content="Truly random PINs of 3 to 16 digits from your browser's cryptographic randomness — no birthdays, no 1234. Generate many at once, free and offline." />
     <meta name="twitter:image" content="https://robertlib.github.io/forti-pass/og-image.png" />
     <meta name="twitter:image:alt" content="FortiPass logo with the tagline “Strong passwords, made on your device” and a sample generated password" />
 
@@ -51,8 +51,8 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "FortiPass — PIN generator",
-  "description": "Generate truly random PIN codes of 3 to 16 digits with your browser's cryptographic randomness — no birthdays, no 1234. Bulk generation, free, offline, nothing sent.",
+  "name": "FortiPass – PIN generator",
+  "description": "Truly random PINs of 3 to 16 digits from your browser's cryptographic randomness — no birthdays, no 1234. Generate many at once, free and offline.",
   "url": "https://robertlib.github.io/forti-pass/pin-generator/",
   "inLanguage": "en",
   "applicationCategory": "SecurityApplication",
@@ -105,14 +105,14 @@
       "name": "Is anything sent to a server?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "No. Everything is generated in your browser tab with the Web Crypto API, and the page's Content Security Policy blocks every network request — open your browser's network panel and watch it stay empty. Only your settings are remembered on your device; generated values never are."
+        "text": "No. Everything is generated in your browser tab with the Web Crypto API, and the page's Content Security Policy forbids its scripts to make any network request. Your browser's network panel shows FortiPass loading its own files and nothing else — nothing you generate ever goes out. Only your settings are remembered on your device; generated values never are."
       }
     }
   ]
 }
     </script>
 
-    <link rel="stylesheet" href="../styles.css?v=729cd690fe" />
+    <link rel="stylesheet" href="../styles.css?v=a9394ea508" />
     <script>
       (function () {
         try {
@@ -176,10 +176,6 @@
         <symbol id="i-moon" viewBox="0 0 24 24">
           <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
         </symbol>
-        <symbol id="i-keyboard" viewBox="0 0 24 24">
-          <rect x="2" y="6" width="20" height="12" rx="2" />
-          <path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8" />
-        </symbol>
         <symbol id="i-close" viewBox="0 0 24 24">
           <line x1="18" y1="6" x2="6" y2="18" />
           <line x1="6" y1="6" x2="18" y2="18" />
@@ -195,9 +191,6 @@
         <symbol id="i-search" viewBox="0 0 24 24">
           <circle cx="11" cy="11" r="7.5" />
           <line x1="21" y1="21" x2="16.5" y2="16.5" />
-        </symbol>
-        <symbol id="i-bolt" viewBox="0 0 24 24">
-          <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z" />
         </symbol>
         <symbol id="i-history" viewBox="0 0 24 24">
           <path d="M3 12a9 9 0 1 0 3-6.7" />
@@ -290,7 +283,7 @@
     <main id="main" class="container">
       <header class="page-head">
           <h1>Random PIN generator</h1>
-          <p class="lede">No birthdays, no 1234 — every digit is picked by a cryptographic random number generator.</p>
+          <p class="lede">No birthdays, no 1234 — every digit is picked by a cryptographic random number generator, right here in your browser.</p>
           <ul class="trust">
             <li><svg class="icon icon-sm" aria-hidden="true"><use href="#i-lock" /></svg>Made in your browser, never sent</li>
             <li><svg class="icon icon-sm" aria-hidden="true"><use href="#i-offline" /></svg>Works offline</li>
@@ -333,12 +326,12 @@
                 </button>
               </div>
 
-              <div class="meter" id="meter" data-score="5">
-              <div class="meter-track" role="meter" aria-label="Password strength" aria-valuemin="0" aria-valuemax="5" aria-valuenow="5" aria-valuetext="Excellent" id="meterTrack">
+              <div class="meter" id="meter" data-score="0">
+              <div class="meter-track" role="meter" aria-label="Password strength" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="—" id="meterTrack">
                 <span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span>
               </div>
               <div class="meter-meta">
-                <strong class="strength-label" id="strengthLabel">Excellent</strong>
+                <strong class="strength-label" id="strengthLabel">—</strong>
                 <span class="meta-item" title="Bits of entropy — every extra bit doubles the guessing effort">
                   <svg class="icon icon-sm" aria-hidden="true"><use href="#i-gauge" /></svg>
                   <span id="entropyText">—</span>
@@ -356,7 +349,7 @@
                 <span class="switch-track" aria-hidden="true"></span>
                 <span class="switch-text">
                   <span>Clear the clipboard 30 s after copying</span>
-                  <small>If the browser will not allow it in the background, it happens at your next click or key press on a FortiPass page.</small>
+                  <small>If the browser will not allow it in the background, it happens at your next click or key press on a FortiPass page. Whatever is on the clipboard by then is cleared.</small>
                 </span>
               </label>
 
@@ -384,7 +377,7 @@
                 <label for="pinLengthValue">Digits</label>
                 <input type="number" id="pinLengthValue" class="num-input" min="3" max="16" value="6" inputmode="numeric" />
               </div>
-              <input type="range" id="pinLength" min="3" max="16" step="1" value="6" aria-label="Number of digits slider" />
+              <input type="range" id="pinLength" min="3" max="16" step="1" value="6" aria-label="Number of digits" />
               <p class="hint">PINs are short by design — pair them with a device that locks after a few wrong attempts.</p>
             </div>
 
@@ -467,7 +460,7 @@
             </details>
             <details>
               <summary>Is anything sent to a server?</summary>
-              <p>No. Everything is generated in your browser tab with the Web Crypto API, and the page's Content Security Policy blocks every network request — open your browser's network panel and watch it stay empty. Only your settings are remembered on your device; generated values never are.</p>
+              <p>No. Everything is generated in your browser tab with the Web Crypto API, and the page's Content Security Policy forbids its scripts to make any network request. Your browser's network panel shows FortiPass loading its own files and nothing else — nothing you generate ever goes out. Only your settings are remembered on your device; generated values never are.</p>
             </details>
           </div>
         </section>
@@ -488,7 +481,7 @@
             <li><a href="../passphrase-generator/">Passphrase generator</a></li>
             <li><a href="../pin-generator/" aria-current="page">PIN generator</a></li>
             <li><a href="../password-strength-checker/">Password strength checker</a></li>
-            <li><a href="../wifi-password-generator/">Wi-Fi password & QR code</a></li>
+            <li><a href="../wifi-password-generator/"><span class="nowrap">Wi-Fi</span> password & QR code</a></li>
             <li><a href="../how-long-to-crack-a-password/">How long to crack a password</a></li>
         </ul>
         <div class="footer-bottom">
@@ -538,7 +531,7 @@
       <div class="noscript">FortiPass generates passwords in your browser, which needs JavaScript enabled. Nothing is sent to a server either way.</div>
     </noscript>
 
-    <script src="../core.js?v=729cd690fe"></script>
-    <script src="../script.js?v=729cd690fe"></script>
+    <script src="../core.js?v=a9394ea508"></script>
+    <script src="../script.js?v=a9394ea508"></script>
   </body>
 </html>

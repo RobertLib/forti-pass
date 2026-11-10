@@ -142,6 +142,14 @@ popupSuite("en", (ctx) => {
     assert.equal(s.value, "Select at least one character type.");
     assert.equal(s.metaHidden, true);
     assert.equal(await page.evaluate(() => getComputedStyle(document.getElementById("meta")).visibility), "hidden");
+    // Nothing to copy, so the button says so instead of doing nothing.
+    assert.equal(await page.evaluate(() => document.getElementById("copyBtn").disabled), true);
+    await page.evaluate(() => {
+      const box = document.getElementById("digits");
+      box.checked = true;
+      box.dispatchEvent(new Event("input"));
+    });
+    assert.equal(await page.evaluate(() => document.getElementById("copyBtn").disabled), false);
     await page.close();
   });
 

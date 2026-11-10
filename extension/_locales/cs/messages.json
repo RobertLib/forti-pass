@@ -23,6 +23,6 @@
   "toCrack": { "message": "$T$ na prolomení", "placeholders": { "t": { "content": "$1" } } },
   "crackedInstantly": { "message": "prolomení okamžitě" },
   "moreTools": { "message": "QR kód k Wi-Fi, kontrola síly hesla a další" },
-  "privacy": { "message": "Vzniká v tomto zařízení. Nic se neodesílá ani neukládá." },
+  "privacy": { "message": "Vzniká v tomto zařízení. Nic se neodesílá, ukládá se jen nastavení." },
   "copyFailed": { "message": "Označte text a zkopírujte ho ručně." }
 }

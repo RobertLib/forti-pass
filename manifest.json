@@ -1,6 +1,6 @@
 {
   "id": "fortipass",
-  "name": "FortiPass - Strong Password Generator",
+  "name": "FortiPass – Strong Password Generator",
   "short_name": "FortiPass",
   "description": "Generate strong passwords, memorable passphrases and PINs entirely on your device, with real entropy and crack-time estimates.",
   "start_url": "./",
@@ -61,6 +61,22 @@
       "name": "Check a password",
       "short_name": "Check",
       "url": "./password-strength-checker/"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshots/en-wide.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "The password generator on a computer"
+    },
+    {
+      "src": "screenshots/en-narrow.png",
+      "sizes": "780x1688",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "The password generator on a phone"
     }
   ]
 }

@@ -182,6 +182,8 @@
       noTypes: "Select at least one character type.",
       allExcluded:
         "Every character of the selected types is excluded — remove some exclusions.",
+      typeExcluded:
+        "Every character of one of the selected types is excluded — remove some exclusions or turn that type off.",
       notEnoughUnique: (n) =>
         "Only " + n + " unique characters available — shorten the password or allow repeats.",
       unsatisfiable:
@@ -277,7 +279,8 @@
     // Checker dictionary: folded word → bits to guess it, which is the size
     // of the cheapest language dictionary it appears in. That is never below
     // the passphrase list it came from, so the checker cannot undercut a
-    // passphrase this app generated.
+    // passphrase this app generated with a separator. (Words run together
+    // can now and then be split into other, cheaper words.)
     const DICTIONARY = new Map();
     Object.keys(sources).forEach((lang) => {
       const source = sources[lang] || {};
@@ -303,7 +306,7 @@
     const LANGUAGES = Object.keys(LISTS);
 
     // Common passwords that are also dictionary words are scored as words,
-    // so the checker never undercuts a passphrase this app generated.
+    // so a generated passphrase is never priced as a list of common passwords.
     const COMMON_ONLY = new Set(
       Array.from(COMMON_PASSWORDS).filter((word) => !DICTIONARY.has(word))
     );
@@ -434,6 +437,10 @@
       }
       const sets = buildCharacterSets(opts);
       if (!sets.length) return failure("allExcluded", M.errors.allExcluded);
+      // A type the user asked for but excluded entirely would silently be
+      // left out, and "use every selected type" would stop covering it.
+      const requested = [opts.uppercase, opts.lowercase, opts.numbers, opts.symbols].filter(Boolean);
+      if (sets.length < requested.length) return failure("typeExcluded", M.errors.typeExcluded);
 
       const pool = [].concat.apply([], sets);
 

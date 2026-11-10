@@ -11,7 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <title>Kontrola síly hesla – jak bezpečné je moje heslo? | FortiPass</title>
-    <meta name="description" content="Otestujte, jak silné je vaše heslo: entropie, odhad doby prolomení a konkrétní slabiny — česká i anglická slova, jména, záměny písmen, roky, řady z klávesnice. Běží lokálně, nic se neodesílá." />
+    <meta name="description" content="Zjistěte, jak silné je vaše heslo: entropie, doba prolomení a konkrétní slabiny od slov ze slovníku po řady z klávesnice. Běží lokálně, nic se neodesílá." />
     <meta name="author" content="Robert Libšanský" />
     <meta name="robots" content="index, follow" />
     <meta name="color-scheme" content="dark light" />
@@ -30,18 +30,18 @@
     <meta property="og:url" content="https://robertlib.github.io/forti-pass/cs/kontrola-sily-hesla/" />
     <meta property="og:site_name" content="FortiPass" />
     <meta property="og:locale" content="cs_CZ" />
-    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:locale:alternate" content="en_GB" />
     <meta property="og:title" content="Kontrola síly hesla – jak bezpečné je moje heslo? | FortiPass" />
-    <meta property="og:description" content="Otestujte, jak silné je vaše heslo: entropie, odhad doby prolomení a konkrétní slabiny — česká i anglická slova, jména, záměny písmen, roky, řady z klávesnice. Běží lokálně, nic se neodesílá." />
+    <meta property="og:description" content="Zjistěte, jak silné je vaše heslo: entropie, doba prolomení a konkrétní slabiny od slov ze slovníku po řady z klávesnice. Běží lokálně, nic se neodesílá." />
     <meta property="og:image" content="https://robertlib.github.io/forti-pass/og-image-cs.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Logo FortiPass s heslem „Silná hesla, vytvořená ve vašem zařízení“ a ukázkou vygenerovaného hesla" />
+    <meta property="og:image:alt" content="Logo FortiPass se sloganem „Silná hesla vytvořená ve vašem zařízení“ a ukázkou vygenerovaného hesla" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Kontrola síly hesla – jak bezpečné je moje heslo? | FortiPass" />
-    <meta name="twitter:description" content="Otestujte, jak silné je vaše heslo: entropie, odhad doby prolomení a konkrétní slabiny — česká i anglická slova, jména, záměny písmen, roky, řady z klávesnice. Běží lokálně, nic se neodesílá." />
+    <meta name="twitter:description" content="Zjistěte, jak silné je vaše heslo: entropie, doba prolomení a konkrétní slabiny od slov ze slovníku po řady z klávesnice. Běží lokálně, nic se neodesílá." />
     <meta name="twitter:image" content="https://robertlib.github.io/forti-pass/og-image-cs.png" />
-    <meta name="twitter:image:alt" content="Logo FortiPass s heslem „Silná hesla, vytvořená ve vašem zařízení“ a ukázkou vygenerovaného hesla" />
+    <meta name="twitter:image:alt" content="Logo FortiPass se sloganem „Silná hesla vytvořená ve vašem zařízení“ a ukázkou vygenerovaného hesla" />
 
     <link rel="icon" href="../../favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="../../apple-touch-icon.png" />
@@ -51,8 +51,8 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "FortiPass — Kontrola síly hesla",
-  "description": "Otestujte, jak silné je vaše heslo: entropie, odhad doby prolomení a konkrétní slabiny — česká i anglická slova, jména, záměny písmen, roky, řady z klávesnice. Běží lokálně, nic se neodesílá.",
+  "name": "FortiPass – Kontrola síly hesla",
+  "description": "Zjistěte, jak silné je vaše heslo: entropie, doba prolomení a konkrétní slabiny od slov ze slovníku po řady z klávesnice. Běží lokálně, nic se neodesílá.",
   "url": "https://robertlib.github.io/forti-pass/cs/kontrola-sily-hesla/",
   "inLanguage": "cs",
   "applicationCategory": "SecurityApplication",
@@ -81,7 +81,7 @@
       "name": "Je bezpečné sem psát svoje skutečné heslo?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Kontrola běží celá ve vašem prohlížeči a bezpečnostní politika stránky blokuje všechny síťové požadavky, takže se nic odeslat nedá. Přesto je rozumné být opatrný u každého webu — když si nejste jistí, odpojte se nejdřív od internetu, nebo otestujte heslo se stejnou stavbou."
+        "text": "Kontrola běží celá ve vašem prohlížeči a bezpečnostní politika stránky jejím skriptům zakazuje jakýkoli síťový požadavek, takže to, co napíšete, odeslat nejde. Přesto je rozumné být opatrný u každého webu – když si nejste jistí, odpojte se nejdřív od internetu, nebo otestujte heslo se stejnou stavbou."
       }
     },
     {
@@ -97,7 +97,7 @@
       "name": "S čím počítá doba prolomení?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "S útočníkem, který ukradl databázi hashů hesel a zkouší 100 miliard možností za sekundu — zhruba tolik zvládne jedna současná výkonná grafická karta proti rychlým hashům jako MD5 nebo NTLM. Jde o průměrnou dobu, tedy polovinu všech možností. Sestava s více kartami je úměrně rychlejší; weby s bcrypt, scrypt nebo Argon2 útok výrazně zpomalí a přihlašovací formulář s omezením pokusů ještě víc."
+        "text": "S útočníkem, který ukradl databázi hashů hesel a zkouší 100 miliard možností za sekundu – zhruba tolik zvládne jedna současná výkonná grafická karta proti rychlým hashům jako MD5 nebo NTLM. Jde o průměrnou dobu, tedy dobu, za kterou útočník vyzkouší polovinu všech možností. Sestava s více kartami je úměrně rychlejší; weby s bcrypt, scrypt nebo Argon2 útok výrazně zpomalí a přihlašovací formulář s omezením pokusů ještě víc."
       }
     },
     {
@@ -105,7 +105,7 @@
       "name": "Zjistí kontrola, jestli moje heslo neuniklo?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Ne — to by znamenalo něco odeslat po síti, a to FortiPass nikdy nedělá. Have I Been Pwned nabízí kontrolu úniků, při které se odesílá jen prvních pět znaků hashe SHA-1 vašeho hesla."
+        "text": "Ne – to by znamenalo něco odeslat po síti, a to FortiPass nikdy nedělá. Have I Been Pwned nabízí kontrolu úniků, při které se odesílá jen prvních pět znaků hashe SHA-1 vašeho hesla."
       }
     },
     {
@@ -120,7 +120,7 @@
 }
     </script>
 
-    <link rel="stylesheet" href="../../styles.css?v=729cd690fe" />
+    <link rel="stylesheet" href="../../styles.css?v=a9394ea508" />
     <script>
       (function () {
         try {
@@ -184,10 +184,6 @@
         <symbol id="i-moon" viewBox="0 0 24 24">
           <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
         </symbol>
-        <symbol id="i-keyboard" viewBox="0 0 24 24">
-          <rect x="2" y="6" width="20" height="12" rx="2" />
-          <path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8" />
-        </symbol>
         <symbol id="i-close" viewBox="0 0 24 24">
           <line x1="18" y1="6" x2="6" y2="18" />
           <line x1="6" y1="6" x2="18" y2="18" />
@@ -203,9 +199,6 @@
         <symbol id="i-search" viewBox="0 0 24 24">
           <circle cx="11" cy="11" r="7.5" />
           <line x1="21" y1="21" x2="16.5" y2="16.5" />
-        </symbol>
-        <symbol id="i-bolt" viewBox="0 0 24 24">
-          <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z" />
         </symbol>
         <symbol id="i-history" viewBox="0 0 24 24">
           <path d="M3 12a9 9 0 1 0 3-6.7" />
@@ -269,7 +262,7 @@
 
     <header class="topbar">
       <div class="container topbar-inner">
-        <a class="brand" href="../../cs/" aria-label="FortiPass – úvod">
+        <a class="brand" href="../../cs/" aria-label="FortiPass – úvod">
           <span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="#i-shield" /></svg></span>
           <span class="brand-text">Forti<span class="brand-accent">Pass</span></span>
         </a>
@@ -314,7 +307,7 @@
                 <label for="checkInput">Heslo k otestování</label>
                 <div class="input-row">
                   <input type="password" id="checkInput" class="text-input input-lg mono" placeholder="Napište nebo vložte heslo" maxlength="256" autocomplete="off" autocapitalize="off" spellcheck="false" data-1p-ignore data-lpignore="true" data-bwignore aria-describedby="checkVerdict checkPrivacy" />
-                  <button type="button" class="icon-btn icon-btn-lg" id="checkRevealBtn" aria-label="Zobrazit heslo" aria-pressed="false">
+                  <button type="button" class="icon-btn" id="checkRevealBtn" aria-label="Zobrazit heslo" aria-pressed="false">
                     <svg class="icon" aria-hidden="true"><use href="#i-eye" /></svg>
                   </button>
                 </div>
@@ -326,7 +319,7 @@
               </div>
               <div class="meter-meta">
                 <strong class="strength-label" id="checkVerdict">Čekám na zadání</strong>
-                <span class="meta-item" title="Entropie v bitech — každý bit navíc zdvojnásobí počet potřebných pokusů">
+                <span class="meta-item" title="Entropie v bitech – každý bit navíc zdvojnásobí počet potřebných pokusů">
                   <svg class="icon icon-sm" aria-hidden="true"><use href="#i-gauge" /></svg>
                   <span id="checkEntropy">—</span>
                 </span>
@@ -344,7 +337,7 @@
             <div class="pane">
               <h3 class="pane-title">Co kontrola zjistila</h3>
               <ul class="findings" id="checkFindings"></ul>
-              <p class="findings-empty">Začněte psát a uvidíte, jak by na heslo šel útočník — kousek po kousku.</p>
+              <p class="findings-empty">Začněte psát a uvidíte, jak by na heslo šel útočník – kousek po kousku.</p>
               <p class="cta">Potřebujete lepší? <a href="../../cs/">Vygenerujte silné heslo<svg class="icon icon-sm" aria-hidden="true"><use href="#i-arrow" /></svg></a></p>
             </div>
           </div>
@@ -353,21 +346,21 @@
         <div class="reading">
         <section class="content">
           <h2>Jak kontrola funguje</h2>
-          <p>Většina měřičů síly jen počítá délku a typy znaků. Heslo <code>Heslo123!</code> pak vyjde jako silné, přestože ho programy na lámání hesel uhodnou během pár sekund. FortiPass místo toho hledá nejlevnější způsob, jak heslo poskládat po kouscích — stejně jako pravidla, která používají útočníci:</p>
+          <p>Většina měřičů síly jen počítá délku a typy znaků. Heslo <code>Heslo123!</code> pak vyjde jako silné, přestože ho programy na lámání hesel uhodnou během pár sekund. FortiPass místo toho hledá nejlevnější způsob, jak heslo poskládat po kouscích – stejně jako pravidla, která používají útočníci:</p>
           <ul class="tips">
-            <li><strong>Slova ze slovníku</strong> v češtině i angličtině — i slepená dohromady a bez diakritiky, takže <code>kocicka</code> je pořád „kočička“ — plus nejčastější hesla a česká jména a příjmení.</li>
+            <li><strong>Slova ze slovníku</strong> v češtině i angličtině – i slepená dohromady a bez diakritiky, takže <code>kocicka</code> je pořád „kočička“ – plus nejčastější hesla a česká jména a příjmení.</li>
             <li><strong>Předvídatelné záměny</strong> jako @ místo a, 0 místo o a 1 místo i nebo l.</li>
             <li><strong>Roky a data,</strong> opakované znaky, řady z klávesnice a abecedy (<code>qwertz</code>, <code>yxcvbnm</code>, <code>ěščř</code>, <code>4321</code>) a kopie dřívější části (<code>Ab3$Ab3$</code>).</li>
           </ul>
-          <p>Každý kousek stojí tolik bitů, kolik by stálo ho uhodnout, a vyhrává nejlevnější rozklad. Výsledek uvidíte jako entropii v bitech a jako průměrnou dobu offline útoku při 100 miliardách pokusů za sekundu — se stejným předpokladem jako <a href="../../cs/jak-dlouho-trva-prolomit-heslo/">tabulka doby prolomení</a>.</p>
+          <p>Každý kousek stojí tolik bitů, kolik by stálo ho uhodnout, a vyhrává nejlevnější rozklad. Výsledek uvidíte jako entropii v bitech a jako průměrnou dobu offline útoku při 100 miliardách pokusů za sekundu – se stejným předpokladem jako <a href="../../cs/jak-dlouho-trva-prolomit-heslo/">tabulka doby prolomení</a>.</p>
 
           <h2>Co kontrola vědět nemůže</h2>
           <p>Žádná kontrola nezná jméno vašeho psa, vaši ulici ani heslo, které jste používali v roce 2014. A hlavně nepozná, jestli heslo už neuniklo: uniklé heslo padne za nula sekund, ať je jakkoli dlouhé. To by vyžadovalo databázi úniků, kterou tahle stránka záměrně nikdy nekontaktuje. Na to použijte <a href="https://haveibeenpwned.com/Passwords" rel="noopener">Have I Been Pwned</a> a dobrý výsledek tady berte jako „žádná zjevná slabina“, ne jako záruku.</p>
 
           <h2>Jak ze slabého hesla udělat silné</h2>
           <ul class="tips">
-            <li>Než ho začnete komplikovat, prodlužte ho — délka zvětšuje počet možností nejrychleji.</li>
-            <li>Všechno, co jste vymysleli sami, nahraďte náhodou: <a href="../../cs/generator-hesel-ze-slov/">heslem ze slov</a>, pokud ho píšete ručně, nebo <a href="../../cs/">náhodným heslem</a>, pokud ho vyplňuje správce hesel.</li>
+            <li>Než ho začnete komplikovat, prodlužte ho – délka zvětšuje počet možností nejrychleji.</li>
+            <li>Všechno, co jste vymysleli sami, nahraďte něčím náhodným: <a href="../../cs/generator-hesel-ze-slov/">heslem ze slov</a>, pokud ho píšete ručně, nebo <a href="../../cs/">náhodným heslem</a>, pokud ho vyplňuje správce hesel.</li>
             <li>Používejte ho jen na jednom webu. Opakované použití je důvod, proč se z jednoho úniku stane deset.</li>
           </ul>
         </section>
@@ -377,7 +370,7 @@
           <div class="faq">
             <details>
               <summary>Je bezpečné sem psát svoje skutečné heslo?</summary>
-              <p>Kontrola běží celá ve vašem prohlížeči a bezpečnostní politika stránky blokuje všechny síťové požadavky, takže se nic odeslat nedá. Přesto je rozumné být opatrný u každého webu — když si nejste jistí, odpojte se nejdřív od internetu, nebo otestujte heslo se stejnou stavbou.</p>
+              <p>Kontrola běží celá ve vašem prohlížeči a bezpečnostní politika stránky jejím skriptům zakazuje jakýkoli síťový požadavek, takže to, co napíšete, odeslat nejde. Přesto je rozumné být opatrný u každého webu – když si nejste jistí, odpojte se nejdřív od internetu, nebo otestujte heslo se stejnou stavbou.</p>
             </details>
             <details>
               <summary>Proč moje heslo se symboly a číslicemi vychází slabě?</summary>
@@ -385,11 +378,11 @@
             </details>
             <details>
               <summary>S čím počítá doba prolomení?</summary>
-              <p>S útočníkem, který ukradl databázi hashů hesel a zkouší 100 miliard možností za sekundu — zhruba tolik zvládne jedna současná výkonná grafická karta proti rychlým hashům jako MD5 nebo NTLM. Jde o průměrnou dobu, tedy polovinu všech možností. Sestava s více kartami je úměrně rychlejší; weby s bcrypt, scrypt nebo Argon2 útok výrazně zpomalí a přihlašovací formulář s omezením pokusů ještě víc.</p>
+              <p>S útočníkem, který ukradl databázi hashů hesel a zkouší 100 miliard možností za sekundu – zhruba tolik zvládne jedna současná výkonná grafická karta proti rychlým hashům jako MD5 nebo NTLM. Jde o průměrnou dobu, tedy dobu, za kterou útočník vyzkouší polovinu všech možností. Sestava s více kartami je úměrně rychlejší; weby s bcrypt, scrypt nebo Argon2 útok výrazně zpomalí a přihlašovací formulář s omezením pokusů ještě víc.</p>
             </details>
             <details>
               <summary>Zjistí kontrola, jestli moje heslo neuniklo?</summary>
-              <p>Ne — to by znamenalo něco odeslat po síti, a to FortiPass nikdy nedělá. Have I Been Pwned nabízí kontrolu úniků, při které se odesílá jen prvních pět znaků hashe SHA-1 vašeho hesla.</p>
+              <p>Ne – to by znamenalo něco odeslat po síti, a to FortiPass nikdy nedělá. Have I Been Pwned nabízí kontrolu úniků, při které se odesílá jen prvních pět znaků hashe SHA-1 vašeho hesla.</p>
             </details>
             <details>
               <summary>Proč různé kontroly hesel ukazují různé výsledky?</summary>
@@ -403,7 +396,7 @@
     <footer class="site-footer">
       <div class="container footer-grid">
         <div class="footer-about">
-          <a class="brand brand-sm" href="../../cs/" aria-label="FortiPass – úvod">
+          <a class="brand brand-sm" href="../../cs/" aria-label="FortiPass – úvod">
           <span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="#i-shield" /></svg></span>
           <span class="brand-text">Forti<span class="brand-accent">Pass</span></span>
         </a>
@@ -412,9 +405,9 @@
         <ul class="footer-links">
             <li><a href="../../cs/">Generátor hesel</a></li>
             <li><a href="../../cs/generator-hesel-ze-slov/">Generátor hesel ze slov</a></li>
-            <li><a href="../../cs/generator-pin/">Generátor PIN</a></li>
+            <li><a href="../../cs/generator-pin/">Generátor PIN kódů</a></li>
             <li><a href="../../cs/kontrola-sily-hesla/" aria-current="page">Kontrola síly hesla</a></li>
-            <li><a href="../../cs/generator-hesla-wifi/">Heslo k Wi-Fi a QR kód</a></li>
+            <li><a href="../../cs/generator-hesla-wifi/">Heslo k <span class="nowrap">Wi-Fi</span> a QR kód</a></li>
             <li><a href="../../cs/jak-dlouho-trva-prolomit-heslo/">Jak dlouho trvá prolomit heslo</a></li>
         </ul>
         <div class="footer-bottom">
@@ -452,18 +445,18 @@
           <svg class="icon" aria-hidden="true"><use href="#i-close" /></svg>
         </button>
       </div>
-      <p class="dialog-note dialog-note-top">Prohlížeč zablokoval přístup ke schránce. Text níže je už označený — stiskněte <kbd>Ctrl</kbd>&nbsp;<kbd>C</kbd> (na Macu <kbd>⌘</kbd>&nbsp;<kbd>C</kbd>).</p>
+      <p class="dialog-note dialog-note-top">Prohlížeč zablokoval přístup ke schránce. Text níže je už označený – stiskněte <kbd>Ctrl</kbd>&nbsp;<kbd>C</kbd> (na Macu <kbd>⌘</kbd>&nbsp;<kbd>C</kbd>).</p>
       <textarea id="copyDialogText" class="text-input copy-text" rows="1" readonly spellcheck="false" aria-label="Hodnota ke zkopírování"></textarea>
     </dialog>
 
     <noscript>
-      <div class="noscript">FortiPass vytváří hesla ve vašem prohlížeči, a k tomu potřebuje zapnutý JavaScript. Na server se nic neposílá v žádném případě.</div>
+      <div class="noscript">FortiPass vytváří hesla ve vašem prohlížeči a potřebuje k tomu zapnutý JavaScript. Na server se nic neposílá v žádném případě.</div>
     </noscript>
 
-    <script src="../../wordlist-en.js?v=729cd690fe"></script>
-    <script src="../../wordlist-cs.js?v=729cd690fe"></script>
-    <script src="../../locale-cs.js?v=729cd690fe"></script>
-    <script src="../../core.js?v=729cd690fe"></script>
-    <script src="../../script.js?v=729cd690fe"></script>
+    <script src="../../wordlist-en.js?v=a9394ea508"></script>
+    <script src="../../wordlist-cs.js?v=a9394ea508"></script>
+    <script src="../../locale-cs.js?v=a9394ea508"></script>
+    <script src="../../core.js?v=a9394ea508"></script>
+    <script src="../../script.js?v=a9394ea508"></script>
   </body>
 </html>

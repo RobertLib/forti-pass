@@ -27,9 +27,13 @@
   // When the clipboard is due to be wiped. Per tab, because the generator
   // modes are separate pages and a timer dies with its page.
   const CLIPBOARD_KEY = "fortipass:clipboardDue";
+  // Where the mode switch was on screen when you left for another mode.
+  const MODE_TOP_KEY = "fortipass:modeTop";
   const CLIPBOARD_CLEAR_MS = 30000;
-  // Screen readers hear the checker's verdict once typing pauses.
+  // Screen readers hear the checker's verdict once typing pauses, and a
+  // slider's new value once it stops moving, not on every step.
   const CHECK_ANNOUNCE_MS = 900;
+  const SLIDER_ANNOUNCE_MS = 700;
   const THEME_COLORS = { light: "#f6f7fb", dark: "#0c0e14" };
 
   const MODES = ["password", "passphrase", "pin"];
@@ -91,6 +95,12 @@
     wifiSaved: "QR code saved as an SVG image",
   };
   const UI = Object.assign({}, UI_EN, locale.ui || {});
+  // Groups of messages fall back key by key, so a locale that lacks one
+  // still shows the English text instead of an empty notice.
+  Object.keys(UI_EN).forEach((key) => {
+    const base = UI_EN[key];
+    if (base && typeof base === "object") UI[key] = Object.assign({}, base, (locale.ui || {})[key]);
+  });
 
   const PASSWORD_BASE = {
     uppercase: true,
@@ -156,7 +166,8 @@
 
   const WIFI_STYLES = {
     easy: { kind: "password", length: 20, symbols: false, excludeAmbiguous: true },
-    words: { kind: "passphrase", words: 5 },
+    // Six words clear the meter's "Strong" mark, like the passphrase page.
+    words: { kind: "passphrase", words: 6 },
     strong: { kind: "password", length: 32, symbols: true, excludeAmbiguous: false },
     max: { kind: "password", length: 63, symbols: false, excludeAmbiguous: false },
   };
@@ -267,13 +278,20 @@
   let clipboardDue = 0;
   let clipboardTimer = null;
   let checkAnnounceTimer = null;
+  let announceTimer = null;
+  // Set while the legacy copy path runs, whose own "copy" event is ours.
+  let legacyCopying = false;
 
   /* ------------------------------------------------------------ generation */
 
-  const intOf = (node, key) => {
+  /** A whole number within the limits for `key`; anything unreadable is the default. */
+  function limited(value, key) {
     const [min, max, fallback] = LIMITS[key];
-    return node ? clamp(parseInt(node.value, 10) || fallback, min, max) : fallback;
-  };
+    const n = parseInt(value, 10);
+    return clamp(Number.isNaN(n) ? fallback : n, min, max);
+  }
+
+  const intOf = (node, key) => (node ? limited(node.value, key) : LIMITS[key][2]);
   const boolOf = (node, fallback) => (node ? node.checked : fallback);
 
   function readOptions() {
@@ -307,13 +325,15 @@
   }
 
   /**
-   * @param {{remember?: boolean}} [config] remember=true adds the result to the
-   * session list. Slider-driven regenerations deliberately do not, or the list
-   * would fill with values the user never looked at.
+   * @param {{remember?: boolean, live?: boolean}} [config] remember=true adds
+   * the result to the session list. Slider-driven regenerations deliberately
+   * do not, or the list would fill with values the user never looked at; they
+   * pass live=true, so the announcement waits until the slider settles.
    */
   function generate(config) {
     if (!el.generator) return;
     const remember = !!(config && config.remember);
+    const live = !!(config && config.live);
 
     if (!core || !core.hasCrypto) {
       showError(UI.noCrypto);
@@ -353,7 +373,7 @@
       opts.mode === "pin"
         ? UI.combinations(Math.pow(10, opts.pinLength))
         : UI.strength(core.SCORE_LABELS[core.scoreFromBits(first.entropy)]);
-    announce(UI.generated(opts.count, opts.mode, summary, Math.round(first.entropy)));
+    announce(UI.generated(opts.count, opts.mode, summary, Math.round(first.entropy)), live);
   }
 
   /** Regenerate one row of a list without touching the others. */
@@ -399,8 +419,9 @@
   function paint(target, value) {
     target.textContent = "";
     if (state.masked) {
+      // One bullet per character, so hiding never changes the layout.
       target.classList.add("is-masked");
-      target.textContent = "•".repeat(Math.min(Array.from(value).length, 40));
+      target.textContent = "•".repeat(Array.from(value).length);
       return;
     }
     target.classList.remove("is-masked");
@@ -458,12 +479,20 @@
     el.hero.hidden = list;
     el.passwordList.hidden = !list;
     el.downloadBtn.hidden = !list;
-    el.copyBtn.querySelector(".btn-label").textContent = list ? UI.copyAll : UI.copy;
+    // While "Copied" shows, the label comes back by itself, already right.
+    if (!el.copyBtn.classList.contains("is-done")) {
+      el.copyBtn.querySelector(".btn-label").textContent = copyLabel();
+    }
     if (list) renderList();
     else {
       el.passwordList.textContent = "";
       renderHero();
     }
+  }
+
+  /** The main copy button copies the whole list when there is one. */
+  function copyLabel() {
+    return state.results.length > 1 ? UI.copyAll : UI.copy;
   }
 
   function buildRow(value, index, animate) {
@@ -527,8 +556,9 @@
   function markInvalid(code) {
     const types = el.uppercase && el.uppercase.closest("fieldset");
     if (types) types.classList.toggle("is-invalid", code === "noTypes");
+    const excluded = code === "allExcluded" || code === "typeExcluded";
     const marks = [
-      [el.excludeChars, code === "allExcluded" && !!el.excludeChars && el.excludeChars.value !== ""],
+      [el.excludeChars, excluded && !!el.excludeChars && el.excludeChars.value !== ""],
       [el.length, ["notEnoughUnique", "unsatisfiable", "tooRestrictive"].indexOf(code) !== -1],
     ];
     marks.forEach(([node, invalid]) => {
@@ -536,7 +566,7 @@
       if (invalid) node.setAttribute("aria-invalid", "true");
       else node.removeAttribute("aria-invalid");
     });
-    if (code === "allExcluded" && el.advanced) el.advanced.open = true;
+    if (excluded && el.advanced) el.advanced.open = true;
   }
 
   function showError(message, code) {
@@ -632,6 +662,7 @@
         /* fall through to the legacy path */
       }
     }
+    const focused = document.activeElement;
     try {
       const area = document.createElement("textarea");
       area.value = text;
@@ -639,11 +670,16 @@
       area.style.cssText = "position:fixed;top:-1000px;opacity:0;";
       document.body.appendChild(area);
       area.select();
+      legacyCopying = true;
       const ok = document.execCommand("copy");
       area.remove();
       return ok;
     } catch (err) {
       return false;
+    } finally {
+      legacyCopying = false;
+      // The hidden field took the focus; give it back to the button.
+      if (focused && focused.focus) focused.focus();
     }
   }
 
@@ -677,7 +713,8 @@
     button._resetTimer = setTimeout(() => {
       button.classList.remove("is-done");
       if (use) use.setAttribute("href", "#" + restoreIcon);
-      if (label && previousLabel !== null) label.textContent = previousLabel;
+      // The list may have grown or shrunk meanwhile, so ask afresh.
+      if (label) label.textContent = button === el.copyBtn ? copyLabel() : previousLabel;
     }, 1600);
   }
 
@@ -687,11 +724,15 @@
   }
 
   function openCopyDialog(text) {
-    el.copyDialogText.value = text;
-    el.copyDialogText.rows = clamp(text.split("\n").length, 1, 8);
+    const area = el.copyDialogText;
+    area.value = text;
     if (!el.copyDialog.open) el.copyDialog.showModal();
-    el.copyDialogText.focus();
-    el.copyDialogText.select();
+    // Tall enough for the value as it wraps on this screen, not just for its
+    // line breaks; the stylesheet caps the height and scrolls beyond that.
+    area.style.height = "auto";
+    area.style.height = area.scrollHeight + (area.offsetHeight - area.clientHeight) + "px";
+    area.focus();
+    area.select();
   }
 
   function setClipboardDue(due) {
@@ -774,8 +815,14 @@
   }
 
   function download() {
-    const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
-    const header = UI.downloadHeader(new Date().toLocaleString(LANG));
+    // Local time, like the header inside the file.
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, "0");
+    const stamp =
+      [now.getFullYear(), pad(now.getMonth() + 1), pad(now.getDate())].join("-") +
+      "-" +
+      [pad(now.getHours()), pad(now.getMinutes()), pad(now.getSeconds())].join("-");
+    const header = UI.downloadHeader(now.toLocaleString(LANG));
     saveFile(
       header + state.results.join("\n") + "\n",
       "text/plain;charset=utf-8",
@@ -870,10 +917,13 @@
       }, CHECK_ANNOUNCE_MS);
     }
 
+    // Only findings that are new since the last keystroke animate in; the
+    // rest stay put, so the list does not flicker while you type.
+    const shown = new Set(Array.from(el.checkFindings.children, (li) => li.textContent));
     el.checkFindings.textContent = "";
     result.findings.forEach((finding) => {
       const li = document.createElement("li");
-      li.className = "finding finding-" + finding[0];
+      li.className = "finding finding-" + finding[0] + (shown.has(finding[1]) ? " is-static" : "");
       const icon = finding[0] === "good" ? "i-check" : "i-warning";
       li.innerHTML = '<svg class="icon icon-sm" aria-hidden="true"><use href="#' + icon + '"/></svg>';
       const span = document.createElement("span");
@@ -1072,8 +1122,15 @@
     }, kind === "error" ? 4200 : 2200);
   }
 
-  function announce(message) {
-    if (el.liveStatus) el.liveStatus.textContent = message;
+  /** `later` waits for a pause, so a moving slider is announced once. */
+  function announce(message, later) {
+    if (!el.liveStatus) return;
+    clearTimeout(announceTimer);
+    if (later) {
+      announceTimer = setTimeout(() => (el.liveStatus.textContent = message), SLIDER_ANNOUNCE_MS);
+    } else {
+      el.liveStatus.textContent = message;
+    }
   }
 
   /* ------------------------------------------------------------------ theme */
@@ -1166,8 +1223,7 @@
       if (kind === "bool") {
         if (typeof value === "boolean") node.checked = value;
       } else if (kind === "int") {
-        const [min, max, fallback] = LIMITS[key];
-        const n = clamp(parseInt(value, 10) || fallback, min, max);
+        const n = limited(value, key);
         if (key === "length") setLength(n);
         else node.value = n;
       } else if (kind === "choice") {
@@ -1261,6 +1317,18 @@
     renderHistory();
   }
 
+  /**
+   * A table that scrolls sideways is a tab stop, so keyboard users can
+   * scroll it; one that fits needs no extra stop. The markup starts every
+   * table focusable, which is the safe default without JavaScript.
+   */
+  function syncScrollers() {
+    document.querySelectorAll(".table-scroll").forEach((box) => {
+      if (box.scrollWidth > box.clientWidth + 1) box.setAttribute("tabindex", "0");
+      else box.removeAttribute("tabindex");
+    });
+  }
+
   function spin(button) {
     const icon = button.querySelector(".icon");
     icon.classList.remove("icon-spin");
@@ -1300,12 +1368,57 @@
   /** The generator modes are pages; a shortcut follows the mode's link. */
   function goToMode(mode) {
     const link = document.querySelector('.segmented [data-mode="' + mode + '"]');
-    if (link && !link.hasAttribute("aria-current")) window.location.href = link.href;
+    if (!link || link.hasAttribute("aria-current")) return;
+    rememberModeSwitch(link);
+    window.location.href = link.href;
+  }
+
+  /**
+   * Each mode's page has its own heading and introduction, so the mode
+   * switch sits a little higher or lower on each. Its place on screen is
+   * remembered when you switch, and the next page scrolls to put it back
+   * under your finger instead of making it jump.
+   */
+  function rememberModeSwitch(link) {
+    const bar = document.querySelector(".segmented");
+    try {
+      sessionStorage.setItem(
+        MODE_TOP_KEY,
+        JSON.stringify({ path: new URL(link.href).pathname, top: bar.getBoundingClientRect().top })
+      );
+    } catch (err) {
+      /* not remembered — the page simply opens at the top */
+    }
+  }
+
+  function restoreModeSwitch() {
+    let saved = null;
+    try {
+      saved = JSON.parse(sessionStorage.getItem(MODE_TOP_KEY) || "null");
+      sessionStorage.removeItem(MODE_TOP_KEY);
+    } catch (err) {
+      return;
+    }
+    const bar = document.querySelector(".segmented");
+    if (!saved || !bar || saved.path !== location.pathname || typeof saved.top !== "number") return;
+    // Only for the click that brought us here, not a reload or Back.
+    const entry = performance.getEntriesByType ? performance.getEntriesByType("navigation")[0] : null;
+    if (entry && entry.type !== "navigate") return;
+    const shift = bar.getBoundingClientRect().top - saved.top;
+    if (Math.abs(shift) >= 1) window.scrollTo(0, Math.max(0, window.scrollY + shift));
   }
 
   /* ---------------------------------------------------------------- wiring */
 
   function bindGenerator() {
+    const modes = document.querySelector(".segmented");
+    if (modes) {
+      modes.addEventListener("click", (event) => {
+        const link = event.target.closest("a.segment");
+        if (link && !link.hasAttribute("aria-current")) rememberModeSwitch(link);
+      });
+    }
+
     el.refreshBtn.addEventListener("click", () => {
       spin(el.refreshBtn);
       generate({ remember: true });
@@ -1326,7 +1439,7 @@
       range.addEventListener("input", () => {
         if (range === el.lengthRange) el.length.value = range.value;
         syncSliders();
-        generate();
+        generate({ live: true });
       });
     });
 
@@ -1483,6 +1596,16 @@
     ["pointerdown", "pointerup", "keydown"].forEach((type) =>
       document.addEventListener(type, onGesture, true)
     );
+    // Something the user copies on the page is theirs, so a pending wipe
+    // must not destroy it — unless it is our value, copied out of the
+    // copy-it-yourself dialog. (A copy in another app cannot be seen; the
+    // switch's note says the wipe takes whatever is on the clipboard.)
+    document.addEventListener("copy", (event) => {
+      if (legacyCopying) return;
+      const target = event.target && event.target.nodeType === 1 ? event.target : null;
+      if (target && el.copyDialog.contains(target)) scheduleClipboardClear();
+      else cancelClipboardClear();
+    });
 
     // Closed <details> do not print, so the FAQ opens for paper and closes
     // again afterwards.
@@ -1555,6 +1678,7 @@
       }
       if (masked) toggleMask(true);
       generate();
+      restoreModeSwitch();
     }
 
     if (el.checkInput) bindChecker();
@@ -1566,6 +1690,8 @@
     }
 
     syncSliders();
+    syncScrollers();
+    window.addEventListener("resize", debounce(syncScrollers, 150));
 
     if ("serviceWorker" in navigator) {
       const root = document.documentElement.dataset.root || "./";

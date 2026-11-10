@@ -16,10 +16,11 @@ function text(html) {
   return String(html)
     .replace(/<[^>]+>/g, "")
     .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
     .replace(/&quot;/g, "\"")
+    // Last, so "&amp;lt;" becomes the text "&lt;" and is not decoded twice.
+    .replace(/&amp;/g, "&")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -76,10 +77,6 @@ const SPRITE_SYMBOLS = `
         <symbol id="i-moon" viewBox="0 0 24 24">
           <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
         </symbol>
-        <symbol id="i-keyboard" viewBox="0 0 24 24">
-          <rect x="2" y="6" width="20" height="12" rx="2" />
-          <path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8" />
-        </symbol>
         <symbol id="i-close" viewBox="0 0 24 24">
           <line x1="18" y1="6" x2="6" y2="18" />
           <line x1="6" y1="6" x2="18" y2="18" />
@@ -95,9 +92,6 @@ const SPRITE_SYMBOLS = `
         <symbol id="i-search" viewBox="0 0 24 24">
           <circle cx="11" cy="11" r="7.5" />
           <line x1="21" y1="21" x2="16.5" y2="16.5" />
-        </symbol>
-        <symbol id="i-bolt" viewBox="0 0 24 24">
-          <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z" />
         </symbol>
         <symbol id="i-history" viewBox="0 0 24 24">
           <path d="M3 12a9 9 0 1 0 3-6.7" />

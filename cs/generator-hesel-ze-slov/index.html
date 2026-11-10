@@ -11,7 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <title>Generátor hesel ze slov – česká slova, bez diakritiky | FortiPass</title>
-    <meta name="description" content="Vytvořte zapamatovatelné heslo z náhodných českých slov. Seznam 7 776 slov, volitelně bez diakritiky, a přesný výpočet entropie. Běží jen ve vašem prohlížeči, zdarma a offline." />
+    <meta name="description" content="Zapamatovatelné heslo z náhodných českých slov: seznam 7 776 slov, volitelně bez diakritiky, a přesná entropie. Jen ve vašem prohlížeči, zdarma." />
     <meta name="author" content="Robert Libšanský" />
     <meta name="robots" content="index, follow" />
     <meta name="color-scheme" content="dark light" />
@@ -30,18 +30,18 @@
     <meta property="og:url" content="https://robertlib.github.io/forti-pass/cs/generator-hesel-ze-slov/" />
     <meta property="og:site_name" content="FortiPass" />
     <meta property="og:locale" content="cs_CZ" />
-    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:locale:alternate" content="en_GB" />
     <meta property="og:title" content="Generátor hesel ze slov – česká slova, bez diakritiky | FortiPass" />
-    <meta property="og:description" content="Vytvořte zapamatovatelné heslo z náhodných českých slov. Seznam 7 776 slov, volitelně bez diakritiky, a přesný výpočet entropie. Běží jen ve vašem prohlížeči, zdarma a offline." />
+    <meta property="og:description" content="Zapamatovatelné heslo z náhodných českých slov: seznam 7 776 slov, volitelně bez diakritiky, a přesná entropie. Jen ve vašem prohlížeči, zdarma." />
     <meta property="og:image" content="https://robertlib.github.io/forti-pass/og-image-cs.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Logo FortiPass s heslem „Silná hesla, vytvořená ve vašem zařízení“ a ukázkou vygenerovaného hesla" />
+    <meta property="og:image:alt" content="Logo FortiPass se sloganem „Silná hesla vytvořená ve vašem zařízení“ a ukázkou vygenerovaného hesla" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Generátor hesel ze slov – česká slova, bez diakritiky | FortiPass" />
-    <meta name="twitter:description" content="Vytvořte zapamatovatelné heslo z náhodných českých slov. Seznam 7 776 slov, volitelně bez diakritiky, a přesný výpočet entropie. Běží jen ve vašem prohlížeči, zdarma a offline." />
+    <meta name="twitter:description" content="Zapamatovatelné heslo z náhodných českých slov: seznam 7 776 slov, volitelně bez diakritiky, a přesná entropie. Jen ve vašem prohlížeči, zdarma." />
     <meta name="twitter:image" content="https://robertlib.github.io/forti-pass/og-image-cs.png" />
-    <meta name="twitter:image:alt" content="Logo FortiPass s heslem „Silná hesla, vytvořená ve vašem zařízení“ a ukázkou vygenerovaného hesla" />
+    <meta name="twitter:image:alt" content="Logo FortiPass se sloganem „Silná hesla vytvořená ve vašem zařízení“ a ukázkou vygenerovaného hesla" />
 
     <link rel="icon" href="../../favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="../../apple-touch-icon.png" />
@@ -51,8 +51,8 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "FortiPass — Generátor hesel ze slov",
-  "description": "Vytvořte zapamatovatelné heslo z náhodných českých slov. Seznam 7 776 slov, volitelně bez diakritiky, a přesný výpočet entropie. Běží jen ve vašem prohlížeči, zdarma a offline.",
+  "name": "FortiPass – Generátor hesel ze slov",
+  "description": "Zapamatovatelné heslo z náhodných českých slov: seznam 7 776 slov, volitelně bez diakritiky, a přesná entropie. Jen ve vašem prohlížeči, zdarma.",
   "url": "https://robertlib.github.io/forti-pass/cs/generator-hesel-ze-slov/",
   "inLanguage": "cs",
   "applicationCategory": "SecurityApplication",
@@ -81,12 +81,12 @@
       "name": "Kolik slov má heslo ze slov mít?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Pět slov (asi 64,6 bitu) stačí pro většinu účtů na webu s rozumně řešeným přihlášením. Pro všechno, co může útočník zkoušet offline — hlavní heslo správce hesel, šifrovaný disk nebo zálohu —, použijte šest a víc (77,5 bitu a víc)."
+        "text": "Pět slov (asi 64,6 bitu) stačí pro většinu účtů na webu s rozumně řešeným přihlášením. Pro všechno, co může útočník zkoušet offline – hlavní heslo správce hesel, šifrovaný disk nebo zálohu –, použijte šest a víc (77,5 bitu a víc)."
       }
     },
     {
       "@type": "Question",
-      "name": "Seznam slov je veřejný — není to slabina?",
+      "name": "Seznam slov je veřejný – není to slabina?",
       "acceptedAnswer": {
         "@type": "Answer",
         "text": "Není. Entropie už počítá s tím, že útočník má přesně stejný seznam a zná počet slov. Bezpečnost je v náhodném výběru: šest slov ze 7 776 dává zhruba 2,2 × 10²³ stejně pravděpodobných kombinací."
@@ -105,7 +105,7 @@
       "name": "Pomůže oddělovač, velká písmena nebo číslice?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Trochu. Velké první písmeno u všech slov je jediné pravidlo (asi 1 bit), pevný oddělovač útočník vyzkouší taky a náhodná číslice přidá asi 3,3 bitu. Jedno slovo navíc (12,9 bitu) pomůže mnohem víc — tyhle volby jsou hlavně pro weby, které číslici nebo symbol vyžadují."
+        "text": "Trochu. Velké první písmeno u všech slov je jediné pravidlo (asi 1 bit), pevný oddělovač útočník vyzkouší taky a náhodná číslice přidá asi 3,3 bitu. Jedno slovo navíc (12,9 bitu) pomůže mnohem víc – tyhle volby jsou hlavně pro weby, které číslici nebo symbol vyžadují."
       }
     },
     {
@@ -121,14 +121,14 @@
       "name": "Posílají se hesla někam nebo ukládají?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Ne. Všechno vzniká v kartě vašeho prohlížeče pomocí Web Crypto API a bezpečnostní politika stránky (Content Security Policy) zakazuje jakýkoli síťový požadavek — otevřete si v prohlížeči panel Síť a uvidíte, že zůstane prázdný. Na zařízení se ukládá jen vaše nastavení, vygenerované hodnoty nikdy."
+        "text": "Ne. Všechno vzniká v kartě vašeho prohlížeče pomocí Web Crypto API a bezpečnostní politika stránky (Content Security Policy) jejím skriptům zakazuje jakýkoli síťový požadavek. V panelu Síť v prohlížeči uvidíte jen to, jak FortiPass načítá své vlastní soubory – nic z toho, co vygenerujete, ven neodejde. Na zařízení se ukládá jen vaše nastavení, vygenerované hodnoty nikdy."
       }
     }
   ]
 }
     </script>
 
-    <link rel="stylesheet" href="../../styles.css?v=729cd690fe" />
+    <link rel="stylesheet" href="../../styles.css?v=a9394ea508" />
     <script>
       (function () {
         try {
@@ -192,10 +192,6 @@
         <symbol id="i-moon" viewBox="0 0 24 24">
           <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
         </symbol>
-        <symbol id="i-keyboard" viewBox="0 0 24 24">
-          <rect x="2" y="6" width="20" height="12" rx="2" />
-          <path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8" />
-        </symbol>
         <symbol id="i-close" viewBox="0 0 24 24">
           <line x1="18" y1="6" x2="6" y2="18" />
           <line x1="6" y1="6" x2="18" y2="18" />
@@ -211,9 +207,6 @@
         <symbol id="i-search" viewBox="0 0 24 24">
           <circle cx="11" cy="11" r="7.5" />
           <line x1="21" y1="21" x2="16.5" y2="16.5" />
-        </symbol>
-        <symbol id="i-bolt" viewBox="0 0 24 24">
-          <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z" />
         </symbol>
         <symbol id="i-history" viewBox="0 0 24 24">
           <path d="M3 12a9 9 0 1 0 3-6.7" />
@@ -277,7 +270,7 @@
 
     <header class="topbar">
       <div class="container topbar-inner">
-        <a class="brand" href="../../cs/" aria-label="FortiPass – úvod">
+        <a class="brand" href="../../cs/" aria-label="FortiPass – úvod">
           <span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="#i-shield" /></svg></span>
           <span class="brand-text">Forti<span class="brand-accent">Pass</span></span>
         </a>
@@ -306,7 +299,7 @@
     <main id="main" class="container">
       <header class="page-head">
           <h1>Generátor hesel ze slov</h1>
-          <p class="lede">Pár náhodných slov se píše i pamatuje snáz než změť znaků — a když je vybere počítač, uhodnout je stejně těžké.</p>
+          <p class="lede">Pár náhodných slov se píše i pamatuje snáz než změť znaků – a když je vybere počítač, uhodnout je stejně těžké.</p>
           <ul class="trust">
             <li><svg class="icon icon-sm" aria-hidden="true"><use href="#i-lock" /></svg>Vzniká v prohlížeči, nikam se neposílá</li>
             <li><svg class="icon icon-sm" aria-hidden="true"><use href="#i-offline" /></svg>Funguje offline</li>
@@ -349,13 +342,13 @@
                 </button>
               </div>
 
-              <div class="meter" id="meter" data-score="5">
-              <div class="meter-track" role="meter" aria-label="Síla hesla" aria-valuemin="0" aria-valuemax="5" aria-valuenow="5" aria-valuetext="Výborné" id="meterTrack">
+              <div class="meter" id="meter" data-score="0">
+              <div class="meter-track" role="meter" aria-label="Síla hesla" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="—" id="meterTrack">
                 <span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span>
               </div>
               <div class="meter-meta">
-                <strong class="strength-label" id="strengthLabel">Výborné</strong>
-                <span class="meta-item" title="Entropie v bitech — každý bit navíc zdvojnásobí počet potřebných pokusů">
+                <strong class="strength-label" id="strengthLabel">—</strong>
+                <span class="meta-item" title="Entropie v bitech – každý bit navíc zdvojnásobí počet potřebných pokusů">
                   <svg class="icon icon-sm" aria-hidden="true"><use href="#i-gauge" /></svg>
                   <span id="entropyText">—</span>
                 </span>
@@ -372,7 +365,7 @@
                 <span class="switch-track" aria-hidden="true"></span>
                 <span class="switch-text">
                   <span>Vymazat schránku 30 s po zkopírování</span>
-                  <small>Pokud to prohlížeč na pozadí nedovolí, schránka se vymaže při vašem dalším kliknutí nebo stisku klávesy na stránce FortiPass.</small>
+                  <small>Pokud to prohlížeč na pozadí nedovolí, schránka se vymaže při vašem dalším kliknutí nebo stisku klávesy na stránce FortiPass. Smaže se tím cokoli, co v ní zrovna bude.</small>
                 </span>
               </label>
 
@@ -384,7 +377,7 @@
                   <svg class="icon icon-sm summary-chevron" aria-hidden="true"><use href="#i-chevron" /></svg>
                 </summary>
                 <div class="recent-body">
-                  <p class="hint">Co jste v této kartě vygenerovali nebo zkopírovali — jen v paměti. Obnovením nebo zavřením stránky se to smaže.</p>
+                  <p class="hint">Co jste v této kartě vygenerovali nebo zkopírovali – jen v paměti. Obnovením nebo zavřením stránky se to smaže.</p>
                   <ul class="password-list" id="historyList"></ul>
                   <button type="button" class="btn btn-sm btn-quiet" id="clearHistoryBtn">
                     <svg class="icon icon-sm" aria-hidden="true"><use href="#i-trash" /></svg>
@@ -400,8 +393,8 @@
                 <label for="wordCountValue">Počet slov</label>
                 <input type="number" id="wordCountValue" class="num-input" min="3" max="12" value="6" inputmode="numeric" />
               </div>
-              <input type="range" id="wordCount" min="3" max="12" step="1" value="6" aria-label="Posuvník počtu slov" />
-              <p class="hint">Každé náhodné slovo přidá <span id="wordBits">12,9</span> bitu — šest slov překročí hranici 70 bitů pro „Silné“.</p>
+              <input type="range" id="wordCount" min="3" max="12" step="1" value="6" aria-label="Počet slov" />
+              <p class="hint">Každé náhodné slovo přidá <span id="wordBits">12,9</span> bitu – šest slov překročí hranici 70 bitů pro „Silné“.</p>
             </div>
 
             <div class="field">
@@ -436,7 +429,7 @@
                   <span class="switch-track" aria-hidden="true"></span>
                   <span class="switch-text">
                     <span>Bez diakritiky</span>
-                    <small>kun-zluty místo kůň-žlutý — projde všude, i na zahraniční klávesnici. Síla zůstává stejná.</small>
+                    <small>kun-zluty místo kůň-žlutý – napíšete ho na jakékoli klávesnici. Síla zůstává stejná.</small>
                   </span>
                 </label>
               <label class="switch">
@@ -452,7 +445,7 @@
                   <span class="switch-track" aria-hidden="true"></span>
                   <span class="switch-text">
                     <span>Přidat číslici</span>
-                    <small>Uspokojí weby, které číslici vyžadují.</small>
+                    <small>Vyhoví webům, které číslici vyžadují.</small>
                   </span>
                 </label>
               <label class="switch">
@@ -483,9 +476,9 @@
         <div class="reading">
         <section class="content">
           <h2>Proč česká slova</h2>
-          <p>Většina generátorů skládá hesla ze slov jen z anglických seznamů. Česká slova si ale zapamatujete snáz a napíšete je bez chyby. FortiPass má vlastní seznam 7 776 běžných českých slov — podstatných a přídavných jmen, sloves a příslovcí — vybraných tak, aby se dobře četla a nikoho neurazila.</p>
+          <p>Většina generátorů skládá hesla ze slov jen z anglických seznamů. Česká slova si ale zapamatujete snáz a napíšete je bez chyby. FortiPass má vlastní seznam 7 776 běžných českých slov – podstatných a přídavných jmen, sloves a příslovcí – vybraných tak, aby se dobře četla a nikoho neurazila.</p>
           <ul class="tips">
-            <li><strong>Bez diakritiky:</strong> z <code>kůň-žlutý</code> se stane <code>kun-zluty</code>. Takové heslo projde každým formulářem i zahraniční klávesnicí. Seznam je sestavený tak, aby se žádná dvě slova bez diakritiky neshodovala, takže síla zůstává přesně stejná.</li>
+            <li><strong>Bez diakritiky:</strong> z <code>kůň-žlutý</code> se stane <code>kun-zluty</code>. Takové heslo projde každým formulářem a napíšete ho i na zahraniční klávesnici. Seznam je sestavený tak, aby se žádná dvě slova bez diakritiky neshodovala, takže síla zůstává přesně stejná.</li>
             <li><strong>S diakritikou:</strong> čitelnější, ale některé systémy a klávesnice s ní mají potíže.</li>
             <li><strong>Angličtina:</strong> v menu Jazyk slov můžete přepnout na seznam EFF s 7 776 anglickými slovy.</li>
           </ul>
@@ -510,13 +503,13 @@
               </table>
             </div>
           </figure>
-          <p>Doby prolomení počítají s offline útokem se 100 miliardami pokusů za sekundu proti rychlému hashi — zhruba výkon jedné současné výkonné grafické karty proti MD5 nebo NTLM. Útočník s celou sestavou karet je desetkrát až stokrát rychlejší, proto si nechte rezervu. Web, který hesla ukládá správně (bcrypt, scrypt, Argon2), útočníka zpomalí o mnoho řádů.</p>
+          <p>Doby prolomení počítají s offline útokem se 100 miliardami pokusů za sekundu proti rychlému hashi – zhruba výkon jedné současné výkonné grafické karty proti MD5 nebo NTLM. Útočník s celou sestavou karet je desetkrát až stokrát rychlejší, proto si nechte rezervu. Web, který hesla ukládá správně (bcrypt, scrypt, Argon2), útočníka zpomalí o mnoho řádů.</p>
 
           <h2>Heslo ze slov, nebo náhodné znaky?</h2>
           <ul class="tips">
             <li><strong>Ze slov to, co píšete ručně:</strong> hlavní heslo správce hesel, přihlášení do počítače, šifrování disku, heslo k <span class="nowrap">Wi-Fi</span>, které diktujete návštěvě.</li>
             <li><strong><a href="../../cs/">Náhodné znaky</a> pro všechno, co vyplní správce hesel:</strong> 16 a více náhodných znaků dá víc bitů na méně úhozů a stejně je nepíšete.</li>
-            <li><strong>Slova nikdy nevybírejte sami.</strong> Lidé sahají po úryvcích písniček, citátech a slovech, která k sobě patří — a ta mají útočníci ve slovnících. Celé kouzlo je v náhodě.</li>
+            <li><strong>Slova nikdy nevybírejte sami.</strong> Lidé sahají po úryvcích písniček, citátech a slovech, která k sobě patří – a ta mají útočníci ve slovnících. Celé kouzlo je v náhodě.</li>
           </ul>
         </section>
 
@@ -525,10 +518,10 @@
           <div class="faq">
             <details>
               <summary>Kolik slov má heslo ze slov mít?</summary>
-              <p>Pět slov (asi 64,6 bitu) stačí pro většinu účtů na webu s rozumně řešeným přihlášením. Pro všechno, co může útočník zkoušet offline — hlavní heslo správce hesel, šifrovaný disk nebo zálohu —, použijte šest a víc (77,5 bitu a víc).</p>
+              <p>Pět slov (asi 64,6 bitu) stačí pro většinu účtů na webu s rozumně řešeným přihlášením. Pro všechno, co může útočník zkoušet offline – hlavní heslo správce hesel, šifrovaný disk nebo zálohu –, použijte šest a víc (77,5 bitu a víc).</p>
             </details>
             <details>
-              <summary>Seznam slov je veřejný — není to slabina?</summary>
+              <summary>Seznam slov je veřejný – není to slabina?</summary>
               <p>Není. Entropie už počítá s tím, že útočník má přesně stejný seznam a zná počet slov. Bezpečnost je v náhodném výběru: šest slov ze 7 776 dává zhruba 2,2 × 10²³ stejně pravděpodobných kombinací.</p>
             </details>
             <details>
@@ -537,15 +530,15 @@
             </details>
             <details>
               <summary>Pomůže oddělovač, velká písmena nebo číslice?</summary>
-              <p>Trochu. Velké první písmeno u všech slov je jediné pravidlo (asi 1 bit), pevný oddělovač útočník vyzkouší taky a náhodná číslice přidá asi 3,3 bitu. Jedno slovo navíc (12,9 bitu) pomůže mnohem víc — tyhle volby jsou hlavně pro weby, které číslici nebo symbol vyžadují.</p>
+              <p>Trochu. Velké první písmeno u všech slov je jediné pravidlo (asi 1 bit), pevný oddělovač útočník vyzkouší taky a náhodná číslice přidá asi 3,3 bitu. Jedno slovo navíc (12,9 bitu) pomůže mnohem víc – tyhle volby jsou hlavně pro weby, které číslici nebo symbol vyžadují.</p>
             </details>
             <details>
               <summary>Co je Diceware?</summary>
-              <p>Metoda, při které se slova vybírají hodem kostkou ze seznamu 7 776 slov (6⁵, tedy pět hodů na slovo). FortiPass dělá totéž kryptografickým generátorem náhodných čísel místo kostek; anglický seznam je přímo seznam EFF pro Diceware.</p>
+              <p>Metoda, při které se slova vybírají hodem kostkou ze seznamu 7 776 slov (6⁵, tedy pět hodů na slovo). FortiPass dělá totéž kryptografickým generátorem náhodných čísel místo kostek; anglický seznam je přímo seznam EFF pro Diceware.</p>
             </details>
             <details>
               <summary>Posílají se hesla někam nebo ukládají?</summary>
-              <p>Ne. Všechno vzniká v kartě vašeho prohlížeče pomocí Web Crypto API a bezpečnostní politika stránky (Content Security Policy) zakazuje jakýkoli síťový požadavek — otevřete si v prohlížeči panel Síť a uvidíte, že zůstane prázdný. Na zařízení se ukládá jen vaše nastavení, vygenerované hodnoty nikdy.</p>
+              <p>Ne. Všechno vzniká v kartě vašeho prohlížeče pomocí Web Crypto API a bezpečnostní politika stránky (Content Security Policy) jejím skriptům zakazuje jakýkoli síťový požadavek. V panelu Síť v prohlížeči uvidíte jen to, jak FortiPass načítá své vlastní soubory – nic z toho, co vygenerujete, ven neodejde. Na zařízení se ukládá jen vaše nastavení, vygenerované hodnoty nikdy.</p>
             </details>
           </div>
         </section>
@@ -555,7 +548,7 @@
     <footer class="site-footer">
       <div class="container footer-grid">
         <div class="footer-about">
-          <a class="brand brand-sm" href="../../cs/" aria-label="FortiPass – úvod">
+          <a class="brand brand-sm" href="../../cs/" aria-label="FortiPass – úvod">
           <span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="#i-shield" /></svg></span>
           <span class="brand-text">Forti<span class="brand-accent">Pass</span></span>
         </a>
@@ -564,9 +557,9 @@
         <ul class="footer-links">
             <li><a href="../../cs/">Generátor hesel</a></li>
             <li><a href="../../cs/generator-hesel-ze-slov/" aria-current="page">Generátor hesel ze slov</a></li>
-            <li><a href="../../cs/generator-pin/">Generátor PIN</a></li>
+            <li><a href="../../cs/generator-pin/">Generátor PIN kódů</a></li>
             <li><a href="../../cs/kontrola-sily-hesla/">Kontrola síly hesla</a></li>
-            <li><a href="../../cs/generator-hesla-wifi/">Heslo k Wi-Fi a QR kód</a></li>
+            <li><a href="../../cs/generator-hesla-wifi/">Heslo k <span class="nowrap">Wi-Fi</span> a QR kód</a></li>
             <li><a href="../../cs/jak-dlouho-trva-prolomit-heslo/">Jak dlouho trvá prolomit heslo</a></li>
         </ul>
         <div class="footer-bottom">
@@ -608,18 +601,18 @@
           <svg class="icon" aria-hidden="true"><use href="#i-close" /></svg>
         </button>
       </div>
-      <p class="dialog-note dialog-note-top">Prohlížeč zablokoval přístup ke schránce. Text níže je už označený — stiskněte <kbd>Ctrl</kbd>&nbsp;<kbd>C</kbd> (na Macu <kbd>⌘</kbd>&nbsp;<kbd>C</kbd>).</p>
+      <p class="dialog-note dialog-note-top">Prohlížeč zablokoval přístup ke schránce. Text níže je už označený – stiskněte <kbd>Ctrl</kbd>&nbsp;<kbd>C</kbd> (na Macu <kbd>⌘</kbd>&nbsp;<kbd>C</kbd>).</p>
       <textarea id="copyDialogText" class="text-input copy-text" rows="1" readonly spellcheck="false" aria-label="Hodnota ke zkopírování"></textarea>
     </dialog>
 
     <noscript>
-      <div class="noscript">FortiPass vytváří hesla ve vašem prohlížeči, a k tomu potřebuje zapnutý JavaScript. Na server se nic neposílá v žádném případě.</div>
+      <div class="noscript">FortiPass vytváří hesla ve vašem prohlížeči a potřebuje k tomu zapnutý JavaScript. Na server se nic neposílá v žádném případě.</div>
     </noscript>
 
-    <script src="../../wordlist-en.js?v=729cd690fe"></script>
-    <script src="../../wordlist-cs.js?v=729cd690fe"></script>
-    <script src="../../locale-cs.js?v=729cd690fe"></script>
-    <script src="../../core.js?v=729cd690fe"></script>
-    <script src="../../script.js?v=729cd690fe"></script>
+    <script src="../../wordlist-en.js?v=a9394ea508"></script>
+    <script src="../../wordlist-cs.js?v=a9394ea508"></script>
+    <script src="../../locale-cs.js?v=a9394ea508"></script>
+    <script src="../../core.js?v=a9394ea508"></script>
+    <script src="../../script.js?v=a9394ea508"></script>
   </body>
 </html>

@@ -23,6 +23,6 @@
   "toCrack": { "message": "$T$ to crack", "placeholders": { "t": { "content": "$1" } } },
   "crackedInstantly": { "message": "cracked instantly" },
   "moreTools": { "message": "Wi-Fi QR codes, strength checker and more" },
-  "privacy": { "message": "Made on this device. Nothing is sent or stored." },
+  "privacy": { "message": "Made on this device. Nothing is sent; only your settings are saved." },
   "copyFailed": { "message": "Select the text and copy it yourself." }
 }

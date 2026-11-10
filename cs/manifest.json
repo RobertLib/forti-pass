@@ -62,5 +62,21 @@
       "short_name": "Kontrola",
       "url": "./kontrola-sily-hesla/"
     }
+  ],
+  "screenshots": [
+    {
+      "src": "../screenshots/cs-wide.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Generátor hesel na počítači"
+    },
+    {
+      "src": "../screenshots/cs-narrow.png",
+      "sizes": "780x1688",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Generátor hesel na telefonu"
+    }
   ]
 }

@@ -164,3 +164,27 @@ test("rejects bad options with exit code 2", () => {
   assert.equal(run(["-l"]).status, 2);
   assert.equal(run(["--lang", "de"]).status, 2);
 });
+
+test("numbers must be plain digits", () => {
+  for (const value of ["0x10", "1e1", " 8", "8.0", "+8"]) {
+    assert.equal(run(["-l", value]).status, 2, value);
+  }
+  assert.equal(run(["-l", "8", "-q"]).status, 0);
+});
+
+test("an option for another kind of value is an error, not ignored", () => {
+  const cases = [
+    [["--pin", "4", "-l", "30"], /-l does not apply to PINs/],
+    [["-w", "4", "--readable"], /--readable does not apply to passphrases/],
+    [["-s", "_"], /-s does not apply to passwords/],
+    [["--check", "-n", "3"], /-n does not apply to --check/],
+  ];
+  for (const [args, message] of cases) {
+    const result = run(args, "");
+    assert.equal(result.status, 2, args.join(" "));
+    assert.match(result.stderr, message);
+  }
+  // Language, JSON and quiet go with anything.
+  assert.equal(run(["-w", "4", "-s", "_", "--lang", "cs", "-q"]).status, 0);
+  assert.equal(run(["--pin", "6", "--json"]).status, 0);
+});

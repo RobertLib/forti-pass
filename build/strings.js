@@ -44,17 +44,17 @@ const en = {
   download: "Download as a text file",
   clearClipboard: "Clear the clipboard 30 s after copying",
   clearClipboardNote:
-    "If the browser will not allow it in the background, it happens at your next click or key press on a FortiPass page.",
-  excellent: "Excellent",
+    "If the browser will not allow it in the background, it happens at your next click or key press on a FortiPass page. Whatever is on the clipboard by then is cleared.",
   strengthMeter: "Password strength",
   entropyTitle: "Bits of entropy — every extra bit doubles the guessing effort",
   crackTitle: "Estimated average time for an offline attack at 100 billion guesses per second",
 
   length: "Length",
-  lengthSlider: "Password length slider",
-  lengthInput: "Password length",
-  wordsSlider: "Number of words slider",
-  digitsSlider: "Number of digits slider",
+  // The role already says "slider"; the name says what it sets.
+  lengthSlider: "Password length",
+  lengthInput: "Password length in characters",
+  wordsSlider: "Number of words",
+  digitsSlider: "Number of digits",
   lengthHint: "4–128 characters. 16 or more is recommended.",
   charTypes: "Characters",
   uppercase: "Uppercase",
@@ -147,7 +147,7 @@ const en = {
   wifiStyle: "Password style",
   wifiStyles: [
     ["easy", "20 letters & digits — easy on a TV"],
-    ["words", "5 random words — easy to read out"],
+    ["words", "6 random words — easy to read out"],
     ["strong", "32 characters with symbols"],
     ["max", "63 letters & digits — WPA maximum"],
   ],
@@ -210,7 +210,7 @@ const cs = {
   toolNames: {
     home: "Generátor hesel",
     passphrase: "Generátor hesel ze slov",
-    pin: "Generátor PIN",
+    pin: "Generátor PIN kódů",
     wifi: "Heslo k Wi-Fi a QR kód",
     checker: "Kontrola síly hesla",
     crack: "Jak dlouho trvá prolomit heslo",
@@ -234,17 +234,16 @@ const cs = {
   download: "Stáhnout jako textový soubor",
   clearClipboard: "Vymazat schránku 30 s po zkopírování",
   clearClipboardNote:
-    "Pokud to prohlížeč na pozadí nedovolí, schránka se vymaže při vašem dalším kliknutí nebo stisku klávesy na stránce FortiPass.",
-  excellent: "Výborné",
+    "Pokud to prohlížeč na pozadí nedovolí, schránka se vymaže při vašem dalším kliknutí nebo stisku klávesy na stránce FortiPass. Smaže se tím cokoli, co v ní zrovna bude.",
   strengthMeter: "Síla hesla",
-  entropyTitle: "Entropie v bitech — každý bit navíc zdvojnásobí počet potřebných pokusů",
+  entropyTitle: "Entropie v bitech – každý bit navíc zdvojnásobí počet potřebných pokusů",
   crackTitle: "Odhad průměrné doby offline útoku při 100 miliardách pokusů za sekundu",
 
   length: "Délka",
-  lengthSlider: "Posuvník délky hesla",
-  lengthInput: "Délka hesla",
-  wordsSlider: "Posuvník počtu slov",
-  digitsSlider: "Posuvník počtu číslic",
+  lengthSlider: "Délka hesla",
+  lengthInput: "Délka hesla ve znacích",
+  wordsSlider: "Počet slov",
+  digitsSlider: "Počet číslic",
   lengthHint: "4–128 znaků. Doporučujeme 16 a víc.",
   charTypes: "Znaky",
   // The sample (ABC, abc) says "letters"; screen readers still hear it.
@@ -271,7 +270,7 @@ const cs = {
   requireEach: "Použít každý vybraný typ aspoň jednou",
   requireEachNote: "Vyhoví webům, které vyžadují číslici nebo symbol.",
   excludeAmbiguous: "Vynechat podobné znaky",
-  excludeAmbiguousNote: "Vynechá <code>I l 1 O 0 o</code> a podobné — snáz se čtou i opisují.",
+  excludeAmbiguousNote: "Vynechá <code>I l 1 O 0 o</code> a podobné – heslo se pak snáz čte i opisuje.",
   noRepeats: "Žádné opakované znaky",
   noRepeatsNote: "Každý znak se objeví nejvýš jednou.",
   excludeChars: "Nikdy nepoužít tyto znaky",
@@ -282,11 +281,11 @@ const cs = {
   wordsHint: (bits) =>
     'Každé náhodné slovo přidá <span id="wordBits">' +
     bits +
-    "</span> bitu — šest slov překročí hranici 70 bitů pro „Silné“.",
+    "</span> bitu – šest slov překročí hranici 70 bitů pro „Silné“.",
   wordLanguage: "Jazyk slov",
   languageNames: { en: "angličtina", cs: "čeština" },
   asciiOnly: "Bez diakritiky",
-  asciiOnlyNote: "kun-zluty místo kůň-žlutý — projde všude, i na zahraniční klávesnici. Síla zůstává stejná.",
+  asciiOnlyNote: "kun-zluty místo kůň-žlutý – napíšete ho na jakékoli klávesnici. Síla zůstává stejná.",
   separator: "Oddělovač",
   separators: [
     ["-", "Spojovník", "slunce-most-kolo"],
@@ -299,12 +298,12 @@ const cs = {
   capitalize: "Velké první písmeno",
   capitalizeExample: "Slunce-Most-Kolo",
   addNumber: "Přidat číslici",
-  addNumberNote: "Uspokojí weby, které číslici vyžadují.",
+  addNumberNote: "Vyhoví webům, které číslici vyžadují.",
   addSymbol: "Přidat symbol",
   addSymbolNote: "Připojí na konec jeden náhodný symbol.",
   digits: "Počet číslic",
   pinHint:
-    "PIN je krátký záměrně — patří k zařízení nebo kartě, které se po pár špatných pokusech zablokují.",
+    "PIN je krátký záměrně – patří k zařízení nebo kartě, které se po pár špatných pokusech zablokují.",
   count: "Kolik najednou",
   countHint: "Vygeneruje seznam až 50 hodnot.",
   fewer: "Méně",
@@ -313,14 +312,14 @@ const cs = {
   historyHeading: "Nedávné",
   clear: "Vymazat",
   historySub:
-    "Co jste v této kartě vygenerovali nebo zkopírovali — jen v paměti. Obnovením nebo zavřením stránky se to smaže.",
+    "Co jste v této kartě vygenerovali nebo zkopírovali – jen v paměti. Obnovením nebo zavřením stránky se to smaže.",
 
   checkerHeading: "Otestovat heslo",
   checkLabel: "Heslo k otestování",
   checkPlaceholder: "Napište nebo vložte heslo",
   checkPrivacy: "Hodnotí se ve vašem prohlížeči. Nic, co napíšete, se nikam neposílá ani neukládá.",
   findingsHeading: "Co kontrola zjistila",
-  findingsEmpty: "Začněte psát a uvidíte, jak by na heslo šel útočník — kousek po kousku.",
+  findingsEmpty: "Začněte psát a uvidíte, jak by na heslo šel útočník – kousek po kousku.",
   checkerCta: "Potřebujete lepší?",
   checkerCtaLink: "Vygenerujte silné heslo",
   showPassword: "Zobrazit heslo",
@@ -338,13 +337,13 @@ const cs = {
   hiddenNetworkNote: "Zaškrtněte jen tehdy, když router název sítě nevysílá.",
   wifiStyle: "Typ hesla",
   wifiStyles: [
-    ["easy", "20 písmen a číslic — i na televizi"],
-    ["words", "5 náhodných slov — snadno se nadiktuje"],
+    ["easy", "20 písmen a číslic – i na televizi"],
+    ["words", "6 náhodných slov – snadno se nadiktuje"],
     ["strong", "32 znaků včetně symbolů"],
-    ["max", "63 písmen a číslic — maximum WPA"],
+    ["max", "63 písmen a číslic – maximum WPA"],
   ],
   wifiPassword: "Heslo",
-  wifiPasswordHint: "Vygenerované pro vás — nebo napište heslo, které už používáte.",
+  wifiPasswordHint: "Vygenerované pro vás – nebo napište heslo, které už používáte.",
   wifiPreview: "Kartička pro hosty",
   showQr: "Zobrazit QR kód",
   qrLabel: "QR kód pro připojení k Wi-Fi",
@@ -371,10 +370,10 @@ const cs = {
   shortcutsNote: "Zkratky nefungují, když píšete do pole.",
   copyDialogTitle: "Zkopírujte si to sami",
   copyDialogNote:
-    "Prohlížeč zablokoval přístup ke schránce. Text níže je už označený — stiskněte <kbd>Ctrl</kbd>&nbsp;<kbd>C</kbd> (na Macu <kbd>⌘</kbd>&nbsp;<kbd>C</kbd>).",
+    "Prohlížeč zablokoval přístup ke schránce. Text níže je už označený – stiskněte <kbd>Ctrl</kbd>&nbsp;<kbd>C</kbd> (na Macu <kbd>⌘</kbd>&nbsp;<kbd>C</kbd>).",
   copyValue: "Hodnota ke zkopírování",
   noscript:
-    "FortiPass vytváří hesla ve vašem prohlížeči, a k tomu potřebuje zapnutý JavaScript. Na server se nic neposílá v žádném případě.",
+    "FortiPass vytváří hesla ve vašem prohlížeči a potřebuje k tomu zapnutý JavaScript. Na server se nic neposílá v žádném případě.",
 
   footerTagline:
     "Silná hesla, hesla ze slov, PINy a kódy k Wi-Fi vytvořené ve vašem zařízení. Bez účtů, bez sledování, bez síťových požadavků.",

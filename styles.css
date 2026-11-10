@@ -1,8 +1,11 @@
 /* ==========================================================================
-   FortiPass — styles. One card per tool, result on the left and controls on
-   the right; on phones the panes stack and the app sections move to a tab
-   bar at the bottom. Light and dark themes follow the system unless the
-   visitor picks one (data-theme on <html>).
+   FortiPass — styles. One card per tool, two panes side by side: the
+   generators show the result first and the settings second; the checker
+   puts the field and verdict first and the findings second; the Wi-Fi tool
+   is form first and the guest card second, so the card always shows the
+   finished result. Below 960px the panes stack in that order, and on phones
+   the app sections move to a tab bar at the bottom. Light and dark themes
+   follow the system unless the visitor picks one (data-theme on <html>).
    ========================================================================== */
 
 /* ------------------------------------------------------------------ tokens */
@@ -50,7 +53,10 @@
   --ok: #047857;
   --on-ok: #ffffff;
   --warn: #b45309;
-  --bad: #dc2626;
+  /* Darker than --s1: error text sits on --sunken too (4.5:1 there). */
+  --bad: #c81e1e;
+  /* Slider thumbs and switch knobs, in either theme. */
+  --knob: #ffffff;
 
   --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
   --shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 12px 32px -16px rgba(16, 24, 40, 0.16);
@@ -63,6 +69,8 @@
 
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --nav-h: 64px;
+  /* The smallest target a finger gets (phones and touch screens). */
+  --tap: 44px;
 }
 
 /* Dark tokens apply on screen only: printing always uses the light palette. */
@@ -101,7 +109,7 @@
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
     --shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 16px 40px -20px rgba(0, 0, 0, 0.7);
     --shadow-lg: 0 24px 60px -16px rgba(0, 0, 0, 0.7);
-    --scroll-shadow: rgba(0, 0, 0, 0.55);
+    --scroll-shadow: rgba(179, 185, 202, 0.24);
   }
 }
 
@@ -140,7 +148,7 @@
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
     --shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 16px 40px -20px rgba(0, 0, 0, 0.7);
     --shadow-lg: 0 24px 60px -16px rgba(0, 0, 0, 0.7);
-    --scroll-shadow: rgba(0, 0, 0, 0.55);
+    --scroll-shadow: rgba(179, 185, 202, 0.24);
   }
 }
 
@@ -157,6 +165,9 @@
   padding: 0;
 }
 
+/* Jumps and focus scrolling clear the sticky top bar. Where the bar does
+   not stick (phones, short landscape screens) the responsive rules below
+   lower this, and on phones they keep clear of the tab bar instead. */
 html {
   -webkit-text-size-adjust: 100%;
   scroll-padding-top: 80px;
@@ -567,11 +578,6 @@ ol {
   color: var(--text-3);
 }
 
-.icon-btn-lg {
-  width: 48px;
-  height: 48px;
-}
-
 .link-btn {
   border: 0;
   background: none;
@@ -591,7 +597,7 @@ ol {
   display: none;
 }
 
-@media (prefers-color-scheme: dark) {
+@media screen and (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .icon-sun {
     display: block;
   }
@@ -650,9 +656,10 @@ ol {
 /* -------------------------------------------------------------- tool card */
 
 .tool {
+  --tool-r: var(--r-lg);
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--r-lg);
+  border-radius: var(--tool-r);
   box-shadow: var(--shadow);
 }
 
@@ -715,8 +722,11 @@ ol {
   background: color-mix(in srgb, var(--hover) 70%, transparent);
 }
 
+/* The current mode wears the app's "selected" look — an accent outline and
+   accent text, like a checked tile or an active chip — so it stands out
+   from the track at 3:1 or more in both themes, not by a shadow alone. */
 .segment[aria-current] {
-  color: var(--text);
+  color: var(--accent);
 }
 
 .segment[aria-current]:hover {
@@ -728,7 +738,7 @@ ol {
   inset: 0;
   border-radius: 9px;
   background: var(--surface);
-  box-shadow: 0 0 0 1px var(--border), 0 1px 3px rgba(16, 24, 40, 0.12);
+  box-shadow: inset 0 0 0 1px var(--accent), var(--shadow-sm);
   view-transition-name: mode-pill;
 }
 
@@ -742,6 +752,7 @@ ol {
   display: flex;
   flex-direction: column;
   gap: 18px;
+  container: result-pane / inline-size;
 }
 
 .result {
@@ -817,10 +828,14 @@ ol {
   display: none;
 }
 
-/* Bullets take the spacing of the characters they stand for, so a hidden
-   value breaks where the visible one would — never one dot on its own. */
-.password-display.is-masked {
+/* Hidden, a value is one bullet per character in the same mono type and
+   size, so it fills the same number of lines and the box keeps its height
+   when you hide or show it. A run of bullets may break anywhere (break-all,
+   or overflow-wrap in passphrase mode), never past the box. */
+.password-display.is-masked,
+.row-text.is-masked {
   color: var(--text-3);
+  overflow-wrap: anywhere;
 }
 
 .password-display.is-error {
@@ -849,14 +864,19 @@ ol {
   color: var(--char-symbol);
 }
 
+/* Copy, New, (Download), Hide. The copy button takes the spare width and
+   its label is never cut: in a narrow pane a list moves copy onto a row of
+   its own, and a single value lets "New" drop its label instead. The
+   widths are the pane's, so they hold in any language and any layout. */
 .result-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
 .result-actions .btn-primary {
-  flex: 1 1 auto;
-  min-width: 0;
+  flex: 1 1 0;
+  min-width: max-content;
 }
 
 .btn-label {
@@ -865,7 +885,28 @@ ol {
 }
 
 .result-actions .btn:not(.btn-primary) {
-  flex: 0 1 auto;
+  flex: none;
+}
+
+@container result-pane (max-width: 379px) {
+  .result-actions:has(> #downloadBtn:not([hidden])) .btn-primary {
+    flex-basis: 100%;
+  }
+
+  .result-actions:has(> #downloadBtn:not([hidden])) #refreshBtn {
+    flex: 1 1 0;
+  }
+}
+
+@container result-pane (max-width: 279px) {
+  .result-actions:not(:has(> #downloadBtn:not([hidden]))) #refreshBtn {
+    width: 44px;
+    padding: 0;
+  }
+
+  .result-actions:not(:has(> #downloadBtn:not([hidden]))) #refreshBtn .btn-label {
+    display: none;
+  }
 }
 
 /* Lists: bulk results and the session history. */
@@ -894,7 +935,10 @@ ol {
   animation: row-in 0.25s var(--ease) both;
 }
 
-.password-row.is-static {
+/* A row or finding that was already on screen does not replay its entrance
+   when the list is redrawn; only new ones slide in. */
+.password-row.is-static,
+.finding.is-static {
   animation: none;
 }
 
@@ -926,10 +970,6 @@ ol {
   font-weight: 500;
   text-align: left;
   word-break: break-all;
-}
-
-.row-text.is-masked {
-  color: var(--text-3);
 }
 
 .row-actions {
@@ -1138,7 +1178,7 @@ details[open] > summary .summary-chevron {
 }
 
 .num-input {
-  min-width: 52px;
+  width: 68px;
   height: 34px;
   padding: 0 8px;
   border-radius: var(--r-sm);
@@ -1147,10 +1187,6 @@ details[open] > summary .summary-chevron {
   font-weight: 650;
   font-variant-numeric: tabular-nums;
   text-align: center;
-}
-
-.num-input {
-  width: 68px;
   -moz-appearance: textfield;
   appearance: textfield;
 }
@@ -1218,9 +1254,16 @@ details[open] > summary .summary-chevron {
   min-width: 0;
 }
 
-.input-lg + .icon-btn {
-  height: 52px;
+/* A button beside a field is a square exactly as tall as the field, on
+   every screen size. */
+.input-row .icon-btn {
+  width: 44px;
+  height: 44px;
+}
+
+.input-row .input-lg ~ .icon-btn {
   width: 52px;
+  height: 52px;
 }
 
 .select-wrap {
@@ -1278,7 +1321,7 @@ input[type="range"]::-webkit-slider-thumb {
   margin-top: -8px;
   border-radius: 50%;
   border: 1px solid rgba(16, 24, 40, 0.15);
-  background: #fff;
+  background: var(--knob);
   box-shadow: 0 1px 3px rgba(16, 24, 40, 0.3);
   transition: box-shadow 0.15s;
 }
@@ -1300,7 +1343,7 @@ input[type="range"]::-moz-range-thumb {
   height: 22px;
   border-radius: 50%;
   border: 1px solid rgba(16, 24, 40, 0.15);
-  background: #fff;
+  background: var(--knob);
   box-shadow: 0 1px 3px rgba(16, 24, 40, 0.3);
 }
 
@@ -1318,6 +1361,7 @@ input[type="range"]:focus-visible::-moz-range-thumb {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
+  container: toggles / inline-size;
 }
 
 .toggle {
@@ -1460,7 +1504,7 @@ input[type="range"]:focus-visible::-moz-range-thumb {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--knob);
   box-shadow: 0 1px 2px rgba(16, 24, 40, 0.3);
   transition: transform 0.2s var(--ease);
 }
@@ -1541,20 +1585,30 @@ input[type="range"]:focus-visible::-moz-range-thumb {
   padding: 6px 14px 16px;
 }
 
-/* How many: − n + */
+/* How many: the label and − n + on one row, the hint under both — the same
+   shape as the Length field above it, so the label never has to squeeze
+   beside the stepper on a narrow phone. */
 .field-count {
-  display: flex;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  gap: 6px 16px;
   padding-top: 20px;
   margin-top: auto;
   border-top: 1px solid var(--border);
 }
 
-.field-text {
-  display: grid;
-  gap: 2px;
+.field-count .field-text {
+  display: contents;
+}
+
+.field-count .hint {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+
+.field-count .stepper {
+  grid-column: 2;
+  grid-row: 1;
 }
 
 /* No overflow clipping: it would cut off the focus rings. The end buttons
@@ -1740,7 +1794,8 @@ input[type="range"]:focus-visible::-moz-range-thumb {
   align-items: center;
   gap: 16px;
   background: var(--sunken);
-  border-radius: 0 var(--r-lg) var(--r-lg) 0;
+  /* Inside the card's 1px border, so one pixel less than its corners. */
+  border-radius: 0 calc(var(--tool-r) - 1px) calc(var(--tool-r) - 1px) 0;
 }
 
 .wifi-side .pane-title {
@@ -1748,16 +1803,31 @@ input[type="range"]:focus-visible::-moz-range-thumb {
   margin-bottom: 0;
 }
 
-/* The guest card: shown live on screen and printed on its own. */
+/* The guest card: shown live on screen and printed on its own. It is paper,
+   so it keeps the light palette in either theme — the screen shows exactly
+   what prints and what a phone camera reads. Its own tokens below; every
+   rule inside the card uses them. */
 .wifi-card {
+  color-scheme: light;
+  --surface: #ffffff;
+  --text: #0f1424;
+  --text-3: #646c80;
+  --border: #e3e6ee;
+  --border-strong: #d0d5e0;
+  --accent: #4f46e5;
+  /* A QR code reads best as pure black on white. */
+  --qr-dark: #000000;
+  --qr-light: #ffffff;
+
   width: 100%;
   max-width: 320px;
   padding: 20px;
   border-radius: 18px;
-  background: #fff;
-  color: #0f1424;
-  box-shadow: 0 0 0 1px rgba(16, 24, 40, 0.08), var(--shadow-lg);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 0 0 1px var(--border), var(--shadow-lg);
   text-align: center;
+  scroll-margin-top: 16px;
 }
 
 .wifi-card-head {
@@ -1772,7 +1842,7 @@ input[type="range"]:focus-visible::-moz-range-thumb {
 .wifi-card-head .icon {
   width: 22px;
   height: 22px;
-  color: #4f46e5;
+  color: var(--accent);
 }
 
 .qr-frame {
@@ -1790,11 +1860,11 @@ input[type="range"]:focus-visible::-moz-range-thumb {
 }
 
 .qr-bg {
-  fill: #fff;
+  fill: var(--qr-light);
 }
 
 .qr-fg {
-  fill: #000;
+  fill: var(--qr-dark);
 }
 
 .qr-empty {
@@ -1804,8 +1874,8 @@ input[type="range"]:focus-visible::-moz-range-thumb {
   height: 100%;
   padding: 24px;
   border-radius: 12px;
-  border: 2px dashed #d0d5e0;
-  color: #6c7489;
+  border: 2px dashed var(--border-strong);
+  color: var(--text-3);
   font-size: 0.88rem;
 }
 
@@ -1818,7 +1888,7 @@ input[type="range"]:focus-visible::-moz-range-thumb {
   display: grid;
   gap: 1px;
   padding: 8px 2px;
-  border-top: 1px solid #e3e6ee;
+  border-top: 1px solid var(--border);
 }
 
 .wifi-details dt {
@@ -1826,24 +1896,25 @@ input[type="range"]:focus-visible::-moz-range-thumb {
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #6c7489;
+  color: var(--text-3);
 }
 
 .wifi-details dd {
   font-weight: 650;
   overflow-wrap: anywhere;
-  color: #0f1424;
+  color: var(--text);
 }
 
+/* A faint dash for a field not filled in yet. */
 .wifi-details dd:empty::before {
   content: "—";
-  color: #b0b6c4;
+  color: color-mix(in srgb, var(--text-3) 50%, transparent);
 }
 
 .wifi-card figcaption {
   margin-top: 8px;
   font-size: 0.78rem;
-  color: #6c7489;
+  color: var(--text-3);
 }
 
 /* Two equal buttons under the card, as wide as the card, in any language. */
@@ -1868,10 +1939,6 @@ input[type="range"]:focus-visible::-moz-range-thumb {
 
 .qr-jump .icon {
   transform: rotate(90deg);
-}
-
-.wifi-card {
-  scroll-margin-top: 16px;
 }
 
 .wifi-side .privacy-note {
@@ -2333,10 +2400,21 @@ input[type="range"]:focus-visible::-moz-range-thumb {
   margin: 0 0 12px;
 }
 
+/* script.js sets the height to fit the value when the dialog opens (an
+   inline height wins over .text-input's). This only caps it, scrolls what
+   is taller, and keeps a long unbroken value inside the box. */
 .copy-text {
+  display: block;
   height: auto;
+  min-height: 44px;
+  max-height: min(16rem, 50vh);
+  max-height: min(16rem, 50dvh);
   padding: 12px 14px;
+  overflow-y: auto;
   font-family: var(--font-mono);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
   resize: none;
 }
 
@@ -2353,14 +2431,23 @@ input[type="range"]:focus-visible::-moz-range-thumb {
   pointer-events: none;
 }
 
+/* Toasts are dark in either theme, so they read as a layer above the
+   page. Their own tokens, the dark palette's values. */
 .toast {
+  color-scheme: dark;
+  --surface: #151925;
+  --text: #f2f4f8;
+  --ok: #34d399;
+  --bad: #f87171;
+  --accent: #8f96ff;
+
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 11px 16px;
   border-radius: 12px;
-  background: #151925;
-  color: #f2f4f8;
+  background: var(--surface);
+  color: var(--text);
   font-size: 0.9rem;
   font-weight: 500;
   box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
@@ -2368,15 +2455,15 @@ input[type="range"]:focus-visible::-moz-range-thumb {
 }
 
 .toast-success .icon {
-  color: #34d399;
+  color: var(--ok);
 }
 
 .toast-error .icon {
-  color: #f87171;
+  color: var(--bad);
 }
 
 .toast-info .icon {
-  color: #a5abff;
+  color: var(--accent);
 }
 
 .toast.is-leaving {
@@ -2484,6 +2571,10 @@ input[type="range"]:focus-visible::-moz-range-thumb {
 }
 
 /* No tab bar on the 404 page, so no room kept for one. */
+[data-page="not-found"] {
+  scroll-padding-bottom: 0;
+}
+
 [data-page="not-found"] body {
   padding-bottom: 0;
 }
@@ -2507,7 +2598,7 @@ input[type="range"]:focus-visible::-moz-range-thumb {
   }
 
   .wifi-side {
-    border-radius: 0 0 var(--r-lg) var(--r-lg);
+    border-radius: 0 0 calc(var(--tool-r) - 1px) calc(var(--tool-r) - 1px);
   }
 
   .field-count {
@@ -2533,8 +2624,104 @@ input[type="range"]:focus-visible::-moz-range-thumb {
   }
 }
 
+/* Touch: on phones and touch screens nothing is smaller than --tap (44px)
+   to the finger. Fields, steppers and row buttons simply grow to it. Chips,
+   small buttons and the mode segments sit in tight rows, so they only grow
+   a little and get an invisible hit area that reaches 44px instead; the
+   row gaps leave room for it, so no two hit areas overlap. */
+@media (max-width: 720px), (pointer: coarse) {
+  .brand,
+  .footer-links a {
+    min-height: var(--tap);
+  }
+
+  .footer-links {
+    row-gap: 0;
+  }
+
+  .footer-links a {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .app-nav a,
+  .lang-switch {
+    height: var(--tap);
+    min-width: var(--tap);
+  }
+
+  .topbar .icon-btn,
+  .dialog-head .icon-btn,
+  .stepper-btn,
+  .row-btn {
+    width: var(--tap);
+    height: var(--tap);
+  }
+
+  .num-input,
+  .stepper input,
+  .toggle-body,
+  .switch,
+  .row-text,
+  .recent > summary {
+    min-height: var(--tap);
+  }
+
+  .num-input,
+  .stepper input {
+    height: var(--tap);
+  }
+
+  .stepper input {
+    width: 52px;
+  }
+
+  /* Taller to the finger, but the extra height overlaps the gaps around
+     it, so the field keeps its spacing. */
+  input[type="range"] {
+    height: var(--tap);
+    margin-block: calc((24px - var(--tap)) / 2);
+  }
+
+  .row-actions {
+    gap: 4px;
+  }
+
+  .password-row {
+    padding: 4px 4px 4px 12px;
+  }
+
+  .segment {
+    height: 40px;
+  }
+
+  .chip,
+  .btn-sm {
+    position: relative;
+    height: 36px;
+  }
+
+  .chips {
+    gap: 8px 6px;
+  }
+
+  .segment::after,
+  .chip::after,
+  .btn-sm::after {
+    content: "";
+    position: absolute;
+    inset: min(0px, calc(50% - var(--tap) / 2));
+  }
+}
+
 /* Phones: the app sections become a bottom tab bar. */
 @media (max-width: 720px) {
+  /* The top bar scrolls away here, and the tab bar covers the bottom. */
+  html {
+    scroll-padding-top: 16px;
+    scroll-padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 8px);
+  }
+
   body {
     padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px));
   }
@@ -2615,7 +2802,7 @@ input[type="range"]:focus-visible::-moz-range-thumb {
   }
 
   .tool {
-    border-radius: 18px;
+    --tool-r: 18px;
   }
 
   .tool-head {
@@ -2650,11 +2837,6 @@ input[type="range"]:focus-visible::-moz-range-thumb {
 
   .toggle-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .icon-btn-lg,
-  .input-lg + .icon-btn {
-    width: 44px;
   }
 
   .input-row .text-input {
@@ -2703,38 +2885,69 @@ input[type="range"]:focus-visible::-moz-range-thumb {
   }
 }
 
-/* A list adds the download button; on a phone "New" then gives up its label. */
+/* Two tiles a row on a phone put the sample beside the title; in the
+   narrowest grid that leaves too little room for "Uppercase", so the title
+   goes back under the sample, as on a wide screen. */
+@container toggles (max-width: 279px) {
+  .toggle-body {
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 9px 6px 8px;
+  }
+
+  .toggle-sample {
+    min-width: 0;
+    text-align: center;
+  }
+}
+
 @media (max-width: 480px) {
   /* Narrow tables fit the screen; wide ones scroll a little less. */
   .crack-table th,
   .crack-table td {
     padding: 8px 10px;
   }
+}
 
-  .result-actions:has(#downloadBtn:not([hidden])) #refreshBtn {
-    width: 44px;
+@media (max-width: 380px) {
+  .lang-switch {
+    justify-content: center;
     padding: 0;
-    flex: none;
   }
 
-  .result-actions:has(#downloadBtn:not([hidden])) #refreshBtn .btn-label {
+  .lang-switch span {
     display: none;
   }
 }
 
-@media (max-width: 380px) {
-  .lang-switch span {
-    display: none;
+/* Short screens (a phone on its side): no bar pinned to the top. A wide
+   one gets the top bar scrolling with the page; a narrow one keeps its tab
+   bar, made compact with the label beside the icon. */
+@media (min-width: 721px) and (max-height: 520px) {
+  html {
+    scroll-padding-top: 16px;
   }
 
-  #refreshBtn {
-    width: 44px;
-    padding: 0;
-    flex: none;
+  .topbar {
+    position: static;
+  }
+}
+
+@media (max-width: 720px) and (max-height: 520px) {
+  :root {
+    --nav-h: 56px;
   }
 
-  #refreshBtn .btn-label {
-    display: none;
+  .app-nav a {
+    flex-direction: row;
+    gap: 8px;
+    font-size: 0.82rem;
+  }
+
+  .app-nav a .icon {
+    width: 20px;
+    height: 20px;
   }
 }
 
@@ -2768,9 +2981,28 @@ input[type="range"]:focus-visible::-moz-range-thumb {
   }
 
   .switch-track,
-  .toggle-body,
-  .segment-pill {
+  .toggle-body {
     border: 1px solid CanvasText;
+  }
+
+  /* Selected things — checked tile, current mode, active preset — share
+     one look here too: a Highlight outline, or a Highlight fill. */
+  .segment-pill {
+    border: 2px solid Highlight;
+  }
+
+  /* Painted by us (still in system colours), or the browser's text backplate
+     would hide the label on the Highlight fill. */
+  .chip.is-active {
+    forced-color-adjust: none;
+    border-color: Highlight;
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  /* The knob shows in both positions, not only when on. */
+  .switch-track::after {
+    background: CanvasText;
   }
 
   .switch input:checked + .switch-track {
@@ -2783,6 +3015,49 @@ input[type="range"]:focus-visible::-moz-range-thumb {
 
   .toggle input:checked + .toggle-body {
     border: 2px solid Highlight;
+  }
+
+  /* The slider draws its own track and thumb in system colours: filled
+     part Highlight, the rest GrayText. */
+  input[type="range"] {
+    forced-color-adjust: none;
+  }
+
+  input[type="range"]::-webkit-slider-runnable-track {
+    background: linear-gradient(
+      to right,
+      Highlight 0,
+      Highlight var(--fill, 50%),
+      GrayText var(--fill, 50%)
+    );
+  }
+
+  input[type="range"]::-moz-range-track {
+    background: GrayText;
+  }
+
+  input[type="range"]::-moz-range-progress {
+    background: Highlight;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    border: 2px solid CanvasText;
+    background: Canvas;
+    box-shadow: none;
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    border: 2px solid CanvasText;
+    background: Canvas;
+    box-shadow: none;
+  }
+
+  input[type="range"]:focus-visible::-webkit-slider-thumb {
+    box-shadow: 0 0 0 2px Canvas, 0 0 0 4px Highlight;
+  }
+
+  input[type="range"]:focus-visible::-moz-range-thumb {
+    box-shadow: 0 0 0 2px Canvas, 0 0 0 4px Highlight;
   }
 }
 
@@ -2804,7 +3079,7 @@ input[type="range"]:focus-visible::-moz-range-thumb {
   }
 
   body {
-    background: #fff;
+    background: var(--bg);
     padding: 0;
   }
 
@@ -2850,7 +3125,7 @@ input[type="range"]:focus-visible::-moz-range-thumb {
     max-width: 9cm;
     margin: 1.5cm auto;
     padding: 0.8cm;
-    border: 2px dashed #9aa1b1;
+    border: 2px dashed var(--control-border);
     box-shadow: none;
   }
 

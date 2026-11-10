@@ -11,13 +11,16 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const site = require("../build/site.js");
-const { renderSite, assetVersion, VERSIONED_ASSETS, STATIC_ASSETS } = require("../build/build.js");
+const { renderSite, assetVersion, VERSIONED_ASSETS, STATIC_ASSETS, SCREENSHOT_SIZES } = require("../build/build.js");
 
 const root = path.join(__dirname, "..");
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 const exists = (file) => fs.existsSync(path.join(root, file));
 const script = read("script.js");
 const sw = read("sw.js");
+const notFound = read("404.html");
+// The path every page lives under, which the 404 page's absolute links use.
+const BASE = new URL(site.SITE_URL).pathname;
 
 const PAGES = [];
 site.PAGES.forEach((page) =>
@@ -32,13 +35,19 @@ function pngSize(file) {
   return [bytes.readUInt32BE(16), bytes.readUInt32BE(20)];
 }
 
-/** Resolves a relative link from a page to a file in the repository. */
+/** Resolves a link from a page to a file in the repository. */
 function resolve(fromFile, href) {
   const clean = href.split("#")[0].split("?")[0];
   if (!clean) return fromFile;
-  const target = path.posix.normalize(path.posix.join(path.posix.dirname(fromFile), clean));
+  // An absolute path on the site, as the 404 page writes them.
+  const target = clean.startsWith(BASE)
+    ? path.posix.normalize(clean.slice(BASE.length) || ".")
+    : path.posix.normalize(path.posix.join(path.posix.dirname(fromFile), clean));
   return clean.endsWith("/") || target === "." ? path.posix.join(target, "index.html") : target;
 }
+
+/** The value of the page's Content-Security-Policy meta tag. */
+const cspOf = (html) => /<meta http-equiv="Content-Security-Policy" content="([^"]+)"/.exec(html)[1];
 
 const attr = (html, re) => Array.from(html.matchAll(re), (m) => m[1]);
 
@@ -62,8 +71,11 @@ test("pages ask for exactly the asset version the service worker caches", () => 
 
 test("the service worker pre-caches files that exist, and every page", () => {
   VERSIONED_ASSETS.concat(STATIC_ASSETS).forEach((file) => assert.ok(exists(file), file));
+  // The PAGES array itself, not a stray "" elsewhere in the worker.
+  const cached = JSON.parse(/const PAGES = (\[[\s\S]*?\]);/.exec(sw)[1].replace(/,\s*\]$/, "]"));
+  assert.equal(cached.length, PAGES.length);
   for (const { page, lang } of PAGES) {
-    assert.ok(sw.includes(`"${page.paths[lang]}"`), "sw.js must pre-cache " + page.paths[lang]);
+    assert.ok(cached.includes(page.paths[lang]), "sw.js must pre-cache " + page.paths[lang]);
   }
   // Every script or stylesheet a page loads is pre-cached, or offline breaks.
   for (const { file, html } of PAGES) {
@@ -75,12 +87,16 @@ test("the service worker pre-caches files that exist, and every page", () => {
 });
 
 test("the CSP hash matches the one inline script on every page", () => {
-  for (const { file, html } of PAGES.concat({ file: "404.html", html: read("404.html") })) {
+  for (const { file, html } of PAGES.concat({ file: "404.html", html: notFound })) {
     const inline = /<script>([\s\S]*?)<\/script>/.exec(html)[1];
     const hash = crypto.createHash("sha256").update(inline, "utf8").digest("base64");
-    assert.ok(html.includes("'sha256-" + hash + "'"), file);
+    const csp = cspOf(html).split(/;\s*/);
+    assert.ok(csp.some((rule) => rule.startsWith("script-src ") && rule.includes("'sha256-" + hash + "'")), file);
     assert.equal((html.match(/<script>/g) || []).length, 1, file + ": only one inline script");
-    assert.ok(html.includes("connect-src 'none'"), file);
+    // Read from the policy itself: the HTML comment above it says the same words.
+    for (const rule of ["connect-src 'none'", "object-src 'none'", "base-uri 'none'", "form-action 'none'"]) {
+      assert.ok(csp.includes(rule), `${file}: ${rule}`);
+    }
   }
 });
 
@@ -107,11 +123,21 @@ test("canonical and hreflang links are absolute and reciprocal", () => {
   }
 });
 
-test("every relative link and asset on every page exists", () => {
-  for (const { file, html } of PAGES) {
+const idsOf = (html) => new Set(attr(html, /\sid="([^"]+)"/g));
+
+test("every link and asset on every page exists, fragments included", () => {
+  for (const { file, html } of PAGES.concat({ file: "404.html", html: notFound })) {
     attr(html, /(?:href|src)="([^"]+)"/g)
-      .filter((ref) => !/^(https?:|mailto:|#|data:)/.test(ref))
-      .forEach((ref) => assert.ok(exists(resolve(file, ref)), `${file}: ${ref}`));
+      .filter((ref) => !/^(https?:|mailto:|data:)/.test(ref))
+      .forEach((ref) => {
+        const target = resolve(file, ref);
+        assert.ok(exists(target), `${file}: ${ref}`);
+        const fragment = ref.split("#")[1];
+        if (fragment) {
+          const ids = target === file ? idsOf(html) : idsOf(read(target));
+          assert.ok(ids.has(fragment), `${file}: ${ref} points at a missing #${fragment}`);
+        }
+      });
   }
 });
 
@@ -126,7 +152,9 @@ test("titles and descriptions are unique and a sensible length", () => {
     titles.add(title);
     descriptions.add(description);
     assert.ok(title.length <= 75, `${file}: title is ${title.length} characters`);
-    assert.ok(description.length >= 90 && description.length <= 200, `${file}: description is ${description.length}`);
+    // Search results cut descriptions at about 155–160 characters.
+    const shown = description.replace(/&[a-z]+;/g, "&").length;
+    assert.ok(shown >= 100 && shown <= 160, `${file}: description is ${shown} characters`);
     assert.equal((html.match(/<h1>/g) || []).length, 1, file + ": exactly one h1");
   }
 });
@@ -171,7 +199,7 @@ test("pages write powers of ten as superscripts, not 10^n", () => {
 });
 
 test("no page repeats an element id", () => {
-  for (const { file, html } of PAGES.concat({ file: "404.html", html: read("404.html") })) {
+  for (const { file, html } of PAGES.concat({ file: "404.html", html: notFound })) {
     const ids = attr(html, /\sid="([^"]+)"/g);
     const seen = new Set();
     const repeated = ids.filter((id) => seen.size === seen.add(id).size);
@@ -234,13 +262,19 @@ test("pages load the word lists they use, and Czech pages the Czech strings", ()
   }
 });
 
-test("Czech text never ends a line with a one-letter word, nor splits Wi-Fi", () => {
-  for (const { file, html, lang } of PAGES) {
-    const main = /<main[\s\S]*?<\/main>/.exec(html)[0];
+test("Czech text never ends a line with a one-letter word or starts one with a dash, nor splits Wi-Fi", () => {
+  const notFoundCs = /<section class="not-found-card" lang="cs">[\s\S]*?<\/section>/.exec(notFound)[0];
+  const pages = PAGES.concat({ file: "404.html", html: notFound, lang: "en" }, { file: "404.html (cs)", html: notFoundCs, lang: "cs" });
+  for (const { file, html, lang } of pages) {
+    const main = (/<main[\s\S]*?<\/main>/.exec(html) || [html])[0];
     if (lang === "cs") {
-      const text = main.replace(/<[^>]+>/g, "\u0000");
-      const orphan = /(?:^|[\s(„])[KkSsVvZzOoUuAaIi] +\S/.exec(text);
+      // Code samples are shown as typed, so they are not checked. A tag
+      // counts as a word boundary: "<em>a</em> b" may break after the "a".
+      const text = main.replace(/<(code|kbd)\b[\s\S]*?<\/\1>/g, "\u0000").replace(/<[^>]+>/g, "\u0000");
+      const orphan = /(?:^|[\s(„\u0000])[KkSsVvZzOoUuAaIi][ \t\n]+\S/.exec(text);
       assert.equal(orphan, null, `${file}: “${orphan && orphan[0]}”`);
+      const dash = /[ \t\n]–/.exec(text);
+      assert.equal(dash, null, `${file}: a dash may start a line: “${dash && text.slice(dash.index - 20, dash.index + 10)}”`);
     }
     // Headings and running text keep "Wi-Fi" on one line.
     const prose = main.match(/<(h1|h2|h3|p|li|summary)\b[^>]*>[\s\S]*?<\/\1>/g) || [];
@@ -268,7 +302,42 @@ test("manifests point at existing icons and pages", () => {
     manifest.shortcuts.forEach((shortcut) =>
       assert.ok(exists(resolve(file, shortcut.url)), `${file}: ${shortcut.url}`)
     );
+    // Chrome's richer install dialog wants a wide and a narrow screenshot.
+    assert.deepEqual(manifest.screenshots.map((shot) => shot.form_factor).sort(), Object.keys(SCREENSHOT_SIZES).sort());
+    for (const shot of manifest.screenshots) {
+      const src = path.posix.normalize(path.posix.join(dir, shot.src));
+      assert.ok(exists(src), `${src} is missing — run \`npm run screenshots\``);
+      assert.equal(pngSize(src).join("x"), shot.sizes, src);
+      assert.ok(shot.label, src + " needs a label");
+    }
   }
+});
+
+test("every icon in the sprite is used somewhere", () => {
+  const { SPRITE_SYMBOLS } = require("../build/html.js");
+  const build = ["build.js", "layout.js", "components.js", "strings.js", "content/en.js", "content/cs.js"];
+  const sources = [script, read("build/html.js").replace(/<symbol[\s\S]*?<\/symbol>/g, "")]
+    .concat(build.map((file) => read("build/" + file)))
+    .join("\n");
+  for (const id of attr(SPRITE_SYMBOLS, /<symbol id="([^"]+)"/g)) {
+    assert.ok(sources.includes(`#${id}"`) || sources.includes(`"${id}"`), `${id} is never used`);
+  }
+});
+
+test("the two dark palettes in styles.css declare the same tokens", () => {
+  // One applies when the system is dark, the other when the visitor picks
+  // dark; CSS cannot share one block, so they must not drift apart.
+  const css = read("styles.css");
+  const block = (selector) => {
+    const start = css.indexOf(selector + " {");
+    assert.ok(start !== -1, selector);
+    return css
+      .slice(start + selector.length + 2, css.indexOf("}", start))
+      .split(";")
+      .map((rule) => rule.trim())
+      .filter(Boolean);
+  };
+  assert.deepEqual(block(':root:not([data-theme="light"])'), block(':root[data-theme="dark"]'));
 });
 
 test("the social preview images are 1200×630", () => {

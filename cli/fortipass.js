@@ -62,7 +62,8 @@ General
   -h, --help            this help
 
 Exit status: 0 on success, 1 when --check rates the password below Strong,
-2 for a usage error.
+2 for a usage error (including an option that does not apply, such as
+--length with --pin).
 `;
 
 function fail(message) {
@@ -76,6 +77,13 @@ process.stdout.on("error", (err) => {
   throw err;
 });
 process.stderr.on("error", () => {});
+
+const PASSWORD_ONLY = new Set([
+  "-l", "--length", "--no-upper", "--no-lower", "--no-digits", "--no-symbols", "--readable", "--no-repeats", "--exclude",
+]);
+const PASSPHRASE_ONLY = new Set(["--accents", "-s", "--separator", "--lower", "--no-number", "--symbol"]);
+// Everything that shapes generated values; --check generates nothing.
+const GENERATION = new Set([...PASSWORD_ONLY, ...PASSPHRASE_ONLY, "-w", "--words", "--pin", "-n", "--count"]);
 
 function parse(argv) {
   const o = {
@@ -100,13 +108,16 @@ function parse(argv) {
     json: false,
     quiet: false,
   };
+  // Plain digits only: Number() would also take "0x10", "1e1" or " 8".
   const int = (name, value, min, max) => {
-    const n = Number(value);
+    const n = /^\d+$/.test(value) ? Number(value) : NaN;
     if (!Number.isInteger(n) || n < min || n > max) fail(`${name} must be a whole number from ${min} to ${max}`);
     return n;
   };
+  const given = [];
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
+    given.push(arg);
     const next = () => {
       if (i + 1 >= argv.length) fail(arg + " needs a value");
       return argv[++i];
@@ -138,6 +149,21 @@ function parse(argv) {
     }
   }
   if (o.words && o.pin) fail("choose either --words or --pin");
+  // An option for another kind of value would be silently ignored, which
+  // hides typos such as `--pin 4 -l 30`; say so instead.
+  const conflict = given.find((arg) =>
+    o.check
+      ? GENERATION.has(arg)
+      : o.words
+        ? PASSWORD_ONLY.has(arg)
+        : o.pin
+          ? PASSWORD_ONLY.has(arg) || PASSPHRASE_ONLY.has(arg)
+          : PASSPHRASE_ONLY.has(arg)
+  );
+  if (conflict) {
+    const kind = o.check ? "--check" : o.words ? "passphrases" : o.pin ? "PINs" : "passwords";
+    fail(`${conflict} does not apply to ${kind}`);
+  }
   return o;
 }
 
@@ -170,6 +196,9 @@ function readHidden(stdin, prompt) {
   return new Promise((resolve) => {
     process.stderr.write(prompt);
     let value = "";
+    // "esc" after a lone ESC, "csi" inside ESC [ … final byte, "ss3" after
+    // ESC O. Kept across chunks, in case a sequence arrives split in two.
+    let state = "";
     const done = () => {
       stdin.setRawMode(false);
       stdin.removeListener("data", onData);
@@ -177,8 +206,6 @@ function readHidden(stdin, prompt) {
       process.stderr.write("\n");
     };
     const onData = (chunk) => {
-      // "esc" after a lone ESC, "csi" inside ESC [ … final byte, "ss3" after ESC O.
-      let state = "";
       for (const ch of chunk) {
         const code = ch.codePointAt(0);
         if (state === "esc") {

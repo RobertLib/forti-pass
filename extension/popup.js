@@ -128,6 +128,8 @@
 
     if (result.error) {
       current = "";
+      // Nothing to copy until the options work again.
+      $("copyBtn").disabled = true;
       $("value").textContent = result.error;
       $("announce").textContent = result.error;
       $("meter").dataset.score = "0";
@@ -136,6 +138,7 @@
     }
 
     current = result.value;
+    $("copyBtn").disabled = false;
     paint(current);
     const score = core.scoreFromBits(result.entropy);
     const time = core.formatCrackTime(result.entropy);

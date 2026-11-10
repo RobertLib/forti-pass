@@ -123,6 +123,11 @@ input {
   color: #fff;
 }
 
+.actions button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .meter {
   display: grid;
   grid-template-columns: repeat(5, 1fr);

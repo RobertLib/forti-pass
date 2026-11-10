@@ -10,16 +10,16 @@ module.exports = function content(f, href, c) {
 
 
   const privacyAnswer =
-    "No. Everything is generated in your browser tab with the Web Crypto API, and the page's Content Security Policy blocks every network request — open your browser's network panel and watch it stay empty. Only your settings are remembered on your device; generated values never are.";
+    "No. Everything is generated in your browser tab with the Web Crypto API, and the page's Content Security Policy forbids its scripts to make any network request. Your browser's network panel shows FortiPass loading its own files and nothing else — nothing you generate ever goes out. Only your settings are remembered on your device; generated values never are.";
 
   return {
     home: {
       title: "Password Generator – Strong, Offline & Open Source | FortiPass",
       ogTitle: "FortiPass – Free Strong Password & Passphrase Generator",
       description:
-        "Free password generator that runs entirely in your browser. Strong random passwords, memorable passphrases and PINs, real entropy and crack-time estimates. No sign-up, no tracking, works offline.",
-      h1: "Strong password generator",
-      lede: "Random passwords from your browser's cryptographic randomness, with honest strength numbers. Nothing you generate leaves this device.",
+        "Free password generator that runs in your browser: strong passwords, passphrases and PINs with real entropy and crack times. No sign-up, works offline.",
+      h1: "Password generator",
+      lede: "Strong passwords from your browser's cryptographic randomness, with an honest strength rating. Nothing leaves this device.",
       body: `<section class="content" aria-labelledby="whyHeading">
           <h2 id="whyHeading">Why FortiPass</h2>
           <div class="feature-grid">
@@ -29,7 +29,7 @@ module.exports = function content(f, href, c) {
             </article>
             <article class="feature">
               <h3>Honest strength numbers</h3>
-              <p>Instead of a vague "strong" badge you get the actual entropy in bits and an estimated cracking time for an offline attacker making 100 billion guesses per second.</p>
+              <p>Instead of a vague “strong” badge you get the actual entropy in bits and an estimated cracking time for an offline attacker making 100 billion guesses per second.</p>
             </article>
             <article class="feature">
               <h3>Nothing leaves your device</h3>
@@ -46,7 +46,7 @@ module.exports = function content(f, href, c) {
             <li><strong>Length beats complexity.</strong> A 16-character password from this generator needs about ${f.gen(16)} to brute-force; an 8-character one, about ${f.gen(8)}. See the <a href="${href("crack")}">full crack-time table</a>.</li>
             <li><strong>Never reuse a password.</strong> One breach elsewhere should not unlock your email. Unique passwords are what a manager is for.</li>
             <li><strong>Use a passphrase for what you must type.</strong> Device logins and your password-manager vault are easier as six or more <a href="${href("passphrase")}">random words</a>.</li>
-            <li><strong>Turn on two-factor authentication.</strong> Even a perfect password cannot protect you from a phished session on its own.</li>
+            <li><strong>Turn on two-factor authentication — or use a passkey.</strong> Even a perfect password is no help once it has been phished. Passkeys and hardware security keys resist phishing; codes from an app or a text message can be phished along with the password.</li>
             <li><strong>Change a password when there is a reason.</strong> A breach or a shared secret — not an arbitrary 90-day calendar rule.</li>
           </ul>
         </section>`,
@@ -81,7 +81,7 @@ module.exports = function content(f, href, c) {
 
     passphrase: {
       title: "Passphrase Generator – Random, Memorable Word Passwords | FortiPass",
-      description: `Generate random passphrases from the ${words}-word EFF list right in your browser. Choose the words, separator, capitals and a number, and see the exact entropy. Free, offline, nothing sent.`,
+      description: `Random passphrases from the ${words}-word EFF list, made in your browser. Pick the words, separator and capitals and see the exact entropy. Free and offline.`,
       h1: "Passphrase generator",
       lede: "A few random words are easier to type and remember than line noise — and, chosen by a computer, just as hard to guess.",
       body: `<section class="content">
@@ -107,11 +107,11 @@ module.exports = function content(f, href, c) {
         ],
         [
           "The word list is public — doesn't that make it weaker?",
-          `No. The entropy figure already assumes the attacker has the exact list and knows how many words you used. The security comes from the random choice: with six words there are ${words}⁶ ≈ 2.2 × 10²³ equally likely passphrases.`,
+          `No. The entropy figure already assumes the attacker has the exact list and knows how many words you used. The security comes from the random choice: with six words there are ${words}⁶ ≈ ${f.sci(Math.pow(f.wordCounts.en, 6))} equally likely passphrases.`,
         ],
         [
           "Do separators, capitals or a number make it stronger?",
-          `A little. Capitalising every word is a single rule (about 1 bit), a fixed separator adds nothing an attacker would not try, and a random digit adds about 3.3 bits. One more word (${bpw} bits) helps far more than any of them — they mostly exist to satisfy sites with composition rules.`,
+          `A little. Capitalising every word is a single rule (about 1 bit), a fixed separator adds nothing an attacker would not try, and a random digit adds about ${f.format1(Math.log2(10))} bits. One more word (${bpw} bits) helps far more than any of them — they mostly exist to satisfy sites with composition rules.`,
         ],
         [
           "Is this the same as Diceware?",
@@ -122,16 +122,16 @@ module.exports = function content(f, href, c) {
     },
 
     pin: {
-      title: "PIN Generator – Random 4, 6 or 8-Digit PINs | FortiPass",
+      title: "PIN Generator – Random 4-, 6- or 8-Digit PINs | FortiPass",
       description:
-        "Generate truly random PIN codes of 3 to 16 digits with your browser's cryptographic randomness — no birthdays, no 1234. Bulk generation, free, offline, nothing sent.",
+        "Truly random PINs of 3 to 16 digits from your browser's cryptographic randomness — no birthdays, no 1234. Generate many at once, free and offline.",
       h1: "Random PIN generator",
-      lede: "No birthdays, no 1234 — every digit is picked by a cryptographic random number generator.",
+      lede: "No birthdays, no 1234 — every digit is picked by a cryptographic random number generator, right here in your browser.",
       body: `<section class="content">
           <h2>How strong is a PIN?</h2>
-          <p>Each digit adds log₂ 10 ≈ 3.3 bits, so even an 8-digit PIN has fewer combinations than a 6-character password. That is fine, because a PIN is not meant to survive an offline attack: it guards a card or device that locks, wipes or gets blocked after a few wrong tries.</p>
+          <p>Each digit adds log₂ 10 ≈ ${f.format1(Math.log2(10))} bits, so even an 8-digit PIN has fewer combinations than a 6-character password. That is fine, because a PIN is not meant to survive an offline attack: it guards a card or device that locks, wipes or gets blocked after a few wrong tries.</p>
           ${c.pinTable([4, 5, 6, 8, 10, 12])}
-          <p>The last column is the brute-force time with no lockout at all, for comparison with passwords. With a card blocked after three wrong attempts, a random 4-digit PIN gives a thief a 3 in 10,000 chance.</p>
+          <p>The last column is the brute-force time with no lockout at all, for comparison with passwords. With a card blocked after three wrong attempts, a random 4-digit PIN gives a thief a 3 in ${f.formatInt(10000)} chance.</p>
 
           <h2>PINs to avoid</h2>
           <p>An analysis of 3.4 million leaked four-digit PINs by DataGenetics found that 1234 alone accounted for about one in ten, and the twenty most common PINs for over a quarter. Attackers try these first:</p>
@@ -168,7 +168,7 @@ module.exports = function content(f, href, c) {
     checker: {
       title: "Password Strength Checker – How Secure Is My Password? | FortiPass",
       description:
-        "Test how strong a password really is: entropy, estimated crack time and the exact weaknesses — dictionary words, leet swaps, years, keyboard runs, repeats. Runs locally; nothing is sent.",
+        "See how strong a password really is: entropy, crack time and the exact weaknesses, from dictionary words to keyboard runs. Runs locally; nothing is sent.",
       h1: "Password strength checker",
       lede: "See your password the way a cracking tool does, and how long it would hold. Nothing you type leaves the page.",
       body: `<section class="content">
@@ -177,7 +177,7 @@ module.exports = function content(f, href, c) {
           <ul class="tips">
             <li><strong>Dictionary words</strong> in English and Czech — also glued together, as in <code>correcthorse</code>, and with accents removed — plus very common passwords and names.</li>
             <li><strong>Predictable swaps</strong> such as @ for a, 0 for o and 1 for i or l.</li>
-            <li><strong>Years and dates,</strong> repeated characters, keyboard and alphabet runs (<code>qwertz</code>, <code>4321</code>) and copies of an earlier part (<code>Ab3$Ab3$</code>).</li>
+            <li><strong>Years and dates,</strong> repeated characters, keyboard and alphabet runs (<code>qwerty</code>, <code>4321</code>) and copies of an earlier part (<code>Ab3$Ab3$</code>).</li>
           </ul>
           <p>Each piece costs as many bits as it would take to guess, and the cheapest split wins. The result is shown as entropy in bits and as an average crack time for an offline attack at 100 billion guesses per second — the same assumption as the <a href="${href("crack")}">crack-time table</a>.</p>
 
@@ -194,7 +194,7 @@ module.exports = function content(f, href, c) {
       faq: [
         [
           "Is it safe to type my real password here?",
-          "The check runs entirely in your browser and the page's Content Security Policy blocks every network request, so nothing can be sent. Still, be wary of typing real passwords into any website — if in doubt, disconnect from the internet first, or test a password with the same structure instead.",
+          "The check runs entirely in your browser, and the page's Content Security Policy forbids its scripts to make any network request, so what you type cannot be sent. Still, be wary of typing real passwords into any website — if in doubt, disconnect from the internet first, or test a password with the same structure instead.",
         ],
         [
           "Why does my password with symbols and numbers score low?",
@@ -202,7 +202,7 @@ module.exports = function content(f, href, c) {
         ],
         [
           "What does the crack time assume?",
-          "An attacker who has stolen a database of password hashes and makes 100 billion guesses per second — about what one current high-end graphics card manages against a fast hash such as MD5 or NTLM. It is the average time, half the search space. A rig of several cards is proportionally faster; sites using bcrypt, scrypt or Argon2 make attacks far slower, and a login form with rate limiting slower still.",
+          "An attacker who has stolen a database of password hashes and makes 100 billion guesses per second — about what one current high-end graphics card manages against a fast hash such as MD5 or NTLM. It is the average time: the time to try half of all the possibilities. A rig of several cards is proportionally faster; sites using bcrypt, scrypt or Argon2 make attacks far slower, and a login form with rate limiting slower still.",
         ],
         [
           "Does it check whether my password was in a data breach?",
@@ -218,7 +218,7 @@ module.exports = function content(f, href, c) {
     wifi: {
       title: "Wi-Fi Password Generator & QR Code – Guest Card | FortiPass",
       description:
-        "Create a strong WPA2/WPA3 Wi-Fi password and a QR code guests can scan to join. Easy-to-type styles for TVs, a printable guest card and SVG download. Made in your browser, nothing sent.",
+        "A strong WPA2/WPA3 Wi-Fi password and a QR code guests scan to join. Styles easy to type on a TV, a printable guest card and SVG download. Nothing sent.",
       h1: "Wi-Fi password generator with QR code",
       lede: "A strong password for your network, and a QR code guests scan to join instead of typing it.",
       body: `<section class="content">
@@ -233,9 +233,10 @@ module.exports = function content(f, href, c) {
           <h2>Which style to choose</h2>
           <ul class="tips">
             <li><strong>20 letters and digits</strong> — about ${f.format0(f.wifiBits.easy)} bits, far beyond brute force, and with no look-alike characters, so typing it on a TV remote is bearable.</li>
-            <li><strong>5 random words</strong> — about ${f.format0(f.wifiBits.words)} bits and easy to read out to a visitor. A WPA2 handshake can be attacked offline, so do not go below five words.</li>
+            <li><strong>${f.wifiBits.wordCount} random words</strong> and a digit — about ${f.format0(f.wifiBits.words)} bits and easy to read out to a visitor. A WPA2 handshake can be attacked offline, so do not go below six words.</li>
             <li><strong>32 characters with symbols</strong> or <strong>63 characters</strong> — for networks no human types: smart-home gadgets, or an office network everyone joins with the QR code.</li>
           </ul>
+          <p>The meter uses the same 100 billion guesses per second as the rest of FortiPass, which is deliberately pessimistic here. WPA2 runs every guess through 4,096 rounds of PBKDF2, so a high-end graphics card tests a captured handshake at roughly ${f.format1(f.wpaGuesses / 1e6)} million guesses per second — about ${f.formatInt(f.core.GUESSES_PER_SECOND / f.wpaGuesses)} times slower. Keep the margin anyway: attackers rent many cards, and the password outlives the hardware it was chosen for.</p>
 
           <h2>Is sharing Wi-Fi by QR code safe?</h2>
           <p>The QR code is simply the network name and password in a standard text format (<code>WIFI:T:WPA;S:…;P:…;;</code>) that phone cameras understand. Anyone who can photograph it can join, so treat a printed card like the password itself — on the fridge, not in the window. For visitors, consider a separate guest network that cannot reach your own devices.</p>
@@ -243,7 +244,7 @@ module.exports = function content(f, href, c) {
       faq: [
         [
           "How long should a Wi-Fi password be?",
-          "WPA2 and WPA3 accept 8 to 63 characters. Because a WPA2 handshake can be captured and attacked offline, use at least 16 random characters or 5 random words. WPA3 resists that offline attack, but most networks still let WPA2 devices in.",
+          "WPA2 and WPA3 accept 8 to 63 characters. Because a WPA2 handshake can be captured and attacked offline, use at least 16 random characters or 6 random words. WPA3 resists that offline attack, but most networks still let WPA2 devices in.",
         ],
         [
           "Does the QR code work on iPhone and Android?",
@@ -267,7 +268,7 @@ module.exports = function content(f, href, c) {
     crack: {
       title: `How Long Does It Take to Crack a Password? ${f.year} Table | FortiPass`,
       description:
-        "Brute-force crack times for random passwords of 4 to 20 characters in every character set, plus passphrases, at 100 billion guesses per second. Transparent maths, free to reuse.",
+        "Brute-force crack times for random passwords of 4 to 20 characters and for passphrases, at 100 billion guesses per second. Transparent maths, free to reuse.",
       h1: "How long does it take to crack a password?",
       lede: `Average brute-force times for truly random passwords, calculated from the size of the search space. Updated ${f.updated}.`,
       body: `<section class="content">
@@ -284,14 +285,14 @@ module.exports = function content(f, href, c) {
               all: "Letters, digits &amp; symbols",
             },
           })}
-          <p class="table-note">Colours follow the generator's verdicts: red is very weak, green is excellent. “Letters, digits &amp; symbols” uses the 28 symbols FortiPass generates. The generator itself shows somewhat shorter times while “Use every selected type at least once” is on: it never makes a password that misses a type, so an attacker has fewer to try.</p>
+          <p class="table-note">Colours follow the generator's verdicts: red is very weak, green is excellent. “Letters, digits &amp; symbols” uses the ${f.symbolCount} symbols FortiPass generates. The generator itself shows somewhat shorter times while “Use every selected type at least once” is on: it never makes a password that misses a type, so an attacker has fewer to try.</p>
 
           <h2>Passphrases</h2>
           <p>Words picked at random from the ${words}-word EFF list add ${bpw} bits each — about as much as two random characters, and far easier to remember. Create one with the <a href="${href("passphrase")}">passphrase generator</a>.</p>
           ${c.passphraseTable("en", 3, 10)}
 
           <h2>How the numbers are calculated</h2>
-          <p>A random password of length <var>L</var> drawn from <var>N</var> characters has <var>N</var><sup><var>L</var></sup> possibilities, or <var>L</var> × log₂ <var>N</var> bits. On average an attacker finds it after trying half of them. The table divides that by 10¹¹ — 100 billion guesses per second, roughly what a single current high-end graphics card manages against a fast, unsalted hash such as MD5 or NTLM after a database breach. A rig of eight such cards cuts every time in the table by about ten — worth about half a character of a random password.</p>
+          <p>A random password of length <var>L</var> drawn from <var>N</var> characters has <var>N</var><sup><var>L</var></sup> possibilities, or <var>L</var> × log₂ <var>N</var> bits. On average an attacker finds it after trying half of them. The table divides that by 10¹¹ — 100 billion guesses per second, roughly what a single current high-end graphics card manages against a fast, unsalted hash such as MD5 or NTLM after a database breach. A rig of eight such cards cuts every time in the table by a factor of about ten — worth about half a character of a random password.</p>
           <ul class="tips">
             <li><strong>Slow hashes help enormously.</strong> Sites that store passwords with bcrypt, scrypt or Argon2 hold attackers to thousands or millions of guesses per second, multiplying every time in the table by a hundred thousand or more.</li>
             <li><strong>Online attacks are slower still.</strong> A login form that limits attempts allows a handful of guesses per minute — but never rely on that: databases leak.</li>
@@ -307,11 +308,11 @@ module.exports = function content(f, href, c) {
       faq: [
         [
           "How long does it take to crack an 8-character password?",
-          `A random 8-character password using upper and lower case letters, digits and symbols takes about ${f.pw(8, 90)} at 100 billion guesses per second. With lowercase letters only, ${f.pw(8, 26)}. A human-chosen 8-character password usually falls to a dictionary attack in seconds.`,
+          `A random 8-character password using upper and lower case letters, digits and symbols takes about ${f.pw(8, f.allPool)} at 100 billion guesses per second. With lowercase letters only, ${f.pw(8, 26)}. A human-chosen 8-character password usually falls to a dictionary attack in seconds.`,
         ],
         [
           "Is a 12-character password enough?",
-          `A random 12-character password with all four character types needs about ${f.pw(12, 90)} on average, which is enough today. With lowercase letters only, ${f.pw(12, 26)}. For anything important, prefer 16 characters: ${f.pw(16, 90)}.`,
+          `A random 12-character password with all four character types needs about ${f.pw(12, f.allPool)} on average, which is enough today. With lowercase letters only, ${f.pw(12, 26)}. For anything important, prefer 16 characters: ${f.pw(16, f.allPool)}.`,
         ],
         [
           "How long does it take to crack a 4-word passphrase?",
@@ -323,7 +324,7 @@ module.exports = function content(f, href, c) {
         ],
         [
           "Does adding a symbol make a password much stronger?",
-          `Less than adding length. At 12 characters, going from letters and digits to all four types adds about ${f.format1(12 * Math.log2(90) - 12 * Math.log2(62))} bits; adding two more letters or digits instead adds about ${f.format1(2 * Math.log2(62))}.`,
+          `Less than adding length. At 12 characters, going from letters and digits to all four types adds about ${f.format1(12 * Math.log2(f.allPool) - 12 * Math.log2(62))} bits; adding two more letters or digits instead adds about ${f.format1(2 * Math.log2(62))}.`,
         ],
       ],
     },

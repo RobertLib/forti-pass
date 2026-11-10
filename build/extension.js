@@ -9,8 +9,10 @@
 
    Load dist/fortipass-extension/ as an unpacked extension to try it. The zip
    is written here rather than by a `zip` binary, so the build works the same
-   on Windows, and it is reproducible: entries are sorted, timestamps fixed
-   and hidden files (.DS_Store …) left out. */
+   on Windows, and it is reproducible for a given Node version: entries are
+   sorted, timestamps fixed and hidden files (.DS_Store …) left out. (Deflate
+   output can differ between zlib builds, so another Node version may give
+   slightly different bytes with the same contents.) */
 
 const fs = require("node:fs");
 const path = require("node:path");

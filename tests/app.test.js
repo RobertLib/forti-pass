@@ -193,7 +193,8 @@ test("hiding masks the value, describes it and carries over to the next mode", {
     const button = document.getElementById("heroPassword");
     return { text: button.textContent, label: button.getAttribute("aria-label"), pressed: document.getElementById("maskBtn").getAttribute("aria-pressed") };
   });
-  assert.match(masked.text, /^•+$/);
+  // One bullet per character, so hiding never changes the layout.
+  assert.match(masked.text, /^•{16}$/);
   assert.equal(masked.label, "Hidden password, 16 characters. Click to copy.");
   assert.equal(masked.pressed, "true");
 
@@ -407,4 +408,122 @@ test("T switches the theme and remembers it", { skip }, async (t) => {
     saved: localStorage.getItem("fortipass:theme"),
   }));
   assert.deepEqual(back, { theme: null, saved: null });
+});
+
+test("the Czech Wi-Fi page explains a network name that is too long", { skip }, async (t) => {
+  const page = await open(t, "cs/generator-hesla-wifi/");
+  const texts = await page.evaluate(() => {
+    const ssid = document.getElementById("wifiSsid");
+    ssid.value = "č".repeat(17);
+    ssid.dispatchEvent(new Event("input", { bubbles: true }));
+    return {
+      hint: document.getElementById("wifiHint").textContent,
+      empty: document.getElementById("wifiQrEmpty").textContent,
+    };
+  });
+  assert.match(texts.hint, /32 bajtů/);
+  assert.equal(texts.empty, texts.hint);
+});
+
+test("a selected type with every character excluded is an error, marked on the field", { skip }, async (t) => {
+  const page = await open(t, "");
+  await page.evaluate(() => {
+    const field = document.getElementById("excludeChars");
+    field.value = "0123456789";
+    field.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+  await sleep(500);
+  const s = await page.evaluate(() => ({
+    text: document.getElementById("heroPassword").textContent,
+    invalid: document.getElementById("excludeChars").getAttribute("aria-invalid"),
+    open: document.getElementById("advanced").open,
+  }));
+  assert.deepEqual(s, {
+    text: "Every character of one of the selected types is excluded — remove some exclusions or turn that type off.",
+    invalid: "true",
+    open: true,
+  });
+});
+
+test("the user's own copy on the page cancels a pending wipe; one from the copy dialog schedules it", { skip }, async (t) => {
+  const page = await open(t, "");
+  await page.send("Page.addScriptToEvaluateOnNewDocument", {
+    source: `Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText: () => Promise.resolve() },
+    });`,
+  });
+  await page.reload();
+  const due = () => page.evaluate(() => sessionStorage.getItem("fortipass:clipboardDue"));
+  await page.evaluate(() => {
+    const option = document.getElementById("clearClipboard");
+    option.checked = true;
+    option.dispatchEvent(new Event("change", { bubbles: true }));
+    document.getElementById("copyBtn").click();
+  });
+  await sleep(200);
+  assert.ok(Number(await due()) > 0, "scheduled by the copy button");
+
+  await page.evaluate(() => document.querySelector(".lede").dispatchEvent(new ClipboardEvent("copy", { bubbles: true })));
+  assert.equal(await due(), null, "the user's own copy is left alone");
+
+  await page.evaluate(() =>
+    document.getElementById("copyDialogText").dispatchEvent(new ClipboardEvent("copy", { bubbles: true }))
+  );
+  assert.ok(Number(await due()) > 0, "copying our value by hand schedules the wipe");
+});
+
+test("findings already shown do not animate again while typing", { skip }, async (t) => {
+  const page = await open(t, "password-strength-checker/");
+  const type = (value) =>
+    page.evaluate((text) => {
+      const input = document.getElementById("checkInput");
+      input.value = text;
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    }, value);
+  await type("password20");
+  await sleep(300);
+  await type("password202");
+  await sleep(300);
+  const rows = await page.evaluate(() =>
+    Array.from(document.querySelectorAll("#checkFindings .finding"), (li) => li.classList.contains("is-static"))
+  );
+  assert.ok(rows.length > 1);
+  assert.ok(rows.some(Boolean), "unchanged findings stay put");
+});
+
+test("a moving slider is announced once it settles, not on every step", { skip }, async (t) => {
+  const page = await open(t, "");
+  const status = () => page.evaluate(() => document.getElementById("liveStatus").textContent);
+  const before = await status();
+  await page.evaluate(() => {
+    const range = document.getElementById("lengthRange");
+    for (const value of ["17", "18", "19", "20"]) {
+      range.value = value;
+      range.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+  });
+  assert.equal(await status(), before, "nothing yet while it moves");
+  await sleep(900);
+  const after = await status();
+  assert.notEqual(after, before, "announced once it settles");
+  assert.match(after, /^Generated a new password\. Strength \w+, 13\d bits\.$/);
+});
+
+test("switching modes keeps the mode switch where it was on screen", { skip }, async (t) => {
+  const page = await open(t, "");
+  // A narrow phone, where each mode's heading and introduction wrap differently.
+  await page.send("Emulation.setDeviceMetricsOverride", { width: 320, height: 640, deviceScaleFactor: 1, mobile: true });
+  await page.reload();
+  const top = () => page.evaluate(() => document.querySelector(".segmented").getBoundingClientRect().top);
+  const before = await top();
+  for (const mode of ["pin", "passphrase", "pin"]) {
+    const loaded = page.connection.once("Page.loadEventFired", page.sessionId);
+    await page.evaluate((m) => document.querySelector(`.segment[data-mode="${m}"]`).click(), mode);
+    await loaded;
+    await sleep(100);
+    assert.ok(Math.abs((await top()) - before) <= 1, `${mode}: the switch moved from ${before} to ${await top()}`);
+  }
+  // The remembered place is used once, not again on a reload or Back.
+  assert.equal(await page.evaluate(() => sessionStorage.getItem("fortipass:modeTop")), null);
 });

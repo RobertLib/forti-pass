@@ -91,6 +91,22 @@ ${field("words", list.words)}${field("extra", list.extra)}  };
 
 /* ----------------------------------------------------------------- facts */
 
+// Numbers and dates are formatted here rather than with toLocaleString, so
+// the pages come out byte for byte the same on every Node version and ICU
+// build (a small-icu Node, or a CLDR update, would otherwise change them).
+const NUMBER_STYLE = { en: { group: ",", decimal: "." }, cs: { group: "\u00a0", decimal: "," } };
+const MONTHS = {
+  en: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+  cs: ["leden", "únor", "březen", "duben", "květen", "červen", "červenec", "srpen", "září", "říjen", "listopad", "prosinec"],
+};
+
+function formatNumber(value, digits, lang) {
+  const style = NUMBER_STYLE[lang];
+  const [whole, fraction] = Math.abs(value).toFixed(digits).split(".");
+  const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, style.group);
+  return (value < 0 ? "-" : "") + grouped + (fraction ? style.decimal + fraction : "");
+}
+
 const SUPERSCRIPT = "⁰¹²³⁴⁵⁶⁷⁸⁹";
 const superscript = (digits) => String(digits).replace(/\d/g, (d) => SUPERSCRIPT[d]);
 
@@ -103,8 +119,7 @@ function makeFacts(lang) {
   });
   const wordCounts = { en: core.wordCount("en"), cs: core.wordCount("cs") };
   const bitsPerWord = { en: Math.log2(wordCounts.en), cs: Math.log2(wordCounts.cs) };
-  const fixed = (digits) => (value) =>
-    value.toLocaleString(lang, { minimumFractionDigits: digits, maximumFractionDigits: digits });
+  const fixed = (digits) => (value) => formatNumber(value, digits, lang);
 
   const easySets = core.buildCharacterSets({
     uppercase: true,
@@ -117,8 +132,7 @@ function makeFacts(lang) {
   const allSets = core.buildCharacterSets({ uppercase: true, lowercase: true, numbers: true, symbols: true });
   const allPool = allSets.reduce((sum, set) => sum + set.length, 0);
   const wifiWordsLang = lang === "cs" ? "cs" : "en";
-
-  const date = new Date(site.UPDATED + "T12:00:00Z");
+  const [year, month] = site.UPDATED.split("-").map(Number);
   // core.js writes huge times as "10^20 years"; pages show 10²⁰, as the app does.
   const crackTime = (bits) =>
     core.formatCrackTime(bits).replace(/10\^(\d+)/g, (_, exponent) => "10" + superscript(exponent));
@@ -129,9 +143,12 @@ function makeFacts(lang) {
     bitsPerWord,
     format0: fixed(0),
     format1: fixed(1),
-    formatInt: (n) => n.toLocaleString(lang),
-    updated: date.toLocaleDateString(lang, { month: "long", year: "numeric", timeZone: "UTC" }),
-    year: site.UPDATED.slice(0, 4),
+    formatInt: (n) => formatNumber(n, 0, lang),
+    updated: MONTHS[lang][month - 1] + " " + year,
+    year: String(year),
+    // The symbols the generator draws from, and the full pool with them.
+    symbolCount: core.CHARS.symbols.length,
+    allPool,
     pw: (length, pool) => crackTime(length * Math.log2(pool)),
     // A password from the generator's default settings, as its meter shows.
     gen: (length) =>
@@ -144,8 +161,14 @@ function makeFacts(lang) {
     },
     wifiBits: {
       easy: core.passwordEntropy(easyPool, easySets.map((s) => s.length), 20, false, true),
-      words: 5 * bitsPerWord[wifiWordsLang] + Math.log2(10),
+      // The Wi-Fi page's word style: six words and a digit (script.js).
+      wordCount: 6,
+      words: 6 * bitsPerWord[wifiWordsLang] + Math.log2(10),
     },
+    // WPA2 runs every guess through PBKDF2 (4,096 rounds of HMAC-SHA1), so
+    // a high-end graphics card tests a captured handshake at roughly this
+    // rate — tens of thousands of times slower than a fast hash.
+    wpaGuesses: 2.5e6,
     table: {
       core,
       lengths: [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 20],
@@ -154,7 +177,7 @@ function makeFacts(lang) {
         { id: "lower", size: 26 },
         { id: "letters", size: 52 },
         { id: "alnum", size: 62 },
-        { id: "all", size: 90 },
+        { id: "all", size: allPool },
       ],
     },
   };
@@ -208,24 +231,36 @@ const TABLE_LABELS = {
 /* ------------------------------------------------------------ typesetting */
 
 // A one-letter Czech preposition or conjunction must not end a line.
-// The next word may start after a tag ("z <code>…"), so the end counts too.
-const CZECH_ORPHAN = /(?<=^|[\s(„\u00a0])([KkSsVvZzOoUuAaIi]) +(?=\S|$)/g;
+// The next word may start after a tag ("z <code>…"), so the end counts too,
+// and a line break in the source is a space like any other.
+const CZECH_ORPHAN = /(?<=^|[\s(„\u00a0])([KkSsVvZzOoUuAaIi])[ \t\n]+(?=\S|$)/g;
+// Nor may a dash start one: it stays with the word before it.
+const CZECH_DASH = /[ \t\n]+–(?=[\s,;:.)]|$)/g;
+// Code samples are shown as typed; a no-break space would be copied along.
+const VERBATIM = /^<(code|kbd|pre)\b/;
 
 /**
- * Typesetting for the text nodes of an HTML fragment (tags are left alone):
- * in Czech a one-letter word is tied to the next with a no-break space —
- * the character, not &nbsp;, so it also works inside attributes — and in
- * running text "Wi-Fi" never splits at its hyphen.
+ * Typesetting for the text nodes of an HTML fragment (tags and code samples
+ * are left alone): in Czech a one-letter word is tied to the next with a
+ * no-break space — the character, not &nbsp;, so it also works inside
+ * attributes — a dash to the word before it, and in running text "Wi-Fi"
+ * never splits at its hyphen.
  */
 function typeset(html, lang, options) {
   const wifi = !options || options.wifi !== false;
+  let verbatim = 0;
   return String(html)
     .split(/(<[^>]+>)/)
     .map((part, index) => {
-      if (index % 2) return part;
+      if (index % 2) {
+        if (VERBATIM.test(part)) verbatim += 1;
+        else if (/^<\/(code|kbd|pre)>/.test(part)) verbatim = Math.max(0, verbatim - 1);
+        return part;
+      }
+      if (verbatim) return part;
       let out = part;
       if (wifi) out = out.replace(/Wi-Fi/g, '<span class="nowrap">Wi-Fi</span>');
-      if (lang === "cs") out = out.replace(CZECH_ORPHAN, "$1\u00a0");
+      if (lang === "cs") out = out.replace(CZECH_ORPHAN, "$1\u00a0").replace(CZECH_DASH, "\u00a0–");
       return out;
     })
     .join("");
@@ -233,14 +268,18 @@ function typeset(html, lang, options) {
 
 /**
  * The interface strings, typeset the same way. They may end up in
- * attributes, so no markup is added — only no-break spaces.
+ * attributes, so no markup is added — only no-break spaces. Option values
+ * (the separators) are data, not text, and stay exactly as written.
  */
-function typesetStrings(value, lang) {
+function typesetStrings(value, lang, key) {
+  if (key === "separators") {
+    return value.map(([option, label, example]) => [option, typeset(label, lang, { wifi: false }), example]);
+  }
   if (typeof value === "string") return typeset(value, lang, { wifi: false });
   if (typeof value === "function") return (...args) => typesetStrings(value(...args), lang);
   if (Array.isArray(value)) return value.map((item) => typesetStrings(item, lang));
   if (value && typeof value === "object") {
-    return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, typesetStrings(item, lang)]));
+    return Object.fromEntries(Object.entries(value).map(([name, item]) => [name, typesetStrings(item, lang, name)]));
   }
   return value;
 }
@@ -384,7 +423,7 @@ function render404(assetVersion) {
   const csp = layout.CSP.replace("script-src 'self' ", "script-src ");
   const links = (lang) =>
     site.PAGES.map(
-      (page) => `<li><a href="${base}${page.paths[lang]}">${icon(NOT_FOUND_ICONS[page.id])}<span>${strings[lang].toolNames[page.id]}</span>${icon("i-arrow", "icon-sm not-found-arrow")}</a></li>`
+      (page) => `<li><a href="${base}${page.paths[lang]}">${icon(NOT_FOUND_ICONS[page.id])}<span>${typeset(strings[lang].toolNames[page.id], lang)}</span>${icon("i-arrow", "icon-sm not-found-arrow")}</a></li>`
     ).join("\n            ");
   const year = site.UPDATED.slice(0, 4);
   return `<!DOCTYPE html>
@@ -457,10 +496,13 @@ const ICONS = [
   { src: "icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
 ];
 
+// Shown by Chrome's richer install dialog; made by `npm run screenshots`.
+const SCREENSHOT_SIZES = { wide: [1280, 800], narrow: [780, 1688] };
+
 const MANIFESTS = {
   en: {
     id: "fortipass",
-    name: "FortiPass - Strong Password Generator",
+    name: "FortiPass – Strong Password Generator",
     short_name: "FortiPass",
     description:
       "Generate strong passwords, memorable passphrases and PINs entirely on your device, with real entropy and crack-time estimates.",
@@ -470,6 +512,7 @@ const MANIFESTS = {
       ["New PIN", "PIN", "pin"],
       ["Check a password", "Check", "checker"],
     ],
+    screenshots: { wide: "The password generator on a computer", narrow: "The password generator on a phone" },
   },
   cs: {
     id: "fortipass-cs",
@@ -483,6 +526,7 @@ const MANIFESTS = {
       ["Nový PIN", "PIN", "pin"],
       ["Zkontrolovat heslo", "Kontrola", "checker"],
     ],
+    screenshots: { wide: "Generátor hesel na počítači", narrow: "Generátor hesel na telefonu" },
   },
 };
 
@@ -511,6 +555,13 @@ function manifest(lang) {
           name: name,
           short_name: short,
           url: local(pageById(id)),
+        })),
+        screenshots: Object.keys(SCREENSHOT_SIZES).map((form) => ({
+          src: `${up}screenshots/${lang}-${form}.png`,
+          sizes: SCREENSHOT_SIZES[form].join("x"),
+          type: "image/png",
+          form_factor: form,
+          label: m.screenshots[form],
         })),
       },
       null,
@@ -654,4 +705,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = { renderSite, assetVersion, WORDLISTS, VERSIONED_ASSETS, STATIC_ASSETS, esc };
+module.exports = { renderSite, assetVersion, WORDLISTS, VERSIONED_ASSETS, STATIC_ASSETS, SCREENSHOT_SIZES, esc };
