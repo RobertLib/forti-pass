@@ -1839,11 +1839,18 @@ input[type="range"]:focus-visible::-moz-range-thumb {
 /* ---------------------------------------------------------------- reading */
 
 /* Text keeps a readable measure; tables may use the full width. */
+/* Sections are grid items, so their children's margins stay inside them:
+   the last child's is trimmed and the gap alone separates sections — the
+   same 44px that sits above every other h2. */
 .reading {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 8px;
+  gap: 44px;
   margin-top: 72px;
+}
+
+.content > :last-child {
+  margin-bottom: 0;
 }
 
 .content > *,
@@ -2054,8 +2061,7 @@ input[type="range"]:focus-visible::-moz-range-thumb {
 
 /* FAQ */
 .faq-section h2 {
-  margin: 48px 0 14px;
-  font-size: 1.5rem;
+  margin-bottom: 14px;
 }
 
 .faq {

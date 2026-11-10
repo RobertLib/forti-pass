@@ -6,7 +6,7 @@
    installs a fresh cache, so a page never mixes new HTML with stale
    JavaScript or CSS from an older one. */
 
-const ASSET_VERSION = "19c6db3e6e";
+const ASSET_VERSION = "aba40534e1";
 const CACHE_VERSION = "fortipass-v" + ASSET_VERSION;
 
 // Every page, relative to the scope (the folder this file lives in).

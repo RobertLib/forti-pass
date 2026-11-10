@@ -131,16 +131,21 @@ footer of every page.
 The same `core.js` and word lists, on Node 18+:
 
 ```bash
-node cli/fortipass.js                     # one 20-character password
-node cli/fortipass.js -l 32 -n 5          # five 32-character passwords
-node cli/fortipass.js -w 6 --lang cs      # a Czech passphrase, no accents
-node cli/fortipass.js --pin 6 --json      # machine-readable
-node cli/fortipass.js --check             # rate a password typed without echo
+node cli/fortipass.js                          # one 16-character password
+node cli/fortipass.js -l 32 -n 5               # five 32-character passwords
+node cli/fortipass.js -w 6 --lang cs           # a Czech passphrase, no accents
+node cli/fortipass.js -w 5 -s digit --symbol   # random digits between words, a symbol at the end
+node cli/fortipass.js --pin 6 --json           # machine-readable, with a numeric score
+node cli/fortipass.js --check                  # rate a password typed without echo
+node cli/fortipass.js --help                   # every option and its limits
 ```
 
 Values go to stdout and the strength summary to stderr, so
-`node cli/fortipass.js | pbcopy` copies only the password. `--check` exits 1
-for anything below Strong, which makes it usable in scripts.
+`node cli/fortipass.js | pbcopy` copies only the password. Limits match the
+website (length 4–128, 3–12 words, PIN 3–16 digits); `-n` goes up to 1000.
+`--check` reads the first line of stdin, or prompts without echo on a terminal,
+and exits 1 for anything below Strong; add `-q` to print nothing and use only
+the exit status in scripts. Usage errors exit 2.
 
 `package.json` already declares the `fortipass` binary and the files to ship.
 It is marked `"private": true` so nothing is published by accident; remove that
@@ -148,9 +153,10 @@ line and run `npm publish` to make `npx fortipass` work.
 
 ## Browser extension
 
-`extension/` is a Manifest V3 popup for Chrome, Edge and Firefox with the same
-generators, in English and Czech. It requests **no permissions** and its CSP
-forbids network access.
+`extension/` is a Manifest V3 popup for Chrome, Edge and Firefox (140+) with
+the same generators and limits as the website, in English and Czech. It
+requests **no permissions**, declares to Firefox that it collects no data, and
+its CSP forbids network access.
 
 ```bash
 npm run build:extension
@@ -159,7 +165,8 @@ npm run build:extension
 This copies the shared `core.js`, word lists and Czech strings into
 `dist/fortipass-extension/` (load it as an unpacked extension to try it) and
 zips it as `dist/fortipass-extension-<version>.zip` for the Chrome Web Store,
-Firefox Add-ons and Edge Add-ons.
+Firefox Add-ons and Edge Add-ons. The zip is written by the build script itself
+(no `zip` program needed, so it works on Windows) and is reproducible.
 
 ## Development
 
@@ -176,6 +183,13 @@ python3 -m http.server 8000   # then open http://localhost:8000
 `npm test` fails if a generated file is out of date, if a link or `hreflang`
 pair is broken, if a page lacks an element `script.js` needs, or if a script is
 not pre-cached by the service worker.
+
+The browser tests (`tests/app.test.js` for the site, `tests/popup.test.js` for
+the extension) drive headless Chromium over the DevTools protocol, with no npm
+dependencies, and skip when no browser is found. They use `FORTIPASS_CHROME`
+if set, else Playwright's Chromium, else an installed Chrome. Branded Chrome
+137+ cannot load an unpacked extension, so the popup tests need Chromium or
+Chrome for Testing.
 
 | Path                       | Purpose                                                         |
 | -------------------------- | --------------------------------------------------------------- |
